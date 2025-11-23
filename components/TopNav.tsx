@@ -19,8 +19,8 @@ export default function TopNav({ activeTab, onTabChange }: TopNavProps) {
     ];
 
     return (
-        <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200">
-            <div className="flex justify-around items-center h-14">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200 pt-safe">
+            <div className="flex justify-around items-center h-12">
                 {tabs.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -32,7 +32,7 @@ export default function TopNav({ activeTab, onTabChange }: TopNavProps) {
                             className={`flex items-center justify-center w-full h-full transition-colors ${isActive ? 'text-blue-500' : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
-                            <Icon size={32} strokeWidth={isActive ? 2.5 : 2} />
+                            <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
                         </button>
                     );
                 })}
