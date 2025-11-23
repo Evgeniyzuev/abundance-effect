@@ -49,6 +49,43 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const init = async () => {
             setIsLoading(true)
             try {
+                // First, check if we're in Telegram WebApp
+                if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+                    const webApp = (window as any).Telegram.WebApp;
+                    webApp.ready();
+
+                    const tgUser = webApp.initDataUnsafe?.user;
+
+                    if (tgUser) {
+                        console.log('Telegram user detected:', tgUser);
+
+                        // Try to authenticate via our API
+                        const response = await fetch('/api/auth/telegram-user', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                telegramUser: tgUser,
+                                initData: webApp.initData,
+                            }),
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success && result.password) {
+                            // Sign in to Supabase
+                            const { error } = await supabase.auth.signInWithPassword({
+                                email: `telegram_${tgUser.id}@abundance-effect.app`,
+                                password: result.password,
+                            });
+
+                            if (error) {
+                                console.error('Error signing in with Telegram:', error);
+                            }
+                        }
+                    }
+                }
+
+                // Then check normal session
                 const { data: { session: currentSession } } = await supabase.auth.getSession()
                 setSession(currentSession)
 
