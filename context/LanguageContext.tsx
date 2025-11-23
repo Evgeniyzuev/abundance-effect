@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Language, translations, TranslationKey } from '@/utils/translations';
+import { storage, STORAGE_KEYS } from '@/utils/storage';
 
 interface LanguageContextType {
     language: Language;
@@ -16,7 +17,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        const savedLang = localStorage.getItem('app-language') as Language;
+        const savedLang = storage.get<Language>(STORAGE_KEYS.LANGUAGE);
         if (savedLang && translations[savedLang]) {
             setLanguageState(savedLang);
         }
@@ -25,7 +26,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     const setLanguage = (lang: Language) => {
         setLanguageState(lang);
-        localStorage.setItem('app-language', lang);
+        storage.set(STORAGE_KEYS.LANGUAGE, lang);
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = lang;
     };
@@ -40,14 +41,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const t = (key: TranslationKey): string => {
         return translations[language][key] || key;
     };
-
-    // Prevent hydration mismatch by rendering children only after mount, 
-    // OR render with default language. 
-    // Rendering with default language is better for perceived performance, 
-    // but might cause a flash of English content.
-    // Given this is a PWA/App-like experience, a small flash is acceptable, 
-    // or we can show a loading screen.
-    // Let's just render.
 
     return (
         <LanguageContext.Provider value={{ language, setLanguage, t }}>
