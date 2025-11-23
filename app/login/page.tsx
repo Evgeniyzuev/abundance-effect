@@ -1,31 +1,29 @@
-'use client'
+'use client';
 
-import { createClient } from '@/utils/supabase/client'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { createClient } from '@/utils/supabase/client';
+import { useState } from 'react';
 
 export default function LoginPage() {
-    const supabase = createClient()
-    const router = useRouter()
-    const [loading, setLoading] = useState(false)
+    const supabase = createClient();
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = async (provider: 'google' | 'telegram') => {
-        setLoading(true)
+    const handleLogin = async (provider: string) => {
+        setLoading(true);
         try {
             const { error } = await supabase.auth.signInWithOAuth({
-                provider,
+                provider: provider as any,
                 options: {
                     redirectTo: `${window.location.origin}/auth/callback`,
                 },
-            })
-            if (error) throw error
+            });
+            if (error) throw error;
         } catch (error) {
-            console.error('Error logging in:', error)
-            alert('Error logging in')
+            console.error('Error logging in:', error);
+            alert('Error logging in');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-black text-white p-4">
@@ -38,16 +36,7 @@ export default function LoginPage() {
                         Sign in to start your journey
                     </p>
                 </div>
-
                 <div className="mt-8 space-y-4">
-                    <button
-                        onClick={() => handleLogin('telegram')}
-                        disabled={loading}
-                        className="group relative flex w-full justify-center rounded-md bg-[#24A1DE] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1F8BBF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#24A1DE] disabled:opacity-50"
-                    >
-                        Sign in with Telegram
-                    </button>
-
                     <button
                         onClick={() => handleLogin('google')}
                         disabled={loading}
@@ -58,5 +47,5 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
