@@ -27,18 +27,24 @@ export async function POST(request: Request) {
             .maybeSingle();
 
         if (existingUser) {
-            // User exists, generate a session token
-            const { data: authData, error: signInError } = await supabaseAdmin.auth.admin.getUserById(existingUser.id);
+            // User exists, update password to allow login
+            const password = crypto.randomBytes(16).toString('hex');
 
-            if (signInError) {
-                console.error('Error getting auth user:', signInError);
-                return NextResponse.json({ error: 'Auth error' }, { status: 500 });
+            const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+                existingUser.id,
+                { password: password }
+            );
+
+            if (updateError) {
+                console.error('Error updating user password:', updateError);
+                return NextResponse.json({ error: 'Auth update error' }, { status: 500 });
             }
 
             return NextResponse.json({
                 success: true,
                 user: existingUser,
-                auth_user_id: existingUser.id
+                auth_user_id: existingUser.id,
+                password: password
             });
         }
 

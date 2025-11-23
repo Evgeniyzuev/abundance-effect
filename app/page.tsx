@@ -28,8 +28,8 @@ export default function Home() {
     router.refresh();
   };
 
-  if (isLoading || (isTelegramMiniApp && !user)) {
-    // Show loading for: 1) Normal loading, 2) Telegram Mini App waiting for auth
+  if (isLoading) {
+    // Show loading state while UserContext is initializing (including Telegram auth)
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black">
         <div className="text-center">

@@ -47,10 +47,24 @@ export async function POST(request: Request) {
             .maybeSingle();
 
         if (existingUser) {
+            // User exists, update password to allow login
+            const password = crypto.randomBytes(16).toString('hex');
+
+            const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+                existingUser.id,
+                { password: password }
+            );
+
+            if (updateError) {
+                console.error('Error updating user password:', updateError);
+                return NextResponse.json({ error: 'Auth update error' }, { status: 500 });
+            }
+
             return NextResponse.json({
                 success: true,
                 user: existingUser,
-                auth_user_id: existingUser.id
+                auth_user_id: existingUser.id,
+                password: password
             });
         }
 

@@ -1,15 +1,25 @@
 'use client';
 
 import { createClient } from '@/utils/supabase/client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
     const supabase = createClient();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const telegramWrapperRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        // Check if already logged in
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                router.push('/');
+            }
+        };
+        checkUser();
+
         // Handle Telegram Widget callback
         const handleTelegramAuth = async (user: any) => {
             try {
@@ -29,15 +39,38 @@ export default function LoginPage() {
 
                     if (!error) {
                         router.push('/');
+                    } else {
+                        console.error('SignIn error:', error);
+                        alert('Error signing in with Telegram');
                     }
+                } else {
+                    console.error('API error:', result.error);
+                    alert('Login failed: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Telegram widget error:', error);
+                alert('An error occurred during Telegram login');
             }
         };
 
         // Expose function globally for Telegram Widget
         (window as any).handleTelegramAuth = handleTelegramAuth;
+
+        // Inject Telegram Widget Script
+        if (telegramWrapperRef.current) {
+            const script = document.createElement('script');
+            script.src = "https://telegram.org/js/telegram-widget.js?22";
+            script.setAttribute('data-telegram-login', 'AbundanceEffectBot');
+            script.setAttribute('data-size', 'large');
+            script.setAttribute('data-radius', '20'); // Matches rounded-full roughly
+            script.setAttribute('data-onauth', 'handleTelegramAuth(user)');
+            script.setAttribute('data-request-access', 'write');
+            script.async = true;
+
+            // Clear previous content just in case
+            telegramWrapperRef.current.innerHTML = '';
+            telegramWrapperRef.current.appendChild(script);
+        }
 
         return () => {
             delete (window as any).handleTelegramAuth;
@@ -109,23 +142,22 @@ export default function LoginPage() {
                     </button>
 
                     {/* Telegram Widget - styled like Google button */}
-                    <div className="relative group">
-                        <div className="flex items-center justify-center gap-3 rounded-full bg-white px-6 py-4 text-lg font-semibold text-black transition-all hover:bg-gray-100 cursor-pointer">
+                    <div className="relative group w-full">
+                        {/* Custom Button Appearance */}
+                        <div className="flex w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-4 text-lg font-semibold text-black transition-all hover:bg-gray-100 cursor-pointer">
                             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z" fill="#24A1DE" />
                             </svg>
                             <span>Continue with Telegram</span>
                         </div>
-                        <div className="absolute inset-0 opacity-0">
-                            <script
-                                async
-                                src="https://telegram.org/js/telegram-widget.js?22"
-                                data-telegram-login="AbundanceEffectBot"
-                                data-size="large"
-                                data-radius="28"
-                                data-onauth="handleTelegramAuth(user)"
-                                data-request-access="write"
-                            />
+
+                        {/* Actual Widget Overlay */}
+                        <div
+                            ref={telegramWrapperRef}
+                            className="absolute inset-0 opacity-0 overflow-hidden flex items-center justify-center"
+                            style={{ transform: 'scale(1.5)' }} // Scale up to cover the button
+                        >
+                            {/* Script will be injected here */}
                         </div>
                     </div>
 
