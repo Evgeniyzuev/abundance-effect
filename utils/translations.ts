@@ -1,0 +1,132 @@
+export type Language = 'en' | 'zh' | 'es' | 'hi' | 'ar' | 'ru';
+
+export const languages: { [key in Language]: string } = {
+    en: 'English',
+    zh: '中文 (Mandarin)',
+    es: 'Español',
+    hi: 'हिन्दी (Hindi)',
+    ar: 'العربية (Arabic)',
+    ru: 'Русский',
+};
+
+export type TranslationKey =
+    | 'nav.goals'
+    | 'nav.challenges'
+    | 'nav.ai'
+    | 'nav.wallet'
+    | 'nav.social'
+    | 'profile.title'
+    | 'profile.language'
+    | 'common.loading'
+    | 'common.error'
+    | 'auth.login'
+    | 'auth.logout'
+    | 'auth.welcome_subtitle'
+    | 'auth.google'
+    | 'auth.telegram'
+    | 'auth.apple';
+
+export const translations: { [key in Language]: { [key in TranslationKey]: string } } = {
+    en: {
+        'nav.goals': 'Goals',
+        'nav.challenges': 'Challenges',
+        'nav.ai': 'AI',
+        'nav.wallet': 'Wallet',
+        'nav.social': 'Social',
+        'profile.title': 'Profile',
+        'profile.language': 'Language',
+        'common.loading': 'Loading...',
+        'common.error': 'Error',
+        'auth.login': 'Login',
+        'auth.logout': 'Logout',
+        'auth.welcome_subtitle': 'Log in to start your journey',
+        'auth.google': 'Continue with Google',
+        'auth.telegram': 'Continue with Telegram',
+        'auth.apple': 'Continue with Apple',
+    },
+    zh: {
+        'nav.goals': '目标',
+        'nav.challenges': '挑战',
+        'nav.ai': 'AI',
+        'nav.wallet': '钱包',
+        'nav.social': '社交',
+        'profile.title': '个人资料',
+        'profile.language': '语言',
+        'common.loading': '加载中...',
+        'common.error': '错误',
+        'auth.login': '登录',
+        'auth.logout': '登出',
+        'auth.welcome_subtitle': '登录以开始您的旅程',
+        'auth.google': '通过 Google 继续',
+        'auth.telegram': '通过 Telegram 继续',
+        'auth.apple': '通过 Apple 继续',
+    },
+    es: {
+        'nav.goals': 'Metas',
+        'nav.challenges': 'Desafíos',
+        'nav.ai': 'IA',
+        'nav.wallet': 'Billetera',
+        'nav.social': 'Social',
+        'profile.title': 'Perfil',
+        'profile.language': 'Idioma',
+        'common.loading': 'Cargando...',
+        'common.error': 'Error',
+        'auth.login': 'Iniciar sesión',
+        'auth.logout': 'Cerrar sesión',
+        'auth.welcome_subtitle': 'Inicia sesión para comenzar tu viaje',
+        'auth.google': 'Continuar con Google',
+        'auth.telegram': 'Continuar con Telegram',
+        'auth.apple': 'Continuar con Apple',
+    },
+    hi: {
+        'nav.goals': 'लक्ष्य',
+        'nav.challenges': 'चुनौतियां',
+        'nav.ai': 'एआई',
+        'nav.wallet': 'बटुआ',
+        'nav.social': 'सामाजिक',
+        'profile.title': 'प्रोफ़ाइल',
+        'profile.language': 'भाषा',
+        'common.loading': 'लोड हो रहा है...',
+        'common.error': 'त्रुटि',
+        'auth.login': 'लॉग इन करें',
+        'auth.logout': 'लॉग आउट',
+        'auth.welcome_subtitle': 'अपनी यात्रा शुरू करने के लिए लॉग इन करें',
+        'auth.google': 'Google के साथ जारी रखें',
+        'auth.telegram': 'Telegram के साथ जारी रखें',
+        'auth.apple': 'Apple के साथ जारी रखें',
+    },
+    ar: {
+        'nav.goals': 'أهداف',
+        'nav.challenges': 'تحديات',
+        'nav.ai': 'ذكاء اصطناعي',
+        'nav.wallet': 'محفظة',
+        'nav.social': 'اجتماعي',
+        'profile.title': 'الملف الشخصي',
+        'profile.language': 'لغة',
+        'common.loading': 'جار التحميل...',
+        'common.error': 'خطأ',
+        'auth.login': 'تسجيل الدخول',
+        'auth.logout': 'تسجيل الخروج',
+        'auth.welcome_subtitle': 'سجل الدخول لبدء رحلتك',
+        'auth.google': 'تواصل مع Google',
+        'auth.telegram': 'تواصل مع Telegram',
+        'auth.apple': 'تواصل مع Apple',
+    },
+    ru: {
+        'nav.goals': 'Цели',
+        'nav.challenges': 'Вызовы',
+        'nav.ai': 'AI',
+        'nav.wallet': 'Кошелек',
+        'nav.social': 'Социум',
+        'profile.title': 'Профиль',
+        'profile.language': 'Язык',
+        'common.loading': 'Загрузка...',
+        'common.error': 'Ошибка',
+        'auth.login': 'Войти',
+        'auth.logout': 'Выйти',
+        'auth.welcome_subtitle': 'Войдите, чтобы начать свой путь',
+        'auth.google': 'Войти через Google',
+        'auth.telegram': 'Войти через Telegram',
+        'auth.apple': 'Войти через Apple',
+    },
+};

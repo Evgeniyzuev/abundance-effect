@@ -3,11 +3,14 @@
 import { useUser } from '@/context/UserContext';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function SocialPage() {
     const { user } = useUser();
     const router = useRouter();
     const supabase = createClient();
+    const { t } = useLanguage();
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -17,7 +20,7 @@ export default function SocialPage() {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-ios-primary">Profile</h1>
+            <h1 className="text-2xl font-bold text-ios-primary">{t('profile.title')}</h1>
 
             {/* Profile Info */}
             <div className="ios-card overflow-hidden">
@@ -51,11 +54,15 @@ export default function SocialPage() {
                 </div>
             </div>
 
+            <div className="flex justify-center">
+                <LanguageSwitcher />
+            </div>
+
             <button
                 onClick={handleLogout}
                 className="w-full rounded-xl bg-red-50 px-4 py-3 text-base font-medium text-red-600 hover:bg-red-100 transition-colors"
             >
-                Log Out
+                {t('auth.logout')}
             </button>
         </div>
     );

@@ -2,16 +2,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Target, CheckCircle2, Sparkles, Wallet, Users } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { TranslationKey } from '@/utils/translations';
 
 export default function BottomNav() {
     const pathname = usePathname();
+    const { t } = useLanguage();
 
-    const tabs = [
-        { name: 'Goals', href: '/goals', icon: Target },
-        { name: 'Challenges', href: '/challenges', icon: CheckCircle2 },
-        { name: 'Ai', href: '/ai', icon: Sparkles },
-        { name: 'Wallet', href: '/wallet', icon: Wallet },
-        { name: 'Social', href: '/social', icon: Users },
+    const tabs: { name: string; href: string; icon: any; labelKey: TranslationKey }[] = [
+        { name: 'Goals', href: '/goals', icon: Target, labelKey: 'nav.goals' },
+        { name: 'Challenges', href: '/challenges', icon: CheckCircle2, labelKey: 'nav.challenges' },
+        { name: 'Ai', href: '/ai', icon: Sparkles, labelKey: 'nav.ai' },
+        { name: 'Wallet', href: '/wallet', icon: Wallet, labelKey: 'nav.wallet' },
+        { name: 'Social', href: '/social', icon: Users, labelKey: 'nav.social' },
     ];
 
     return (
@@ -29,7 +32,7 @@ export default function BottomNav() {
                                 }`}
                         >
                             <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-                            <span className="text-[10px] font-medium">{tab.name}</span>
+                            <span className="text-[10px] font-medium">{t(tab.labelKey)}</span>
                         </Link>
                     );
                 })}

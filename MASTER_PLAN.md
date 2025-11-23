@@ -13,6 +13,9 @@
     *   **Style**: iOS / Telegram / Instagram (Clean, Light, Mobile-First).
     *   **Colors**: Background `#F2F2F7`, Surface `#FFFFFF`, Text `#000000` / `#8E8E93`, Accent `#007AFF`.
     *   **Components**: Rounded Cards (16px), Pill Buttons, Soft Shadows.
+    *   **Development Guidelines**:
+        *   **i18n First**: Все компоненты создаем с учетом языкового контекста (`useLanguage`).
+        *   **Minimalism**: Минимизируем текст, где возможно. Например, в нижней панели используем только иконки без подписей (или скрываем подписи на мобильных).
 
 ## 1. DONE (Реализовано)
 Технически завершенные этапы.
@@ -33,11 +36,32 @@
     *   Реализована Нижняя панель (5 вкладок: Goals, Challenges, Ai, Wallet, Social).
     *   Настроен роутинг и редиректы.
     *   Профиль перенесен в Social.
+*   **Задача 5: Мультиязычность (i18n)**:
+    *   Реализован `LanguageContext` для управления языком (en, zh, es, hi, ar, ru).
+    *   Добавлены переводы для навигации, профиля и входа.
+    *   Добавлен компонент `LanguageSwitcher` в профиль и на страницу входа.
+
+### Current Route Structure (v1.0)
+```
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /ai
+├ ƒ /api/auth/sync-user
+├ ƒ /api/auth/telegram-user
+├ ƒ /api/auth/telegram-widget
+├ ƒ /auth/callback
+├ ○ /challenges
+├ ○ /goals
+├ ○ /login
+├ ○ /social
+└ ○ /wallet
+```
 
 ## 2. NEXT (В разработке)
 Текущая задача. Выполняем прямо сейчас, Пошагово. Отмечаем в `MASTER_PLAN.md`. Выполненное кратко резюмируем и перемещаем в `DONE`. Если выполнено частично или нужны доработки, отмечаем эти моменты в `NEXT`.
 
-### Этап 4: Наполнение Вкладок (Детальное ТЗ)
+### Этап 5: Наполнение Вкладок (Детальное ТЗ)
 *   [ ] **Вкладка 1: Goals (Мой Путь)**
     *   Доска Желаний: Сетка карточек.
     *   Навигатор: Карта (RPG style).
