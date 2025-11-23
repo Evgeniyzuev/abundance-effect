@@ -1,12 +1,47 @@
 'use client';
 
+import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
+import { Heart, FileText, CheckSquare, Map, TrendingUp } from 'lucide-react';
+
+type Tab = 'wishboard' | 'notes' | 'tasks' | 'roadmap' | 'results';
 
 export default function GoalsPage() {
     const { t } = useLanguage();
+    const [activeTab, setActiveTab] = useState<Tab>('wishboard');
+
+    const tabs = [
+        { id: 'wishboard' as Tab, icon: Heart },
+        { id: 'notes' as Tab, icon: FileText },
+        { id: 'tasks' as Tab, icon: CheckSquare },
+        { id: 'roadmap' as Tab, icon: Map },
+        { id: 'results' as Tab, icon: TrendingUp },
+    ];
 
     return (
         <div className="space-y-6">
+            {/* Top Navigation Bar */}
+            <div className="ios-card p-2">
+                <div className="flex items-center justify-around gap-2">
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center justify-center p-3 rounded-xl transition-all ${isActive
+                                        ? 'bg-blue-500 text-white shadow-md'
+                                        : 'text-gray-500 hover:bg-gray-100'
+                                    }`}
+                            >
+                                <Icon size={24} />
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
             <h1 className="text-2xl font-bold text-ios-primary">{t('goals.title')}</h1>
 
             <div className="grid grid-cols-2 gap-4">
