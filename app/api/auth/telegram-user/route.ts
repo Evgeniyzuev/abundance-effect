@@ -52,42 +52,100 @@ export async function POST(request: Request) {
         const email = `telegram_${telegramId}@abundance-effect.app`;
         const password = crypto.randomBytes(16).toString('hex');
 
-        const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-            email,
-            password,
-            email_confirm: true,
-            user_metadata: {
-                telegram_id: telegramId,
-                username: telegramUser.username,
-                first_name: telegramUser.first_name,
-                last_name: telegramUser.last_name,
-                avatar_url: telegramUser.photo_url
-            }
-        });
+        let authUser;
+        let authUserId;
 
-        if (authError) throw authError;
+        try {
+            const { data, error } = await supabaseAdmin.auth.admin.createUser({
+                email,
+                password,
+                email_confirm: true,
+                user_metadata: {
+                    telegram_id: telegramId,
+                    username: telegramUser.username,
+                    first_name: telegramUser.first_name,
+                    last_name: telegramUser.last_name,
+                    avatar_url: telegramUser.photo_url
+                }
+            });
+            if (error) throw error;
+            authUser = data.user;
+            authUserId = data.user.id;
+        } catch (error: any) {
+            if (error.message?.includes('already been registered') || error.code === 'email_exists') {
+                console.log('User already registered in Auth, recovering...');
+                const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+                    type: 'magiclink',
+                    email: email
+                });
+
+                if (linkError || !linkData.user) {
+                    console.error('Error finding existing user:', linkError);
+                    return NextResponse.json({ error: 'Failed to recover existing user' }, { status: 500 });
+                }
+
+                authUserId = linkData.user.id;
+
+                // Update password
+                const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+                    password: password,
+                    user_metadata: {
+                        telegram_id: telegramId,
+                        username: telegramUser.username,
+                        first_name: telegramUser.first_name,
+                        last_name: telegramUser.last_name,
+                        avatar_url: telegramUser.photo_url
+                    }
+                });
+
+                if (updateError) {
+                    console.error('Error updating recovered user:', updateError);
+                    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
+                }
+            } else {
+                throw error;
+            }
+        }
 
         // 3. Wait a bit for the trigger to create the user record
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // 4. Fetch the created user
-        const { data: newUser, error: dbError } = await supabaseAdmin
+        // 4. Fetch or Create the public user record
+        let { data: newUser, error: dbError } = await supabaseAdmin
             .from('users')
             .select('*')
-            .eq('id', authUser.user.id)
-            .single();
+            .eq('id', authUserId)
+            .maybeSingle();
 
-        if (dbError) {
-            console.error('Error fetching created user:', dbError);
-            // The trigger should have created it, but if not, we have a problem
-            return NextResponse.json({ error: 'User creation failed' }, { status: 500 });
+        if (!newUser) {
+            // Trigger didn't fire or user was recovered. Manually insert.
+            console.log('Creating public user record manually...');
+            const { data: insertedUser, error: insertError } = await supabaseAdmin
+                .from('users')
+                .insert({
+                    id: authUserId,
+                    telegram_id: telegramId,
+                    username: telegramUser.username,
+                    first_name: telegramUser.first_name,
+                    last_name: telegramUser.last_name,
+                    avatar_url: telegramUser.photo_url,
+                    email: email
+                })
+                .select()
+                .single();
+
+            if (insertError) {
+                console.error('Error inserting public user:', insertError);
+                return NextResponse.json({ error: 'User creation failed' }, { status: 500 });
+            }
+            newUser = insertedUser;
         }
 
         return NextResponse.json({
             success: true,
             user: newUser,
-            auth_user_id: authUser.user.id,
-            password: password // Return password so client can sign in
+            auth_user_id: authUserId,
+            password: password
         });
 
     } catch (error: any) {
