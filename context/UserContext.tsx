@@ -49,6 +49,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const init = async () => {
             setIsLoading(true)
             try {
+                console.log('[UserContext] Initializing...');
+
                 // First, check if we're in Telegram WebApp
                 if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
                     const webApp = (window as any).Telegram.WebApp;
@@ -57,9 +59,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     const tgUser = webApp.initDataUnsafe?.user;
 
                     if (tgUser) {
-                        console.log('Telegram user detected:', tgUser);
+                        console.log('[UserContext] Telegram user detected:', tgUser);
 
                         // Try to authenticate via our API
+                        console.log('[UserContext] Calling /api/auth/telegram-user...');
                         const response = await fetch('/api/auth/telegram-user', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -70,23 +73,35 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         });
 
                         const result = await response.json();
+                        console.log('[UserContext] API response:', result);
 
                         if (result.success && result.password) {
+                            console.log('[UserContext] Signing in to Supabase...');
                             // Sign in to Supabase
-                            const { error } = await supabase.auth.signInWithPassword({
+                            const { error, data } = await supabase.auth.signInWithPassword({
                                 email: `telegram_${tgUser.id}@abundance-effect.app`,
                                 password: result.password,
                             });
 
                             if (error) {
-                                console.error('Error signing in with Telegram:', error);
+                                console.error('[UserContext] Error signing in with Telegram:', error);
+                            } else {
+                                console.log('[UserContext] Successfully signed in!', data);
                             }
+                        } else {
+                            console.error('[UserContext] API did not return success/password');
                         }
+                    } else {
+                        console.log('[UserContext] No Telegram user in initDataUnsafe');
                     }
+                } else {
+                    console.log('[UserContext] Not in Telegram WebApp');
                 }
 
                 // Then check normal session
+                console.log('[UserContext] Checking session...');
                 const { data: { session: currentSession } } = await supabase.auth.getSession()
+                console.log('[UserContext] Current session:', currentSession);
                 setSession(currentSession)
 
                 if (currentSession?.user) {
