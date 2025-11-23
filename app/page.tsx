@@ -7,9 +7,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading, logout } = useUser();
   const router = useRouter();
-  const supabase = createClient();
   const [isTelegramMiniApp, setIsTelegramMiniApp] = useState(false);
 
   useEffect(() => {
@@ -24,7 +23,7 @@ export default function Home() {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await logout();
     router.refresh();
   };
 

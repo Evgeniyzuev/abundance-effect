@@ -118,21 +118,8 @@ export default function LoginPage() {
     };
 
     const handleTelegramMiniApp = () => {
-        // Check if we're in Telegram WebApp
-        if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
-            const webApp = (window as any).Telegram.WebApp;
-            webApp.ready();
-
-            const tgUser = webApp.initDataUnsafe?.user;
-
-            if (tgUser) {
-                router.push('/');
-                return;
-            }
-        }
-
-        // Open bot in new tab
-        window.open('https://t.me/AbundanceEffectBot', '_blank');
+        // Open Telegram Mini App directly
+        window.open('https://t.me/AbundanceEffectBot/Abundance', '_blank');
     };
 
     return (

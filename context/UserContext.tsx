@@ -4,12 +4,14 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/client'
 import { DbUser } from '@/types'
+import { storage, STORAGE_KEYS, CachedUserAuth, TelegramInitDataCache } from '@/utils/storage'
 
 type UserContextType = {
     user: DbUser | null
     session: Session | null
     isLoading: boolean
     refreshUser: () => Promise<void>
+    logout: () => Promise<void>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -19,6 +21,51 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const supabase = createClient()
+
+    // Save user to cache
+    const saveUserToCache = (dbUser: DbUser) => {
+        const cachedUser: CachedUserAuth = {
+            id: dbUser.id,
+            telegram_id: dbUser.telegram_id,
+            username: dbUser.username,
+            first_name: dbUser.first_name,
+            last_name: dbUser.last_name,
+            avatar_url: dbUser.avatar_url,
+            cached_at: Date.now(),
+        };
+        storage.set(STORAGE_KEYS.USER_AUTH_CACHE, cachedUser);
+    };
+
+    // Load user from cache
+    const loadUserFromCache = (): DbUser | null => {
+        const cached = storage.get<CachedUserAuth>(STORAGE_KEYS.USER_AUTH_CACHE);
+        if (!cached) return null;
+
+        // Check if cache is too old (e.g., 7 days)
+        const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+        if (Date.now() - cached.cached_at > MAX_CACHE_AGE) {
+            storage.clearAuthCache();
+            return null;
+        }
+
+        // Convert cached data to DbUser format with all required fields
+        return {
+            id: cached.id,
+            telegram_id: cached.telegram_id,
+            username: cached.username,
+            first_name: cached.first_name,
+            last_name: cached.last_name,
+            avatar_url: cached.avatar_url,
+            phone_number: null,
+            created_at: '',
+            updated_at: '',
+            wallet_balance: 0,
+            aicore_balance: 0,
+            level: 1,
+            reinvest_setup: 0,
+            referrer_id: null,
+        } as DbUser;
+    };
 
     const fetchDbUser = async (userId: string) => {
         try {
@@ -55,14 +102,31 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const refreshUser = async () => {
         if (!session?.user) return
         const dbUser = await fetchDbUser(session.user.id)
-        setUser(dbUser)
+        if (dbUser) {
+            setUser(dbUser)
+            saveUserToCache(dbUser)
+        }
+    }
+
+    const logout = async () => {
+        await supabase.auth.signOut()
+        setUser(null)
+        setSession(null)
+        storage.clearAuthCache()
     }
 
     useEffect(() => {
         const init = async () => {
-            setIsLoading(true)
+            // Step 1: Load from cache immediately for instant UI
+            const cachedUser = loadUserFromCache();
+            if (cachedUser) {
+                console.log('Loaded user from cache:', cachedUser);
+                setUser(cachedUser);
+                setIsLoading(false); // Show UI immediately
+            }
+
             try {
-                // First, check if we're in Telegram WebApp
+                // Step 2: Check if we're in Telegram WebApp
                 if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
                     const webApp = (window as any).Telegram.WebApp;
                     webApp.ready();
@@ -71,6 +135,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
                     if (tgUser) {
                         console.log('Telegram user detected:', tgUser);
+
+                        // Save Telegram init data to cache
+                        const tgCache: TelegramInitDataCache = {
+                            initData: webApp.initData,
+                            user: tgUser,
+                            cached_at: Date.now(),
+                        };
+                        storage.set(STORAGE_KEYS.TELEGRAM_INIT_DATA, tgCache);
 
                         // Try to authenticate via our API
                         const response = await fetch('/api/auth/telegram-user', {
@@ -93,35 +165,58 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
                             if (error) {
                                 console.error('Error signing in with Telegram:', error);
+                                // Clear cache on auth error
+                                storage.clearAuthCache();
+                                setUser(null);
                             }
                         }
                     }
                 }
 
-                // Then check normal session
+                // Step 3: Check normal session (this runs in background if cache was loaded)
                 const { data: { session: currentSession } } = await supabase.auth.getSession()
                 setSession(currentSession)
 
                 if (currentSession?.user) {
                     const dbUser = await fetchDbUser(currentSession.user.id)
-                    setUser(dbUser)
+                    if (dbUser) {
+                        setUser(dbUser)
+                        saveUserToCache(dbUser)
+                    } else {
+                        // Auth session exists but no DB user - clear cache
+                        storage.clearAuthCache();
+                        setUser(null);
+                    }
                 } else {
-                    setUser(null)
+                    // No session - clear cache if it exists
+                    if (cachedUser) {
+                        console.log('No session found, clearing cache');
+                        storage.clearAuthCache();
+                        setUser(null);
+                    }
                 }
             } catch (error) {
                 console.error('Error initializing auth:', error)
+                // Clear cache on error
+                storage.clearAuthCache();
+                setUser(null);
             } finally {
                 setIsLoading(false)
             }
 
             const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+                console.log('Auth state changed:', event);
                 setSession(newSession)
-                if (newSession?.user) {
-                    // If it's a new sign in, we might need to wait for the trigger to create the user
-                    // But usually it's fast. If not found, we might want to retry or handle it.
-                    // For now, simple fetch.
+
+                if (event === 'SIGNED_OUT') {
+                    storage.clearAuthCache();
+                    setUser(null);
+                } else if (newSession?.user) {
                     const dbUser = await fetchDbUser(newSession.user.id)
-                    setUser(dbUser)
+                    if (dbUser) {
+                        setUser(dbUser)
+                        saveUserToCache(dbUser)
+                    }
                 } else {
                     setUser(null)
                 }
@@ -137,7 +232,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     return (
-        <UserContext.Provider value={{ user, session, isLoading, refreshUser }}>
+        <UserContext.Provider value={{ user, session, isLoading, refreshUser, logout }}>
             {children}
         </UserContext.Provider>
     )

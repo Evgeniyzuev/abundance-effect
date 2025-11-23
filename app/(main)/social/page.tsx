@@ -7,15 +7,13 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function SocialPage() {
-    const { user } = useUser();
+    const { user, logout } = useUser();
     const router = useRouter();
-    const supabase = createClient();
     const { t } = useLanguage();
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        await logout();
         router.push('/login');
-        router.refresh();
     };
 
     return (

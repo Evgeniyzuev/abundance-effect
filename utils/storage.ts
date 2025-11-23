@@ -2,9 +2,29 @@ export const STORAGE_KEYS = {
     LANGUAGE: 'app-language',
     THEME: 'app-theme',
     USER_SETTINGS: 'app-user-settings',
+    USER_AUTH_CACHE: 'app-user-auth-cache',
+    TELEGRAM_INIT_DATA: 'app-telegram-init-data',
 } as const;
 
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
+
+// Cached user authentication data interface
+export interface CachedUserAuth {
+    id: string;
+    telegram_id: number | null;
+    username: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+    cached_at: number; // timestamp
+}
+
+// Telegram init data cache
+export interface TelegramInitDataCache {
+    initData: string;
+    user: any;
+    cached_at: number;
+}
 
 export const storage = {
     get: <T>(key: StorageKey, defaultValue: T | null = null): T | null => {
@@ -34,5 +54,11 @@ export const storage = {
         } catch (error) {
             console.warn(`Error removing ${key} from localStorage:`, error);
         }
+    },
+
+    // Helper: Clear all auth-related cache
+    clearAuthCache: (): void => {
+        storage.remove(STORAGE_KEYS.USER_AUTH_CACHE);
+        storage.remove(STORAGE_KEYS.TELEGRAM_INIT_DATA);
     },
 };
