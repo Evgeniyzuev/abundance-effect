@@ -56,13 +56,15 @@ export default function Home() {
           Abundance Effect
         </h1>
         <p className="text-ios-secondary text-center mb-10 max-w-md text-lg leading-relaxed">
-          Программа 20 уровней. Пассивный доход. Твой путь к изобилию начинается здесь.
+          Journey to Abundance.
+          <br />
+          From 0 to $1M in 20 levels🚀
         </p>
         <Link
           href="/login"
           className="ios-btn text-lg px-8 py-4 shadow-lg shadow-blue-500/30"
         >
-          Войти
+          Start
         </Link>
       </div>
     );
