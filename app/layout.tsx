@@ -18,12 +18,19 @@ export const metadata: Metadata = {
   title: "Abundance Effect",
   description: "Transform your life through goals, challenges, and AI-powered guidance",
   manifest: "/manifest.json",
-  themeColor: "#007AFF",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Abundance",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#007AFF",
 };
 
 export default function RootLayout({
@@ -34,7 +41,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script src="https://telegram.org/js/telegram-web-app.js" async></script>

@@ -10,11 +10,11 @@ export const languages: { [key in Language]: string } = {
 };
 
 export type TranslationKey =
-    | 'nav.goals'
-    | 'nav.challenges'
-    | 'nav.ai'
-    | 'nav.wallet'
-    | 'nav.social'
+
+
+
+
+
     | 'profile.title'
     | 'profile.language'
     | 'common.loading'
@@ -29,11 +29,11 @@ export type TranslationKey =
 
 export const translations: { [key in Language]: { [key in TranslationKey]: string } } = {
     en: {
-        'nav.goals': 'Goals',
-        'nav.challenges': 'Challenges',
-        'nav.ai': 'AI',
-        'nav.wallet': 'Wallet',
-        'nav.social': 'Social',
+
+
+
+
+
         'profile.title': 'Profile',
         'profile.language': 'Language',
         'common.loading': 'Loading...',
@@ -47,11 +47,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.apple': 'Continue with Apple',
     },
     zh: {
-        'nav.goals': '目标',
-        'nav.challenges': '挑战',
-        'nav.ai': 'AI',
-        'nav.wallet': '钱包',
-        'nav.social': '社交',
+
+
+
+
+
         'profile.title': '个人资料',
         'profile.language': '语言',
         'common.loading': '加载中...',
@@ -65,11 +65,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.apple': '通过 Apple 继续',
     },
     es: {
-        'nav.goals': 'Metas',
-        'nav.challenges': 'Desafíos',
-        'nav.ai': 'IA',
-        'nav.wallet': 'Billetera',
-        'nav.social': 'Social',
+
+
+
+
+
         'profile.title': 'Perfil',
         'profile.language': 'Idioma',
         'common.loading': 'Cargando...',
@@ -83,11 +83,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.apple': 'Continuar con Apple',
     },
     hi: {
-        'nav.goals': 'लक्ष्य',
-        'nav.challenges': 'चुनौतियां',
-        'nav.ai': 'एआई',
-        'nav.wallet': 'बटुआ',
-        'nav.social': 'सामाजिक',
+
+
+
+
+
         'profile.title': 'प्रोफ़ाइल',
         'profile.language': 'भाषा',
         'common.loading': 'लोड हो रहा है...',
@@ -101,11 +101,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.apple': 'Apple के साथ जारी रखें',
     },
     ar: {
-        'nav.goals': 'أهداف',
-        'nav.challenges': 'تحديات',
-        'nav.ai': 'ذكاء اصطناعي',
-        'nav.wallet': 'محفظة',
-        'nav.social': 'اجتماعي',
+
+
+
+
+
         'profile.title': 'الملف الشخصي',
         'profile.language': 'لغة',
         'common.loading': 'جار التحميل...',
@@ -119,11 +119,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.apple': 'تواصل مع Apple',
     },
     ru: {
-        'nav.goals': 'Цели',
-        'nav.challenges': 'Вызовы',
-        'nav.ai': 'AI',
-        'nav.wallet': 'Кошелек',
-        'nav.social': 'Социум',
+
+
+
+
+
         'profile.title': 'Профиль',
         'profile.language': 'Язык',
         'common.loading': 'Загрузка...',
