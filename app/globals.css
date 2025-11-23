@@ -96,18 +96,4 @@ body {
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
-
-  /* RTL support - only apply text direction, not layout mirroring */
-  .rtl {
-    direction: rtl;
-    text-align: right;
-  }
-
-  .rtl .text-left {
-    text-align: left;
-  }
-
-  .rtl .text-right {
-    text-align: right;
-  }
 }

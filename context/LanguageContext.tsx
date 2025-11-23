@@ -28,23 +28,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         setLanguageState(lang);
         storage.set(STORAGE_KEYS.LANGUAGE, lang);
         document.documentElement.lang = lang;
-        // Apply RTL class for text direction only, not layout mirroring
-        if (lang === 'ar') {
-            document.documentElement.classList.add('rtl');
-        } else {
-            document.documentElement.classList.remove('rtl');
-        }
     };
 
     useEffect(() => {
         if (mounted) {
             document.documentElement.lang = language;
-            // Apply RTL class for text direction only
-            if (language === 'ar') {
-                document.documentElement.classList.add('rtl');
-            } else {
-                document.documentElement.classList.remove('rtl');
-            }
         }
     }, [mounted, language]);
 
