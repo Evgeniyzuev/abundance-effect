@@ -28,8 +28,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 .eq('id', userId)
                 .single()
 
-            if (error) {
-                console.error('Error fetching user:', error)
+            if (error || !data) {
+                // If user not found, try to sync
+                console.log('User not found in public table, attempting sync...');
+                try {
+                    const syncResponse = await fetch('/api/auth/sync-user', { method: 'POST' });
+                    const syncResult = await syncResponse.json();
+
+                    if (syncResult.success && syncResult.user) {
+                        return syncResult.user as DbUser;
+                    }
+                } catch (syncError) {
+                    console.error('Error syncing user:', syncError);
+                }
+
+                console.error('Error fetching user after sync attempt:', error);
                 return null
             }
             return data as DbUser
