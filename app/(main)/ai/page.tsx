@@ -1,11 +1,15 @@
 'use client';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 export default function AiPage() {
+    const { t } = useLanguage();
+
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-ios-primary">AI Assistant</h1>
+            <h1 className="text-2xl font-bold text-ios-primary">{t('ai.title')}</h1>
             <div className="ios-card p-6 text-center text-ios-secondary">
-                <p>AI Squad coming soon.</p>
+                <p>{t('ai.coming_soon')}</p>
             </div>
         </div>
     );

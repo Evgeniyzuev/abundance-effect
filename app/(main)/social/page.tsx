@@ -29,24 +29,24 @@ export default function SocialPage() {
                     <h2 className="text-xl font-bold text-ios-primary">
                         {user?.first_name || user?.username || 'User'}
                     </h2>
-                    <p className="text-ios-secondary text-sm">Level {user?.level || 1}</p>
+                    <p className="text-ios-secondary text-sm">{t('profile.level')} {user?.level || 1}</p>
                 </div>
 
                 <div className="p-0">
                     {user?.username && (
                         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-50 last:border-0">
-                            <span className="text-ios-secondary">Username</span>
+                            <span className="text-ios-secondary">{t('profile.username')}</span>
                             <span className="text-ios-primary font-medium">@{user.username}</span>
                         </div>
                     )}
                     {user?.telegram_id && (
                         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-50 last:border-0">
-                            <span className="text-ios-secondary">Telegram ID</span>
+                            <span className="text-ios-secondary">{t('profile.telegram_id')}</span>
                             <span className="text-ios-primary font-medium">{user.telegram_id}</span>
                         </div>
                     )}
                     <div className="flex justify-between items-center px-6 py-4">
-                        <span className="text-ios-secondary">Reinvest</span>
+                        <span className="text-ios-secondary">{t('profile.reinvest')}</span>
                         <span className="text-green-600 font-medium">{user?.reinvest_setup}%</span>
                     </div>
                 </div>
