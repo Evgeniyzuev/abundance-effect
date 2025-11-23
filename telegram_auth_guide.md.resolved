@@ -1,0 +1,214 @@
+# Telegram Authentication with Supabase in Next.js
+
+This guide describes how to implement Telegram User authentication and database record creation, based on the current project's implementation.
+
+## 1. Database Schema
+
+First, you need a table to store user data in Supabase. Run this SQL in your Supabase SQL Editor:
+
+```sql
+-- Create users table
+create table public.users (
+  id uuid references auth.users not null primary key, -- Links to Supabase Auth
+  telegram_id bigint unique,
+  username text,
+  first_name text,
+  last_name text,
+  avatar_url text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  
+  -- App specific fields
+  wallet_balance numeric default 0,
+  level integer default 0,
+  referrer_id bigint
+);
+
+-- Enable Row Level Security (RLS)
+alter table public.users enable row level security;
+
+-- Create policy to allow users to read their own data
+create policy "Users can view own data" on public.users
+  for select using (auth.uid() = id);
+
+-- Create policy to allow service role (server-side) to manage all data
+create policy "Service role can manage all data" on public.users
+  for all using (true);
+```
+
+## 2. Server-Side API Route
+
+Create an API route to handle the authentication logic. This route will:
+1. Receive Telegram data.
+2. Check if the user exists.
+3. If not, create a Supabase Auth user and a public `users` record.
+4. Return the user data and a password (to sign in on the client).
+
+**File:** [app/api/auth/telegram-user/route.ts](file:///d:/code/V0/app/api/auth/telegram-user/route.ts)
+
+```typescript
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
+
+// Initialize Supabase Admin Client (requires SERVICE_ROLE_KEY)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { telegramUser, initData } = body;
+    
+    if (!telegramUser?.id) {
+      return NextResponse.json({ error: 'Missing Telegram user data' }, { status: 400 });
+    }
+    
+    const telegramId = telegramUser.id;
+    
+    // 1. Check if user already exists in public table
+    const { data: existingUser } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('telegram_id', telegramId)
+      .maybeSingle();
+      
+    if (existingUser) {
+      return NextResponse.json({ 
+        success: true, 
+        user: existingUser,
+        auth_user_id: existingUser.id
+      });
+    }
+    
+    // 2. Create new Supabase Auth User
+    // We generate a random password because we won't use it manually
+    const email = `telegram_${telegramId}@example.com`;
+    const password = crypto.randomBytes(16).toString('hex');
+    
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        telegram_id: telegramId,
+        username: telegramUser.username
+      }
+    });
+    
+    if (authError) throw authError;
+    
+    // 3. Create record in public.users table
+    const { data: newUser, error: dbError } = await supabaseAdmin
+      .from('users')
+      .insert({
+        id: authUser.user.id, // Link to Auth ID
+        telegram_id: telegramId,
+        username: telegramUser.username,
+        first_name: telegramUser.first_name,
+        last_name: telegramUser.last_name,
+        // Add other default fields here
+      })
+      .select()
+      .single();
+      
+    if (dbError) {
+      // Cleanup auth user if DB insert fails
+      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+      throw dbError;
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      user: newUser,
+      auth_user_id: authUser.user.id,
+      password: password // Return password so client can sign in
+    });
+    
+  } catch (error: any) {
+    console.error('Auth error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+```
+
+## 3. Client-Side Context (Hook)
+
+Create a context to handle the Telegram SDK initialization and call the API.
+
+**File:** [components/UserContext.tsx](file:///d:/code/V0/components/UserContext.tsx)
+
+```typescript
+"use client";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase Client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const initTelegram = async () => {
+      // 1. Load Telegram WebApp SDK
+      // You can use @twa-dev/sdk or window.Telegram.WebApp
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        const webApp = window.Telegram.WebApp;
+        webApp.ready();
+        
+        const tgUser = webApp.initDataUnsafe?.user;
+        
+        if (tgUser) {
+          // 2. Send data to your API
+          const response = await fetch('/api/auth/telegram-user', {
+            method: 'POST',
+            body: JSON.stringify({
+              telegramUser: tgUser,
+              initData: webApp.initData,
+            }),
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            setUser(result.user);
+            
+            // 3. Sign in to Supabase on client (optional, but recommended for RLS)
+            if (result.password) {
+              await supabase.auth.signInWithPassword({
+                email: `telegram_${tgUser.id}@example.com`,
+                password: result.password,
+              });
+            }
+          }
+        }
+      }
+    };
+    
+    initTelegram();
+  }, []);
+
+  return (
+    <UserContext.Provider value={{ user }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+```
+
+## 4. Environment Variables
+
+Make sure you have these in your [.env.local](file:///d:/code/V0/.env.local):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+> **Note:** `SUPABASE_SERVICE_ROLE_KEY` is critical for the API route to bypass RLS and create users. Never expose it on the client side.

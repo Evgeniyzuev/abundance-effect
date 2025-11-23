@@ -1,0 +1,102 @@
+'use client'
+
+import { createContext, useContext, useEffect, useState } from 'react'
+import { User, Session } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/client'
+import { DbUser } from '@/types'
+
+type UserContextType = {
+    user: DbUser | null
+    session: Session | null
+    isLoading: boolean
+    refreshUser: () => Promise<void>
+}
+
+const UserContext = createContext<UserContextType | undefined>(undefined)
+
+export function UserProvider({ children }: { children: React.ReactNode }) {
+    const [user, setUser] = useState<DbUser | null>(null)
+    const [session, setSession] = useState<Session | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+    const supabase = createClient()
+
+    const fetchDbUser = async (userId: string) => {
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single()
+
+            if (error) {
+                console.error('Error fetching user:', error)
+                return null
+            }
+            return data as DbUser
+        } catch (error) {
+            console.error('Unexpected error fetching user:', error)
+            return null
+        }
+    }
+
+    const refreshUser = async () => {
+        if (!session?.user) return
+        const dbUser = await fetchDbUser(session.user.id)
+        setUser(dbUser)
+    }
+
+    useEffect(() => {
+        const init = async () => {
+            setIsLoading(true)
+            try {
+                const { data: { session: currentSession } } = await supabase.auth.getSession()
+                setSession(currentSession)
+
+                if (currentSession?.user) {
+                    const dbUser = await fetchDbUser(currentSession.user.id)
+                    setUser(dbUser)
+                } else {
+                    setUser(null)
+                }
+            } catch (error) {
+                console.error('Error initializing auth:', error)
+            } finally {
+                setIsLoading(false)
+            }
+
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+                setSession(newSession)
+                if (newSession?.user) {
+                    // If it's a new sign in, we might need to wait for the trigger to create the user
+                    // But usually it's fast. If not found, we might want to retry or handle it.
+                    // For now, simple fetch.
+                    const dbUser = await fetchDbUser(newSession.user.id)
+                    setUser(dbUser)
+                } else {
+                    setUser(null)
+                }
+                setIsLoading(false)
+            })
+
+            return () => {
+                subscription.unsubscribe()
+            }
+        }
+
+        init()
+    }, [])
+
+    return (
+        <UserContext.Provider value={{ user, session, isLoading, refreshUser }}>
+            {children}
+        </UserContext.Provider>
+    )
+}
+
+export const useUser = () => {
+    const context = useContext(UserContext)
+    if (context === undefined) {
+        throw new Error('useUser must be used within a UserProvider')
+    }
+    return context
+}
