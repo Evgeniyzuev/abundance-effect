@@ -83,10 +83,13 @@ export default function LoginPage() {
     const handleOAuthLogin = async (provider: 'google') => {
         setLoading(true);
         try {
+            // Get the current URL origin (works in both dev and production)
+            const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider,
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: `${origin}/auth/callback`,
                 },
             });
             if (error) throw error;
