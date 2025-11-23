@@ -31,12 +31,12 @@ export default function Home() {
   if (isLoading) {
     // Show loading state while UserContext is initializing (including Telegram auth)
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-black">
+      <div className="flex h-screen w-full items-center justify-center bg-ios-background">
         <div className="text-center">
-          <div className="text-white text-xl mb-4">
-            {isTelegramMiniApp ? 'Authenticating...' : 'Loading...'}
+          <div className="text-ios-primary text-xl mb-4 font-medium">
+            {isTelegramMiniApp ? 'Авторизация...' : 'Загрузка...'}
           </div>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-ios-accent mx-auto"></div>
         </div>
       </div>
     );
@@ -45,16 +45,16 @@ export default function Home() {
   if (!user) {
     // User is not logged in and NOT in Telegram Mini App - show welcome screen
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center bg-black px-4">
-        <h1 className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-6xl font-bold text-transparent mb-8">
+      <div className="flex h-screen w-full flex-col items-center justify-center bg-ios-background px-6">
+        <h1 className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-5xl font-bold text-transparent mb-6 text-center tracking-tight">
           Abundance Effect
         </h1>
-        <p className="text-gray-400 text-center mb-8 max-w-md">
+        <p className="text-ios-secondary text-center mb-10 max-w-md text-lg leading-relaxed">
           Программа 20 уровней. Пассивный доход. Твой путь к изобилию начинается здесь.
         </p>
         <Link
           href="/login"
-          className="rounded-md bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-8 py-3 text-lg font-semibold text-white hover:opacity-90 transition-opacity"
+          className="ios-btn text-lg px-8 py-4 shadow-lg shadow-blue-500/30"
         >
           Войти
         </Link>
@@ -64,45 +64,71 @@ export default function Home() {
 
   // User is logged in - show their data
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-black px-4">
-      <div className="max-w-2xl w-full bg-gray-900 rounded-lg p-8 text-white">
-        <h1 className="text-3xl font-bold mb-6">
-          Добро пожаловать, {user.first_name || user.username || 'User'}!
-        </h1>
+    <div className="flex min-h-screen w-full flex-col items-center bg-ios-background px-4 py-8">
+      <div className="w-full max-w-md space-y-6">
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800 p-4 rounded">
-              <div className="text-gray-400 text-sm">Wallet Balance</div>
-              <div className="text-2xl font-bold">${user.wallet_balance}</div>
-            </div>
-            <div className="bg-gray-800 p-4 rounded">
-              <div className="text-gray-400 text-sm">AI Core Balance</div>
-              <div className="text-2xl font-bold">{user.aicore_balance}</div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 p-4 rounded">
-            <div className="text-gray-400 text-sm">Level</div>
-            <div className="text-2xl font-bold">Level {user.level}</div>
-          </div>
-
-          <div className="bg-gray-800 p-4 rounded">
-            <div className="text-gray-400 text-sm mb-2">Profile Info</div>
-            <div className="text-sm space-y-1">
-              {user.username && <div>Username: @{user.username}</div>}
-              {user.telegram_id && <div>Telegram ID: {user.telegram_id}</div>}
-              <div>Reinvest: {user.reinvest_setup}%</div>
-            </div>
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="w-full mt-4 rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
-          >
-            Выйти
-          </button>
+        {/* Header / Welcome */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-ios-primary">
+            Привет, {user.first_name || user.username || 'User'}!
+          </h1>
+          <p className="text-ios-secondary mt-1">Твой прогресс сегодня</p>
         </div>
+
+        {/* Main Stats Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="ios-card p-5 flex flex-col items-center justify-center text-center">
+            <div className="text-ios-secondary text-sm font-medium mb-1">Баланс</div>
+            <div className="text-2xl font-bold text-ios-primary">${user.wallet_balance}</div>
+          </div>
+          <div className="ios-card p-5 flex flex-col items-center justify-center text-center">
+            <div className="text-ios-secondary text-sm font-medium mb-1">AI Core</div>
+            <div className="text-2xl font-bold text-ios-primary">{user.aicore_balance}</div>
+          </div>
+        </div>
+
+        {/* Level Card */}
+        <div className="ios-card p-6 flex items-center justify-between">
+          <div>
+            <div className="text-ios-secondary text-sm font-medium">Текущий уровень</div>
+            <div className="text-2xl font-bold text-ios-primary">Level {user.level}</div>
+          </div>
+          <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+            {user.level}
+          </div>
+        </div>
+
+        {/* Profile Info */}
+        <div className="ios-card overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h3 className="font-semibold text-ios-primary">Профиль</h3>
+          </div>
+          <div className="p-0">
+            {user.username && (
+              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-50 last:border-0">
+                <span className="text-ios-secondary">Username</span>
+                <span className="text-ios-primary font-medium">@{user.username}</span>
+              </div>
+            )}
+            {user.telegram_id && (
+              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-50 last:border-0">
+                <span className="text-ios-secondary">Telegram ID</span>
+                <span className="text-ios-primary font-medium">{user.telegram_id}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center px-6 py-4">
+              <span className="text-ios-secondary">Реинвест</span>
+              <span className="text-green-600 font-medium">{user.reinvest_setup}%</span>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleLogout}
+          className="w-full mt-8 rounded-xl bg-red-50 px-4 py-3 text-base font-medium text-red-600 hover:bg-red-100 transition-colors"
+        >
+          Выйти
+        </button>
       </div>
     </div>
   );

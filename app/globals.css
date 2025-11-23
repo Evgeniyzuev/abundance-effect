@@ -1,12 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* iOS / Telegram Light Theme Palette */
+  --background: #F2F2F7;
+  /* iOS System Grouped Background */
+  --surface: #FFFFFF;
+  /* Cards, Bottom Sheets */
+  --foreground: #000000;
+  /* Primary Text */
+  --secondary: #8E8E93;
+  /* Secondary Text (iOS Gray) */
+  --accent: #007AFF;
+  /* iOS Blue */
+  --accent-hover: #0056b3;
+  --divider: #C6C6C8;
+  /* iOS Separator */
+  --success: #34C759;
+  /* iOS Green */
+  --danger: #FF3B30;
+  /* iOS Red */
+
+  /* Spacing & Radius */
+  --radius-card: 16px;
+  --radius-btn: 12px;
+  --radius-input: 12px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .bg-ios-background {
+    background-color: var(--background);
+  }
+
+  .bg-ios-surface {
+    background-color: var(--surface);
+  }
+
+  .text-ios-primary {
+    color: var(--foreground);
+  }
+
+  .text-ios-secondary {
+    color: var(--secondary);
+  }
+
+  .text-ios-accent {
+    color: var(--accent);
+  }
+
+  .ios-card {
+    background-color: var(--surface);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .ios-btn {
+    background-color: var(--accent);
+    color: white;
+    border-radius: var(--radius-btn);
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: opacity 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ios-btn:active {
+    opacity: 0.7;
+  }
+
+  .ios-input {
+    background-color: var(--surface);
+    border: 1px solid #E5E5EA;
+    /* Light gray border */
+    border-radius: var(--radius-input);
+    padding: 12px 16px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .ios-input:focus {
+    border-color: var(--accent);
+  }
 }
