@@ -42,8 +42,8 @@ export default function LoginPage() {
             }
         }
 
-        // If not in Telegram WebApp, show message
-        alert('Telegram login is only available when opening the app from Telegram bot. Please use Google login for web access.');
+        // If not in Telegram WebApp, open bot in new tab
+        window.open('https://t.me/AbundanceEffectBot', '_blank');
     };
 
     return (
