@@ -24,6 +24,7 @@ export type TranslationKey =
     | 'auth.welcome_subtitle'
     | 'auth.google'
     | 'auth.telegram'
+    | 'auth.telegram_mini_app'
     | 'auth.apple';
 
 export const translations: { [key in Language]: { [key in TranslationKey]: string } } = {
@@ -42,6 +43,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.welcome_subtitle': 'Log in to start your journey',
         'auth.google': 'Continue with Google',
         'auth.telegram': 'Continue with Telegram',
+        'auth.telegram_mini_app': 'Open Telegram Mini App',
         'auth.apple': 'Continue with Apple',
     },
     zh: {
@@ -59,6 +61,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.welcome_subtitle': '登录以开始您的旅程',
         'auth.google': '通过 Google 继续',
         'auth.telegram': '通过 Telegram 继续',
+        'auth.telegram_mini_app': '打开 Telegram 小程序',
         'auth.apple': '通过 Apple 继续',
     },
     es: {
@@ -76,6 +79,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.welcome_subtitle': 'Inicia sesión para comenzar tu viaje',
         'auth.google': 'Continuar con Google',
         'auth.telegram': 'Continuar con Telegram',
+        'auth.telegram_mini_app': 'Abrir Mini App de Telegram',
         'auth.apple': 'Continuar con Apple',
     },
     hi: {
@@ -93,6 +97,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.welcome_subtitle': 'अपनी यात्रा शुरू करने के लिए लॉग इन करें',
         'auth.google': 'Google के साथ जारी रखें',
         'auth.telegram': 'Telegram के साथ जारी रखें',
+        'auth.telegram_mini_app': 'Telegram मिनी ऐप खोलें',
         'auth.apple': 'Apple के साथ जारी रखें',
     },
     ar: {
@@ -110,6 +115,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.welcome_subtitle': 'سجل الدخول لبدء رحلتك',
         'auth.google': 'تواصل مع Google',
         'auth.telegram': 'تواصل مع Telegram',
+        'auth.telegram_mini_app': 'افتح تطبيق Telegram المصغر',
         'auth.apple': 'تواصل مع Apple',
     },
     ru: {
@@ -127,6 +133,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.welcome_subtitle': 'Войдите, чтобы начать свой путь',
         'auth.google': 'Войти через Google',
         'auth.telegram': 'Войти через Telegram',
+        'auth.telegram_mini_app': 'Открыть Telegram Mini App',
         'auth.apple': 'Войти через Apple',
     },
 };
