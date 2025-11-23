@@ -4,27 +4,46 @@ import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const { user, isLoading } = useUser();
   const router = useRouter();
   const supabase = createClient();
+  const [isTelegramMiniApp, setIsTelegramMiniApp] = useState(false);
+
+  useEffect(() => {
+    // Check if we're in Telegram Mini App
+    if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+      const webApp = (window as any).Telegram.WebApp;
+      const tgUser = webApp.initDataUnsafe?.user;
+      if (tgUser) {
+        setIsTelegramMiniApp(true);
+      }
+    }
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.refresh();
   };
 
-  if (isLoading) {
+  if (isLoading || (isTelegramMiniApp && !user)) {
+    // Show loading for: 1) Normal loading, 2) Telegram Mini App waiting for auth
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black">
-        <div className="text-white">Loading...</div>
+        <div className="text-center">
+          <div className="text-white text-xl mb-4">
+            {isTelegramMiniApp ? 'Authenticating...' : 'Loading...'}
+          </div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+        </div>
       </div>
     );
   }
 
   if (!user) {
-    // User is not logged in - show welcome screen with login button
+    // User is not logged in and NOT in Telegram Mini App - show welcome screen
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-black px-4">
         <h1 className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-6xl font-bold text-transparent mb-8">
