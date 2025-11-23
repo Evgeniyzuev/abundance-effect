@@ -92,4 +92,8 @@ body {
   .ios-input:focus {
     border-color: var(--accent);
   }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
