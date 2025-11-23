@@ -28,6 +28,13 @@ export default function Home() {
     router.refresh();
   };
 
+  // User is logged in - redirect to main app
+  useEffect(() => {
+    if (user && !isLoading) {
+      router.push('/goals');
+    }
+  }, [user, isLoading, router]);
+
   if (isLoading) {
     // Show loading state while UserContext is initializing (including Telegram auth)
     return (
@@ -61,13 +68,6 @@ export default function Home() {
       </div>
     );
   }
-
-  // User is logged in - redirect to main app
-  useEffect(() => {
-    if (user) {
-      router.push('/goals');
-    }
-  }, [user, router]);
 
   return null; // Or a loading spinner while redirecting
 }

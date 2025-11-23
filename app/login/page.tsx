@@ -75,7 +75,7 @@ export default function LoginPage() {
         return () => {
             delete (window as any).handleTelegramAuth;
         };
-    }, [router, supabase]);
+    }, []); // Empty dependency array to prevent re-running
 
     const handleOAuthLogin = async (provider: 'google') => {
         setLoading(true);
