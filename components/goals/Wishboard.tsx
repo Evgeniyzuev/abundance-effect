@@ -121,47 +121,57 @@ export default function Wishboard() {
 
         logger.info('Adding recommended wish', { wishId: wish.id, userId: user.id });
 
-        const { error } = await supabase.from('user_wishes').insert({
-            user_id: user.id,
-            title: wish.title,
-            description: wish.description,
-            image_url: wish.image_url,
-            estimated_cost: wish.estimated_cost,
-            difficulty_level: wish.difficulty_level,
-            is_completed: false,
-            recommended_source_id: wish.id
-        });
+        try {
+            const { error } = await supabase.from('user_wishes').insert({
+                user_id: user.id,
+                title: wish.title,
+                description: wish.description,
+                image_url: wish.image_url,
+                estimated_cost: wish.estimated_cost,
+                difficulty_level: wish.difficulty_level,
+                is_completed: false,
+                recommended_source_id: wish.id
+            });
 
-        if (error) {
-            logger.error('Error adding wish:', error);
-            alert('Failed to add wish');
-        } else {
-            logger.info('Successfully added recommended wish');
-            setIsDetailOpen(false);
-            fetchData();
+            if (error) {
+                logger.error('Error adding wish:', error);
+                alert('Failed to add wish');
+            } else {
+                logger.info('Successfully added recommended wish');
+                setIsDetailOpen(false);
+                fetchData();
+            }
+        } catch (err) {
+            logger.error('Unexpected error in handleAddFromRecommended:', err);
+            alert('An unexpected error occurred');
         }
     };
 
     const handleDeleteWish = async (wish: UserWish) => {
         if (!confirm('Are you sure you want to delete this wish?')) return;
 
-        const { error } = await supabase
-            .from('user_wishes')
-            .delete()
-            .eq('id', wish.id);
+        try {
+            const { error } = await supabase
+                .from('user_wishes')
+                .delete()
+                .eq('id', wish.id);
 
-        if (error) {
-            logger.error('Error deleting wish:', error);
-            alert('Failed to delete wish');
-        } else {
-            // Clean up local storage if needed
-            if (wish.image_url && wish.image_url.startsWith('local://')) {
-                const localId = wish.image_url.replace('local://', '');
-                storage.removeWishImage(localId);
+            if (error) {
+                logger.error('Error deleting wish:', error);
+                alert('Failed to delete wish');
+            } else {
+                // Clean up local storage if needed
+                if (wish.image_url && wish.image_url.startsWith('local://')) {
+                    const localId = wish.image_url.replace('local://', '');
+                    storage.removeWishImage(localId);
+                }
+
+                setIsDetailOpen(false);
+                fetchData();
             }
-
-            setIsDetailOpen(false);
-            fetchData();
+        } catch (err) {
+            logger.error('Unexpected error in handleDeleteWish:', err);
+            alert('An unexpected error occurred');
         }
     };
 
