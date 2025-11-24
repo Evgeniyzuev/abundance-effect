@@ -1,141 +1,37 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
-import { useSupabase } from '@/hooks/useSupabase';
+import { useGoals } from '@/hooks/useGoals';
 import { UserWish, RecommendedWish } from '@/types/supabase';
 import WishCard from '@/components/WishCard';
 import WishDetailModal from '@/components/WishDetailModal';
 import AddWishModal from '@/components/AddWishModal';
 import { Plus } from 'lucide-react';
-import { storage, STORAGE_KEYS } from '@/utils/storage';
-import { logger } from '@/utils/logger';
-import { withValidSession } from '@/utils/supabase/sessionManager';
-
-interface WishesCache {
-    userWishes: UserWish[];
-    recommendedWishes: RecommendedWish[];
-    timestamp: number;
-}
+import { storage } from '@/utils/storage';
 
 export default function Wishboard() {
-    const { user, session } = useUser();
-    const [userWishes, setUserWishes] = useState<UserWish[]>([]);
-    const [recommendedWishes, setRecommendedWishes] = useState<RecommendedWish[]>([]);
+    const { user } = useUser();
+    const {
+        userWishes,
+        recommendedWishes,
+        loadFromCache,
+        fetchWishes,
+        addWish,
+        deleteWish,
+        updateWish
+    } = useGoals();
+
     const [selectedWish, setSelectedWish] = useState<UserWish | RecommendedWish | null>(null);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isRecommendedDetail, setIsRecommendedDetail] = useState(false);
-
-    // Edit state
     const [editingWish, setEditingWish] = useState<UserWish | null>(null);
-
-    // Use the global Supabase client instance
-    const supabase = useSupabase();
-
-    const loadFromCache = () => {
-        const cached = storage.get<WishesCache>(STORAGE_KEYS.WISHES_CACHE);
-        if (cached) {
-            // Check cache age (e.g., 1 hour)
-            const CACHE_AGE = 60 * 60 * 1000;
-            if (Date.now() - cached.timestamp < CACHE_AGE) {
-                setUserWishes(cached.userWishes);
-                setRecommendedWishes(cached.recommendedWishes);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    const saveToCache = (uWishes: UserWish[], rWishes: RecommendedWish[]) => {
-        storage.set(STORAGE_KEYS.WISHES_CACHE, {
-            userWishes: uWishes,
-            recommendedWishes: rWishes,
-            timestamp: Date.now()
-        });
-    };
-
-    const fetchData = async () => {
-        if (!user) {
-            logger.warn('fetchData called but no user found');
-            return;
-        }
-
-        logger.info('Fetching wishes for user', { userId: user.id });
-
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                // Fetch user wishes
-                const wishesPromise = supabase
-                    .from('user_wishes')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false });
-
-                // Fetch recommended wishes
-                const recommendedPromise = supabase
-                    .from('recommended_wishes')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                const [wishesResult, recommendedResult] = await Promise.all([
-                    wishesPromise,
-                    recommendedPromise
-                ]);
-
-                return {
-                    wishes: wishesResult.data,
-                    wishesError: wishesResult.error,
-                    recommended: recommendedResult.data,
-                    recError: recommendedResult.error
-                };
-            },
-            () => {
-                logger.warn('Session expired during data fetch');
-            }
-        );
-
-        if (!result) {
-            // Session was invalid, but we don't alert here as it's a background operation
-            return;
-        }
-
-        const { wishes, wishesError, recommended, recError } = result;
-
-        if (wishesError) {
-            logger.error('Error fetching user wishes:', wishesError);
-        }
-
-        if (recError) {
-            logger.error('Error fetching recommended wishes:', recError);
-        }
-
-        if (wishes && recommended) {
-            // Filter out wishes that the user already has
-            const userRecommendedIds = new Set(wishes.map((w: UserWish) => w.recommended_source_id).filter(Boolean));
-            const userWishTitles = new Set(wishes.map((w: UserWish) => w.title.toLowerCase()));
-
-            const filteredRecommended = recommended.filter((r: RecommendedWish) => {
-                const hasById = userRecommendedIds.has(r.id);
-                const hasByTitle = userWishTitles.has(r.title.toLowerCase());
-                return !hasById && !hasByTitle;
-            });
-
-            setUserWishes(wishes);
-            setRecommendedWishes(filteredRecommended);
-            saveToCache(wishes, filteredRecommended);
-        }
-    };
 
     useEffect(() => {
         if (!user) return;
-
-        // Try load from cache first for instant UI
-        const loadedFromCache = loadFromCache();
-
-        // Then fetch fresh data
-        fetchData();
+        loadFromCache();
+        fetchWishes();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
@@ -146,105 +42,60 @@ export default function Wishboard() {
     };
 
     const handleAddFromRecommended = async (wish: RecommendedWish) => {
-        if (!user) {
-            logger.error('handleAddFromRecommended called but no user found');
-            return;
-        }
+        const success = await addWish({
+            title: wish.title,
+            description: wish.description,
+            image_url: wish.image_url,
+            estimated_cost: wish.estimated_cost,
+            difficulty_level: wish.difficulty_level,
+            recommended_source_id: wish.id
+        }, true);
 
-        logger.info('Adding recommended wish', {
-            wishId: wish.id,
-            userId: user.id,
-            hasSession: !!session,
-            sessionExpiresAt: session?.expires_at
-        });
-
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                // Create a promise that rejects after 10 seconds
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Request timed out')), 10000);
-                });
-
-                const insertPromise = supabase.from('user_wishes').insert({
-                    user_id: user.id,
-                    title: wish.title,
-                    description: wish.description,
-                    image_url: wish.image_url,
-                    estimated_cost: wish.estimated_cost,
-                    difficulty_level: wish.difficulty_level,
-                    is_completed: false,
-                    recommended_source_id: wish.id
-                });
-
-                // Race the insert against the timeout
-                return await Promise.race([insertPromise, timeoutPromise]) as any;
-            },
-            () => {
-                alert('Your session has expired. Please refresh the page.');
-            }
-        );
-
-        if (!result) {
-            // Session was invalid
-            return;
-        }
-
-        if (result.error) {
-            logger.error('Error adding wish:', result.error);
-            alert('Failed to add wish');
-        } else {
-            logger.info('Successfully added recommended wish');
+        if (success) {
             setIsDetailOpen(false);
-            fetchData();
+        } else {
+            alert('Failed to add wish');
         }
     };
 
     const handleDeleteWish = async (wish: UserWish) => {
         if (!confirm('Are you sure you want to delete this wish?')) return;
 
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                return await supabase
-                    .from('user_wishes')
-                    .delete()
-                    .eq('id', wish.id);
-            },
-            () => {
-                alert('Your session has expired. Please refresh the page.');
-            }
-        );
-
-        if (!result) {
-            // Session was invalid
-            return;
-        }
-
-        if (result.error) {
-            logger.error('Error deleting wish:', result.error);
-            alert('Failed to delete wish');
-        } else {
-            // Clean up local storage if needed
+        const success = await deleteWish(wish.id);
+        if (success) {
             if (wish.image_url && wish.image_url.startsWith('local://')) {
                 const localId = wish.image_url.replace('local://', '');
                 storage.removeWishImage(localId);
             }
-
             setIsDetailOpen(false);
-            fetchData();
+        } else {
+            alert('Failed to delete wish');
         }
     };
 
     const handleEditWish = (wish: UserWish) => {
         setEditingWish(wish);
-        setIsDetailOpen(false); // Close detail modal
-        setIsAddModalOpen(true); // Open add modal in edit mode
+        setIsDetailOpen(false);
+        setIsAddModalOpen(true);
     };
 
     const handleModalClose = () => {
         setIsAddModalOpen(false);
-        setEditingWish(null); // Reset edit state
+        setEditingWish(null);
+    };
+
+    const handleSaveWish = async (wishData: any) => {
+        let success = false;
+        if (editingWish) {
+            success = await updateWish(editingWish.id, wishData);
+        } else {
+            success = await addWish(wishData);
+        }
+
+        if (success) {
+            handleModalClose();
+        }
+        return success;
     };
 
     return (
@@ -272,8 +123,6 @@ export default function Wishboard() {
                             className="rounded-none w-full h-full"
                         />
                     ))}
-
-                    {/* Fillers to maintain grid alignment if needed, though CSS grid handles this well */}
                 </div>
             </div>
 
@@ -310,8 +159,8 @@ export default function Wishboard() {
             <AddWishModal
                 isOpen={isAddModalOpen}
                 onClose={handleModalClose}
-                onSuccess={fetchData}
-                initialData={editingWish} // Pass data for editing
+                onSave={handleSaveWish}
+                initialData={editingWish}
             />
         </div>
     );

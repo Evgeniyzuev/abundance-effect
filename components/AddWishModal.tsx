@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSupabase } from '@/hooks/useSupabase';
 import { useUser } from '@/context/UserContext';
 import { Camera, Upload, Link, X, ExternalLink } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
 import { storage } from '@/utils/storage';
 import { logger } from '@/utils/logger';
-import { withValidSession } from '@/utils/supabase/sessionManager';
 
 interface AddWishModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
     initialData?: UserWish | null;
+    onSave?: (data: any) => Promise<boolean>;
 }
 
-export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }: AddWishModalProps) {
+export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, onSave }: AddWishModalProps) {
     const { user } = useUser();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -27,8 +26,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Use the global Supabase client instance
-    const supabase = useSupabase();
+
 
 
     // Initialize form with data when editing
@@ -151,7 +149,6 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
             }
 
             const wishData = {
-                user_id: user.id,
                 title,
                 description: description || null,
                 image_url: finalImageUrl || null,
@@ -162,38 +159,20 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
                 recommended_source_id: initialData ? initialData.recommended_source_id : null
             };
 
-            const result = await withValidSession(
-                supabase,
-                async () => {
-                    if (initialData?.id) {
-                        // Update existing wish
-                        return await supabase
-                            .from('user_wishes')
-                            .update(wishData)
-                            .eq('id', initialData.id);
-                    } else {
-                        // Insert new wish
-                        return await supabase
-                            .from('user_wishes')
-                            .insert(wishData);
-                    }
-                },
-                () => {
-                    alert('Your session has expired. Please refresh the page.');
+            if (onSave) {
+                const success = await onSave(wishData);
+                if (!success) {
+                    throw new Error("Failed to save wish");
                 }
-            );
-
-            if (!result) {
-                // Session was invalid
-                return;
-            }
-
-            if (result.error) {
-                throw result.error;
+            } else {
+                // Fallback for backward compatibility if needed, or remove
+                // For now we assume onSave is always provided in the new architecture
+                logger.warn('onSave prop missing in AddWishModal');
             }
 
             onSuccess?.();
-            onClose();
+            // onClose is handled by parent if onSave returns true, 
+            // but we can close here if we want to be sure
         } catch (error) {
             logger.error("Error saving wish:", error);
             alert("Failed to save wish");

@@ -77,6 +77,7 @@ export async function withValidSession<T>(
     operation: () => Promise<T>,
     onSessionExpired?: () => void
 ): Promise<T | null> {
+    // First attempt: Ensure session is valid before starting
     const isValid = await ensureValidSession(supabaseClient);
 
     if (!isValid) {
@@ -87,8 +88,24 @@ export async function withValidSession<T>(
 
     try {
         return await operation();
-    } catch (err) {
-        logger.error('Error in withValidSession operation:', err);
-        throw err;
+    } catch (err: any) {
+        logger.warn('Operation failed, attempting retry with fresh session...', err);
+
+        // If operation fails, try to force refresh session and retry once
+        const { data: { session }, error: refreshError } = await supabaseClient.auth.refreshSession();
+
+        if (refreshError || !session) {
+            logger.error('Failed to refresh session during retry:', refreshError);
+            onSessionExpired?.();
+            return null;
+        }
+
+        try {
+            logger.info('Retrying operation with fresh session...');
+            return await operation();
+        } catch (retryErr) {
+            logger.error('Retry failed:', retryErr);
+            throw retryErr;
+        }
     }
 }
