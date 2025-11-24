@@ -1,10 +1,14 @@
 import { useState, useCallback } from 'react';
-import { useSupabase } from '@/hooks/useSupabase';
 import { useUser } from '@/context/UserContext';
 import { UserWish, RecommendedWish } from '@/types/supabase';
-import { withValidSession } from '@/utils/supabase/sessionManager';
 import { logger } from '@/utils/logger';
 import { storage, STORAGE_KEYS } from '@/utils/storage';
+import {
+    fetchWishesAction,
+    addWishAction,
+    updateWishAction,
+    deleteWishAction
+} from '@/app/actions/goals';
 
 interface WishesCache {
     userWishes: UserWish[];
@@ -14,7 +18,6 @@ interface WishesCache {
 
 export function useGoals() {
     const { user } = useUser();
-    const supabase = useSupabase();
     const [userWishes, setUserWishes] = useState<UserWish[]>([]);
     const [recommendedWishes, setRecommendedWishes] = useState<RecommendedWish[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -43,29 +46,10 @@ export function useGoals() {
     const fetchWishes = useCallback(async () => {
         if (!user) return;
 
-        // Don't set global loading here to avoid flickering if we have cache
-        // But we could add a separate 'isRefreshing' state if needed
+        const result = await fetchWishesAction();
 
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                const [wishesResult, recommendedResult] = await Promise.all([
-                    supabase.from('user_wishes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-                    supabase.from('recommended_wishes').select('*').order('created_at', { ascending: false })
-                ]);
-
-                return {
-                    wishes: wishesResult.data,
-                    wishesError: wishesResult.error,
-                    recommended: recommendedResult.data,
-                    recError: recommendedResult.error
-                };
-            },
-            () => logger.warn('Session expired during fetch')
-        );
-
-        if (result && result.wishes && result.recommended) {
-            const { wishes, recommended } = result;
+        if (result.success && result.data) {
+            const { wishes, recommended } = result.data;
 
             // Filter recommended
             const userRecommendedIds = new Set(wishes.map((w: UserWish) => w.recommended_source_id).filter(Boolean));
@@ -80,31 +64,26 @@ export function useGoals() {
             setUserWishes(wishes);
             setRecommendedWishes(filteredRecommended);
             saveToCache(wishes, filteredRecommended);
+        } else {
+            logger.error('Error fetching wishes:', result.error);
         }
-    }, [user, supabase, saveToCache]);
+    }, [user, saveToCache]);
 
     const addWish = async (wishData: Partial<UserWish>, isRecommended: boolean = false) => {
         if (!user) return false;
         setIsLoading(true);
 
         try {
-            const result = await withValidSession(
-                supabase,
-                async () => {
-                    return await supabase.from('user_wishes').insert({
-                        ...wishData,
-                        user_id: user.id,
-                        is_completed: false
-                    }).select().single();
-                },
-                () => alert('Session expired. Please refresh.')
-            );
+            const result = await addWishAction(wishData);
 
-            if (result && !result.error) {
+            if (result.success) {
                 await fetchWishes();
                 return true;
+            } else {
+                logger.error('Error adding wish:', result.error);
+                alert('Failed to add wish: ' + result.error);
+                return false;
             }
-            return false;
         } catch (e) {
             logger.error('Error adding wish', e);
             return false;
@@ -118,19 +97,16 @@ export function useGoals() {
         setIsLoading(true);
 
         try {
-            const result = await withValidSession(
-                supabase,
-                async () => {
-                    return await supabase.from('user_wishes').update(updates).eq('id', id);
-                },
-                () => alert('Session expired. Please refresh.')
-            );
+            const result = await updateWishAction(id, updates);
 
-            if (result && !result.error) {
+            if (result.success) {
                 await fetchWishes();
                 return true;
+            } else {
+                logger.error('Error updating wish:', result.error);
+                alert('Failed to update wish: ' + result.error);
+                return false;
             }
-            return false;
         } catch (e) {
             logger.error('Error updating wish', e);
             return false;
@@ -143,20 +119,16 @@ export function useGoals() {
         if (!user) return false;
 
         try {
-            const result = await withValidSession(
-                supabase,
-                async () => {
-                    return await supabase.from('user_wishes').delete().eq('id', id);
-                },
-                () => alert('Session expired. Please refresh.')
-            );
+            const result = await deleteWishAction(id);
 
-            if (result && !result.error) {
-                // Optimistic update could go here, but fetching is safer for sync
+            if (result.success) {
                 await fetchWishes();
                 return true;
+            } else {
+                logger.error('Error deleting wish:', result.error);
+                alert('Failed to delete wish: ' + result.error);
+                return false;
             }
-            return false;
         } catch (e) {
             logger.error('Error deleting wish', e);
             return false;
