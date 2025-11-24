@@ -152,6 +152,50 @@ export interface Database {
                     updated_at?: string
                 }
             }
+            personal_tasks: {
+                Row: {
+                    id: string
+                    user_id: string
+                    title: string
+                    description: string | null
+                    type: 'one_time' | 'streak' | 'daily'
+                    status: 'active' | 'completed' | 'canceled'
+                    streak_goal: number | null
+                    streak_current: number | null
+                    progress_percentage: number | null
+                    last_completed_at: string | null
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    title: string
+                    description?: string | null
+                    type: 'one_time' | 'streak' | 'daily'
+                    status?: 'active' | 'completed' | 'canceled'
+                    streak_goal?: number | null
+                    streak_current?: number | null
+                    progress_percentage?: number | null
+                    last_completed_at?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    title?: string
+                    description?: string | null
+                    type?: 'one_time' | 'streak' | 'daily'
+                    status?: 'active' | 'completed' | 'canceled'
+                    streak_goal?: number | null
+                    streak_current?: number | null
+                    progress_percentage?: number | null
+                    last_completed_at?: string | null
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
         }
     }
 }
@@ -160,3 +204,4 @@ export type UserWish = Database['public']['Tables']['user_wishes']['Row']
 export type RecommendedWish = Database['public']['Tables']['recommended_wishes']['Row']
 export type CustomList = Database['public']['Tables']['custom_lists']['Row']
 export type UserNote = Database['public']['Tables']['user_notes']['Row']
+export type PersonalTask = Database['public']['Tables']['personal_tasks']['Row']

@@ -1,0 +1,130 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useUser } from '@/context/UserContext';
+import { useTasks } from '@/hooks/useTasks';
+import { PersonalTask } from '@/types/supabase';
+import TaskCard from '@/components/tasks/TaskCard';
+import AddTaskModal from '@/components/tasks/AddTaskModal';
+import TabataTimer from '@/components/tasks/TabataTimer';
+import { Plus } from 'lucide-react';
+
+export default function Tasks() {
+    const { user } = useUser();
+    const {
+        tasks,
+        loadFromCache,
+        fetchTasks,
+        addTask,
+        deleteTask,
+        completeTask
+    } = useTasks();
+
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isCompletedExpanded, setIsCompletedExpanded] = useState(false);
+
+    useEffect(() => {
+        if (!user) return;
+        loadFromCache();
+        fetchTasks();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
+
+    const handleAddTask = async (taskData: Partial<PersonalTask>) => {
+        const success = await addTask(taskData);
+        return success;
+    };
+
+    const handleCompleteTask = async (id: string) => {
+        await completeTask(id);
+    };
+
+    const handleDeleteTask = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this task?')) return;
+        await deleteTask(id);
+    };
+
+    const activeTasks = tasks.filter(t => t.status === 'active');
+    const completedTasks = tasks.filter(t => t.status === 'completed');
+
+    return (
+        <div className="pb-20 bg-gray-50 min-h-screen">
+            {/* Active Tasks */}
+            <div className="bg-white">
+                {activeTasks.length === 0 ? (
+                    <div className="p-8 text-center">
+                        <p className="text-gray-500 mb-4">No active tasks yet</p>
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                        >
+                            <Plus size={20} className="mr-2 inline" />
+                            Create Your First Task
+                        </button>
+                    </div>
+                ) : (
+                    <div>
+                        {activeTasks.map((task) => (
+                            <TaskCard
+                                key={task.id}
+                                task={task}
+                                onComplete={handleCompleteTask}
+                                onDelete={handleDeleteTask}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Completed Tasks - Collapsible */}
+            {completedTasks.length > 0 && (
+                <div className="mt-4 bg-white">
+                    <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                        <h4 className="text-sm font-medium text-gray-700">Completed</h4>
+                        <button
+                            onClick={() => setIsCompletedExpanded(!isCompletedExpanded)}
+                            className="text-blue-500 hover:text-blue-600 px-3 py-1 rounded transition-colors text-sm"
+                        >
+                            {isCompletedExpanded ? 'Collapse' : 'Expand'}
+                        </button>
+                    </div>
+
+                    {isCompletedExpanded && (
+                        <div>
+                            {completedTasks.map((task) => (
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                    onComplete={handleCompleteTask}
+                                    onDelete={handleDeleteTask}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Tabata Timer */}
+            <div className="mt-4 px-4">
+                <TabataTimer />
+            </div>
+
+            {/* Floating Action Button */}
+            {activeTasks.length > 0 && (
+                <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="fixed bottom-24 right-6 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all z-40"
+                >
+                    <Plus size={24} />
+                </button>
+            )}
+
+            {/* Add Task Modal */}
+            <AddTaskModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onSave={handleAddTask}
+            />
+        </div>
+    );
+}

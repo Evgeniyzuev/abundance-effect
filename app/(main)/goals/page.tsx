@@ -4,6 +4,7 @@ import { useState } from 'react';
 import TopNav from '@/components/TopNav';
 import Wishboard from '@/components/goals/Wishboard';
 import Notes from '@/components/goals/Notes';
+import Tasks from '@/components/goals/Tasks';
 
 type Tab = 'wishboard' | 'notes' | 'tasks' | 'roadmap' | 'results';
 
@@ -17,7 +18,7 @@ export default function GoalsPage() {
             <div className="pt-14">
                 {activeTab === 'wishboard' && <Wishboard />}
                 {activeTab === 'notes' && <Notes />}
-                {activeTab === 'tasks' && <div className="p-4 text-center text-gray-500">Tasks coming soon</div>}
+                {activeTab === 'tasks' && <Tasks />}
                 {activeTab === 'roadmap' && <div className="p-4 text-center text-gray-500">Roadmap coming soon</div>}
                 {activeTab === 'results' && <div className="p-4 text-center text-gray-500">Results coming soon</div>}
             </div>
