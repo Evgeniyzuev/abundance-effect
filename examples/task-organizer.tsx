@@ -485,212 +485,177 @@ export default function TaskOrganizer() {
       </div> */}
 
       {/* Task list (saved user goals + personal tasks + local quick tasks) */}
-      <div className="space-y-4">
-        {/* Saved tasks (personal_tasks) - render using TaskCard to preserve UI */}
-        {personalTasks && personalTasks.length > 0 ? (
-          <div className="grid gap-0">
-            {personalTasks.filter((t) => t.status !== 'completed').map((t) => (
-              <TaskCard key={t.id} goal={t} onUpdated={fetchPersonalTasks} />
-            ))}
+      {/* Left Container */}
+      <div className="flex flex-col justify-between">
+        <div className="space-y-1">
+          <div className="text-sm opacity-90">Round {currentRound + 1} of {rounds}</div>
+          <div className="text-lg font-medium">{isWorkPhase ? 'Work' : 'Rest'}</div>
+          <div className="text-xs opacity-80">
+            Today: {Math.floor(totalWorkTime / 60)}:{(totalWorkTime % 60).toString().padStart(2, '0')} worked
           </div>
-        ) : (
-          <div className="text-sm text-gray-500">No saved tasks yet</div>
-        )}
-
-        {/* Personal tasks list removed here (deduplicated). Top list uses TaskCard and Completed section below shows completed tasks. */}
-
-        {/* Completed tasks - collapsed by default */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Completed</h4>
-            <button className="text-blue-500 hover:text-blue-600 px-3 py-1 rounded transition-colors text-sm" onClick={() => setIsCompletedExpandedLocal(!isCompletedExpandedLocal)}>
-              {isCompletedExpandedLocal ? 'Collapse' : 'Expand'}
-            </button>
-          </div>
-
-          {isCompletedExpandedLocal && (
-            <div className="mt-2 space-y-2">
-              {personalTasks.filter((t) => t.status === 'completed').map((task) => (
-                <TaskCard key={task.id} goal={task} onUpdated={fetchPersonalTasks} />
-              ))}
-            </div>
-          )}
+        </div>
+        <div className="flex justify-start">
+          <button
+            onClick={startStop}
+            className="bg-white text-blue-600 hover:bg-gray-100 rounded-full px-6 py-2 text-sm font-semibold shadow-lg transition-colors"
+          >
+            {isRunning ? 'Stop' : (hasStarted ? 'Continue' : 'Start')}
+          </button>
         </div>
       </div>
 
-      {/* Tabata Timer */}
-      <div className="mt-4 mx-0 bg-white rounded-3xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 text-white">
-          <div className="grid grid-cols-3 gap-3 h-full">
-            {/* Left Container */}
-            <div className="flex flex-col justify-between">
-              <div className="space-y-1">
-                <div className="text-sm opacity-90">Round {currentRound + 1} of {rounds}</div>
-                <div className="text-lg font-medium">{isWorkPhase ? 'Work' : 'Rest'}</div>
-                <div className="text-xs opacity-80">
-                  Today: {Math.floor(totalWorkTime / 60)}:{(totalWorkTime % 60).toString().padStart(2, '0')} worked
-                </div>
+      {/* Center Container */}
+      <div className="flex flex-col items-center justify-center">
+        <h2 className="text-base font-semibold mb-2">Tabata Timer</h2>
+
+        {/* Timer with Circular Progress */}
+        <div className="relative">
+          <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+            <circle
+              cx="60"
+              cy="60"
+              r="54"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="6"
+              fill="none"
+            />
+            {/* Progress Circle */}
+            <circle
+              cx="60"
+              cy="60"
+              r="54"
+              stroke="rgba(255,255,255,0.8)"
+              strokeWidth="6"
+              fill="none"
+              strokeDasharray={`${2 * Math.PI * 54}`}
+              strokeDashoffset={`${2 * Math.PI * 54 * (1 - (isWorkPhase ?
+                (workDuration - timeLeft) / Math.max(workDuration, 1) :
+                (restDuration - timeLeft) / Math.max(restDuration, 1)
+              ))}`}
+              strokeLinecap="round"
+              className="transition-all duration-300"
+            />
+          </svg>
+
+          {/* Timer Display */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`text-center transition-all duration-300 ${isCompleted ? 'text-green-300' :
+              isBlinking ? 'text-red-300 animate-pulse' :
+                'text-white'
+              }`}>
+              <div className="text-3xl font-bold">
+                {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
               </div>
-              <div className="flex justify-start">
-                <button
-                  onClick={startStop}
-                  className="bg-white text-blue-600 hover:bg-gray-100 rounded-full px-6 py-2 text-sm font-semibold shadow-lg transition-colors"
-                >
-                  {isRunning ? 'Stop' : (hasStarted ? 'Continue' : 'Start')}
-                </button>
-              </div>
-            </div>
-
-            {/* Center Container */}
-            <div className="flex flex-col items-center justify-center">
-              <h2 className="text-base font-semibold mb-2">Tabata Timer</h2>
-
-              {/* Timer with Circular Progress */}
-              <div className="relative">
-                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="54"
-                    stroke="rgba(255,255,255,0.2)"
-                    strokeWidth="6"
-                    fill="none"
-                  />
-                  {/* Progress Circle */}
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="54"
-                    stroke="rgba(255,255,255,0.8)"
-                    strokeWidth="6"
-                    fill="none"
-                    strokeDasharray={`${2 * Math.PI * 54}`}
-                    strokeDashoffset={`${2 * Math.PI * 54 * (1 - (isWorkPhase ?
-                      (workDuration - timeLeft) / Math.max(workDuration, 1) :
-                      (restDuration - timeLeft) / Math.max(restDuration, 1)
-                    ))}`}
-                    strokeLinecap="round"
-                    className="transition-all duration-300"
-                  />
-                </svg>
-
-                {/* Timer Display */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`text-center transition-all duration-300 ${isCompleted ? 'text-green-300' :
-                    isBlinking ? 'text-red-300 animate-pulse' :
-                      'text-white'
-                    }`}>
-                    <div className="text-3xl font-bold">
-                      {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Container */}
-            <div className="flex flex-col items-end justify-between">
-              <button
-                onClick={() => setIsMuted(!isMuted)}
-                className="text-white hover:bg-white/20 p-2 self-end rounded transition-colors"
-              >
-                {isMuted ? '🔇' : '🔊'}
-              </button>
-
-              <div className="space-y-1">
-                <div className="flex items-center justify-end space-x-2">
-                  <label className="text-xs opacity-80 text-white">Work</label>
-                  <input
-                    type="text"
-                    value={workDurationInput}
-                    onChange={(e) => setWorkDurationInput(e.target.value)}
-                    placeholder={formatTime(workDurationMinutes)}
-                    className="w-14 h-6 text-xs bg-white/20 border-white/30 text-white placeholder-white/70 rounded px-2"
-                    style={{ color: 'white' }}
-                  />
-                </div>
-                <div className="flex items-center justify-end space-x-2">
-                  <label className="text-xs opacity-80 text-white">Rest</label>
-                  <input
-                    type="text"
-                    value={restDurationInput}
-                    onChange={(e) => setRestDurationInput(e.target.value)}
-                    placeholder={formatTime(restDurationMinutes)}
-                    className="w-14 h-6 text-xs bg-white/20 border-white/30 text-white placeholder-white/70 rounded px-2"
-                    style={{ color: 'white' }}
-                  />
-                </div>
-                <div className="flex items-center justify-end space-x-2">
-                  <label className="text-xs opacity-80 text-white">Rounds</label>
-                  <input
-                    type="text"
-                    value={roundsInput}
-                    onChange={(e) => setRoundsInput(e.target.value)}
-                    placeholder={rounds.toString()}
-                    className="w-14 h-6 text-xs bg-white/20 border-white/30 text-white placeholder-white/70 rounded px-2"
-                    style={{ color: 'white' }}
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={reset}
-                className="bg-gray-600 text-white hover:bg-gray-700 rounded-full px-5 py-2 text-sm font-semibold transition-colors"
-              >
-                Reset
-              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* History Container */}
-      <div className="mt-6 mx-0 bg-white rounded-3xl shadow-lg p-4">
-        <h3 className="text-lg font-semibold mb-3 flex items-center justify-between">
-          <span>History</span>
-          <div className="flex items-center space-x-2">
+      {/* Right Container */}
+      <div className="flex flex-col items-end justify-between">
+        <button
+          onClick={() => setIsMuted(!isMuted)}
+          className="text-white hover:bg-white/20 p-2 self-end rounded transition-colors"
+        >
+          {isMuted ? '🔇' : '🔊'}
+        </button>
+
+        <div className="space-y-1">
+          <div className="flex items-center justify-end space-x-2">
+            <label className="text-xs opacity-80 text-white">Work</label>
             <input
               type="text"
-              value={timeThresholdInput}
-              onChange={(e) => setTimeThresholdInput(e.target.value)}
-              placeholder="1:25:00"
-              className="w-20 h-8 text-xs bg-gray-100 border-gray-300 rounded px-2"
+              value={workDurationInput}
+              onChange={(e) => setWorkDurationInput(e.target.value)}
+              placeholder={formatTime(workDurationMinutes)}
+              className="w-14 h-6 text-xs bg-white/20 border-white/30 text-white placeholder-white/70 rounded px-2"
+              style={{ color: 'white' }}
             />
-            <button
-              onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
-              className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            >
-              {isHistoryExpanded ? 'Collapse' : 'Expand'}
-            </button>
           </div>
-        </h3>
-        {isHistoryExpanded && (
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {history.length === 0 ? (
-              <div className="text-center text-gray-500 py-4">-----</div>
-            ) : (
-              history.slice().reverse().map((entry) => {
-                const timeInMinutes = entry.time / 60
-                const hours = Math.floor(timeInMinutes / 60)
-                const minutes = Math.floor(timeInMinutes % 60)
-                const seconds = Math.round((timeInMinutes % 1) * 60)
-                const timeDisplay = hours > 0
-                  ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-                  : `${minutes}:${seconds.toString().padStart(2, '0')}`
-                return (
-                  <div key={entry.date} className={`flex justify-between items-center p-3 rounded-lg ${timeInMinutes > timeThreshold ? 'bg-green-100' : 'bg-red-100'
-                    }`}>
-                    <span className="text-sm font-medium">{entry.date}</span>
-                    <span className="text-sm text-gray-600">
-                      {timeDisplay}
-                    </span>
-                  </div>
-                )
-              })
-            )}
+          <div className="flex items-center justify-end space-x-2">
+            <label className="text-xs opacity-80 text-white">Rest</label>
+            <input
+              type="text"
+              value={restDurationInput}
+              onChange={(e) => setRestDurationInput(e.target.value)}
+              placeholder={formatTime(restDurationMinutes)}
+              className="w-14 h-6 text-xs bg-white/20 border-white/30 text-white placeholder-white/70 rounded px-2"
+              style={{ color: 'white' }}
+            />
           </div>
-        )}
+          <div className="flex items-center justify-end space-x-2">
+            <label className="text-xs opacity-80 text-white">Rounds</label>
+            <input
+              type="text"
+              value={roundsInput}
+              onChange={(e) => setRoundsInput(e.target.value)}
+              placeholder={rounds.toString()}
+              className="w-14 h-6 text-xs bg-white/20 border-white/30 text-white placeholder-white/70 rounded px-2"
+              style={{ color: 'white' }}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={reset}
+          className="bg-gray-600 text-white hover:bg-gray-700 rounded-full px-5 py-2 text-sm font-semibold transition-colors"
+        >
+          Reset
+        </button>
       </div>
     </div>
+        </div >
+      </div >
+
+    {/* History Container */ }
+    < div className = "mt-6 mx-0 bg-white rounded-3xl shadow-lg p-4" >
+      <h3 className="text-lg font-semibold mb-3 flex items-center justify-between">
+        <span>History</span>
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={timeThresholdInput}
+            onChange={(e) => setTimeThresholdInput(e.target.value)}
+            placeholder="1:25:00"
+            className="w-20 h-8 text-xs bg-gray-100 border-gray-300 rounded px-2"
+          />
+          <button
+            onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
+            className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            {isHistoryExpanded ? 'Collapse' : 'Expand'}
+          </button>
+        </div>
+      </h3>
+  {
+    isHistoryExpanded && (
+      <div className="space-y-2 max-h-40 overflow-y-auto">
+        {history.length === 0 ? (
+          <div className="text-center text-gray-500 py-4">-----</div>
+        ) : (
+          history.slice().reverse().map((entry) => {
+            const timeInMinutes = entry.time / 60
+            const hours = Math.floor(timeInMinutes / 60)
+            const minutes = Math.floor(timeInMinutes % 60)
+            const seconds = Math.round((timeInMinutes % 1) * 60)
+            const timeDisplay = hours > 0
+              ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+              : `${minutes}:${seconds.toString().padStart(2, '0')}`
+            return (
+              <div key={entry.date} className={`flex justify-between items-center p-3 rounded-lg ${timeInMinutes > timeThreshold ? 'bg-green-100' : 'bg-red-100'
+                }`}>
+                <span className="text-sm font-medium">{entry.date}</span>
+                <span className="text-sm text-gray-600">
+                  {timeDisplay}
+                </span>
+              </div>
+            )
+          })
+        )}
+      </div>
+    )
+  }
+      </div >
+    </div >
   )
 }
