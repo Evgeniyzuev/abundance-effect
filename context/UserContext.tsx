@@ -229,6 +229,44 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
 
         init()
+
+        // Handle page visibility changes to refresh session when tab becomes active
+        const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'visible') {
+                console.log('Page became visible, refreshing session...');
+
+                try {
+                    const { data: { session: currentSession }, error } = await supabase.auth.refreshSession();
+
+                    if (error) {
+                        console.error('Error refreshing session on visibility change:', error);
+                        return;
+                    }
+
+                    if (currentSession) {
+                        console.log('Session refreshed successfully');
+                        setSession(currentSession);
+
+                        // Refresh user data
+                        if (currentSession.user) {
+                            const dbUser = await fetchDbUser(currentSession.user.id);
+                            if (dbUser) {
+                                setUser(dbUser);
+                                saveUserToCache(dbUser);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error('Unexpected error refreshing session:', err);
+                }
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [])
 
     return (

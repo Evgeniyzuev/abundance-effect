@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
-import { createClient } from '@/utils/supabase/client';
+import { useSupabase } from '@/hooks/useSupabase';
 import { UserWish, RecommendedWish } from '@/types/supabase';
 import WishCard from '@/components/WishCard';
 import WishDetailModal from '@/components/WishDetailModal';
@@ -30,9 +30,8 @@ export default function Wishboard() {
     // Edit state
     const [editingWish, setEditingWish] = useState<UserWish | null>(null);
 
-    // Use useMemo to ensure we don't recreate the client on each render
-    // This prevents creating multiple sessions
-    const supabase = useMemo(() => createClient(), []);
+    // Use the global Supabase client instance
+    const supabase = useSupabase();
 
     const loadFromCache = () => {
         const cached = storage.get<WishesCache>(STORAGE_KEYS.WISHES_CACHE);
@@ -130,11 +129,14 @@ export default function Wishboard() {
     };
 
     useEffect(() => {
+        if (!user) return;
+
         // Try load from cache first for instant UI
         const loadedFromCache = loadFromCache();
 
         // Then fetch fresh data
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     const handleWishClick = (wish: UserWish | RecommendedWish, isRecommended: boolean) => {

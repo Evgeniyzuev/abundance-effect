@@ -13,7 +13,18 @@ export async function ensureValidSession(supabaseClient: SupabaseClient): Promis
 
         if (error) {
             logger.error('Error getting session:', error);
-            return false;
+
+            // Try to refresh session
+            logger.info('Attempting to refresh session after error...');
+            const { data: { session: newSession }, error: refreshError } = await supabaseClient.auth.refreshSession();
+
+            if (refreshError || !newSession) {
+                logger.error('Failed to refresh session:', refreshError);
+                return false;
+            }
+
+            logger.info('Session refreshed successfully after error');
+            return true;
         }
 
         if (!session) {

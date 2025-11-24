@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import React, { useState, useRef, useEffect } from 'react';
+import { useSupabase } from '@/hooks/useSupabase';
 import { useUser } from '@/context/UserContext';
 import { Camera, Upload, Link, X, ExternalLink } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
@@ -27,8 +27,8 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Use useMemo to ensure we don't recreate the client on each render
-    const supabase = useMemo(() => createClient(), []);
+    // Use the global Supabase client instance
+    const supabase = useSupabase();
 
 
     // Initialize form with data when editing
