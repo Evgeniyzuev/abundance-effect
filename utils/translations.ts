@@ -31,6 +31,35 @@ export type TranslationKey =
     | 'profile.username'
     | 'profile.telegram_id'
     | 'profile.reinvest'
+    // Notes page
+    | 'notes.title'
+    | 'notes.add_note'
+    | 'notes.today'
+    | 'notes.planned'
+    | 'notes.all'
+    | 'notes.completed'
+    | 'notes.create_list'
+    | 'notes.edit_list'
+    | 'notes.delete_list'
+    | 'notes.list_name'
+    | 'notes.no_notes'
+    | 'notes.search_placeholder'
+    | 'notes.details'
+    | 'notes.date'
+    | 'notes.time'
+    | 'notes.tags'
+    | 'notes.priority'
+    | 'notes.priority_none'
+    | 'notes.priority_low'
+    | 'notes.priority_medium'
+    | 'notes.priority_high'
+    | 'notes.list'
+    | 'notes.icon'
+    | 'notes.color'
+    | 'notes.new_list'
+    | 'notes.done'
+    | 'notes.back'
+    | 'notes.cancel'
     // Common
     | 'common.loading'
     | 'common.error'
@@ -66,6 +95,35 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'Username',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': 'Reinvest',
+        // Notes
+        'notes.title': 'Notes',
+        'notes.add_note': 'Add Note',
+        'notes.today': 'Today',
+        'notes.planned': 'Planned',
+        'notes.all': 'All',
+        'notes.completed': 'Completed',
+        'notes.create_list': 'Create List',
+        'notes.edit_list': 'Edit List',
+        'notes.delete_list': 'Delete List',
+        'notes.list_name': 'List Name',
+        'notes.no_notes': 'No notes',
+        'notes.search_placeholder': 'Search',
+        'notes.details': 'Details',
+        'notes.date': 'Date',
+        'notes.time': 'Time',
+        'notes.tags': 'Tags',
+        'notes.priority': 'Priority',
+        'notes.priority_none': 'None',
+        'notes.priority_low': 'Low',
+        'notes.priority_medium': 'Medium',
+        'notes.priority_high': 'High',
+        'notes.list': 'List',
+        'notes.icon': 'Icon',
+        'notes.color': 'Color',
+        'notes.new_list': 'New List',
+        'notes.done': 'Done',
+        'notes.back': 'Back',
+        'notes.cancel': 'Cancel',
         // Common
         'common.loading': 'Loading...',
         'common.error': 'Error',
@@ -100,6 +158,35 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': '用户名',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': '再投资',
+        // Notes
+        'notes.title': '笔记',
+        'notes.add_note': '添加笔记',
+        'notes.today': '今天',
+        'notes.planned': '已计划',
+        'notes.all': '全部',
+        'notes.completed': '已完成',
+        'notes.create_list': '创建列表',
+        'notes.edit_list': '编辑列表',
+        'notes.delete_list': '删除列表',
+        'notes.list_name': '列表名称',
+        'notes.no_notes': '没有笔记',
+        'notes.search_placeholder': '搜索',
+        'notes.details': '详情',
+        'notes.date': '日期',
+        'notes.time': '时间',
+        'notes.tags': '标签',
+        'notes.priority': '优先级',
+        'notes.priority_none': '无',
+        'notes.priority_low': '低',
+        'notes.priority_medium': '中',
+        'notes.priority_high': '高',
+        'notes.list': '列表',
+        'notes.icon': '图标',
+        'notes.color': '颜色',
+        'notes.new_list': '新列表',
+        'notes.done': '完成',
+        'notes.back': '返回',
+        'notes.cancel': '取消',
         // Common
         'common.loading': '加载中...',
         'common.error': '错误',
@@ -134,6 +221,35 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'Nombre de usuario',
         'profile.telegram_id': 'ID de Telegram',
         'profile.reinvest': 'Reinversión',
+        // Notes
+        'notes.title': 'Notas',
+        'notes.add_note': 'Agregar Nota',
+        'notes.today': 'Hoy',
+        'notes.planned': 'Planificado',
+        'notes.all': 'Todas',
+        'notes.completed': 'Completadas',
+        'notes.create_list': 'Crear Lista',
+        'notes.edit_list': 'Editar Lista',
+        'notes.delete_list': 'Eliminar Lista',
+        'notes.list_name': 'Nombre de Lista',
+        'notes.no_notes': 'Sin notas',
+        'notes.search_placeholder': 'Buscar',
+        'notes.details': 'Detalles',
+        'notes.date': 'Fecha',
+        'notes.time': 'Hora',
+        'notes.tags': 'Etiquetas',
+        'notes.priority': 'Prioridad',
+        'notes.priority_none': 'Ninguna',
+        'notes.priority_low': 'Baja',
+        'notes.priority_medium': 'Media',
+        'notes.priority_high': 'Alta',
+        'notes.list': 'Lista',
+        'notes.icon': 'Ícono',
+        'notes.color': 'Color',
+        'notes.new_list': 'Nueva Lista',
+        'notes.done': 'Listo',
+        'notes.back': 'Volver',
+        'notes.cancel': 'Cancelar',
         // Common
         'common.loading': 'Cargando...',
         'common.error': 'Error',
@@ -168,6 +284,35 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'यूज़रनेम',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': 'पुनर्निवेश',
+        // Notes
+        'notes.title': 'नोट्स',
+        'notes.add_note': 'नोट जोड़ें',
+        'notes.today': 'आज',
+        'notes.planned': 'नियोजित',
+        'notes.all': 'सभी',
+        'notes.completed': 'पूर्ण',
+        'notes.create_list': 'सूची बनाएं',
+        'notes.edit_list': 'सूची संपादित करें',
+        'notes.delete_list': 'सूची हटाएं',
+        'notes.list_name': 'सूची का नाम',
+        'notes.no_notes': 'कोई नोट नहीं',
+        'notes.search_placeholder': 'खोजें',
+        'notes.details': 'विवरण',
+        'notes.date': 'तारीख',
+        'notes.time': 'समय',
+        'notes.tags': 'टैग',
+        'notes.priority': 'प्राथमिकता',
+        'notes.priority_none': 'कोई नहीं',
+        'notes.priority_low': 'कम',
+        'notes.priority_medium': 'मध्यम',
+        'notes.priority_high': 'उच्च',
+        'notes.list': 'सूची',
+        'notes.icon': 'आइकन',
+        'notes.color': 'रंग',
+        'notes.new_list': 'नई सूची',
+        'notes.done': 'हो गया',
+        'notes.back': 'वापस',
+        'notes.cancel': 'रद्द करें',
         // Common
         'common.loading': 'लोड हो रहा है...',
         'common.error': 'त्रुटि',
@@ -202,6 +347,35 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'اسم المستخدم',
         'profile.telegram_id': 'معرف Telegram',
         'profile.reinvest': 'إعادة الاستثمار',
+        // Notes
+        'notes.title': 'الملاحظات',
+        'notes.add_note': 'إضافة ملاحظة',
+        'notes.today': 'اليوم',
+        'notes.planned': 'مخطط',
+        'notes.all': 'الكل',
+        'notes.completed': 'مكتمل',
+        'notes.create_list': 'إنشاء قائمة',
+        'notes.edit_list': 'تحرير القائمة',
+        'notes.delete_list': 'حذف القائمة',
+        'notes.list_name': 'اسم القائمة',
+        'notes.no_notes': 'لا توجد ملاحظات',
+        'notes.search_placeholder': 'بحث',
+        'notes.details': 'التفاصيل',
+        'notes.date': 'التاريخ',
+        'notes.time': 'الوقت',
+        'notes.tags': 'العلامات',
+        'notes.priority': 'الأولوية',
+        'notes.priority_none': 'لا شيء',
+        'notes.priority_low': 'منخفض',
+        'notes.priority_medium': 'متوسط',
+        'notes.priority_high': 'عالي',
+        'notes.list': 'قائمة',
+        'notes.icon': 'أيقونة',
+        'notes.color': 'اللون',
+        'notes.new_list': 'قائمة جديدة',
+        'notes.done': 'تم',
+        'notes.back': 'عودة',
+        'notes.cancel': 'إلغاء',
         // Common
         'common.loading': 'جار التحميل...',
         'common.error': 'خطأ',
@@ -236,6 +410,35 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'Имя пользователя',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': 'Реинвестиция',
+        // Notes
+        'notes.title': 'Заметки',
+        'notes.add_note': 'Добавить Заметку',
+        'notes.today': 'Сегодня',
+        'notes.planned': 'Запланировано',
+        'notes.all': 'Все',
+        'notes.completed': 'Завершено',
+        'notes.create_list': 'Создать Список',
+        'notes.edit_list': 'Редактировать Список',
+        'notes.delete_list': 'Удалить Список',
+        'notes.list_name': 'Название Списка',
+        'notes.no_notes': 'Нет заметок',
+        'notes.search_placeholder': 'Поиск',
+        'notes.details': 'Детали',
+        'notes.date': 'Дата',
+        'notes.time': 'Время',
+        'notes.tags': 'Теги',
+        'notes.priority': 'Приоритет',
+        'notes.priority_none': 'Нет',
+        'notes.priority_low': 'Низкий',
+        'notes.priority_medium': 'Средний',
+        'notes.priority_high': 'Высокий',
+        'notes.list': 'Список',
+        'notes.icon': 'Иконка',
+        'notes.color': 'Цвет',
+        'notes.new_list': 'Новый Список',
+        'notes.done': 'Готово',
+        'notes.back': 'Назад',
+        'notes.cancel': 'Отмена',
         // Common
         'common.loading': 'Загрузка...',
         'common.error': 'Ошибка',
