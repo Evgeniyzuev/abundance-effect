@@ -74,10 +74,10 @@ export default function Wishboard() {
 
         if (wishes && recommended) {
             // Filter out wishes that the user already has
-            const userRecommendedIds = new Set(wishes.map(w => w.recommended_source_id).filter(Boolean));
-            const userWishTitles = new Set(wishes.map(w => w.title.toLowerCase()));
+            const userRecommendedIds = new Set(wishes.map((w: UserWish) => w.recommended_source_id).filter(Boolean));
+            const userWishTitles = new Set(wishes.map((w: UserWish) => w.title.toLowerCase()));
 
-            const filteredRecommended = recommended.filter(r => {
+            const filteredRecommended = recommended.filter((r: RecommendedWish) => {
                 const hasById = userRecommendedIds.has(r.id);
                 const hasByTitle = userWishTitles.has(r.title.toLowerCase());
                 return !hasById && !hasByTitle;

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/client'
 import { DbUser } from '@/types'
 import { storage, STORAGE_KEYS, CachedUserAuth, TelegramInitDataCache } from '@/utils/storage'
@@ -204,7 +204,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 setIsLoading(false)
             }
 
-            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession: Session | null) => {
                 console.log('Auth state changed:', event);
                 setSession(newSession)
 
