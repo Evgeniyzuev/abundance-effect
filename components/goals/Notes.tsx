@@ -94,6 +94,16 @@ export default function Notes() {
             list_id: listId
         };
 
+        // If in lists view, default to 'all' or 'inbox' behavior (no listId)
+        if (viewMode === 'lists') {
+            // For now, just add to 'All' (no list_id)
+            // Or maybe prompt? Let's just add to 'All' and switch to notes view?
+            // User said "same inside lists", so maybe just add to default list.
+            // Let's switch to 'all' view and add note.
+            setCurrentListType('all');
+            setViewMode('notes');
+        }
+
         const createdNote = await addNote(newNote);
 
         if (createdNote) {
@@ -107,15 +117,21 @@ export default function Notes() {
     const handleSaveNote = async () => {
         if (!editingNoteId) return;
 
-        if (!editingNoteText.trim() && !editingNoteContent.trim()) {
-            // Optionally delete if empty, but for now let's keep it or handle cleanup elsewhere
+        // Don't save if nothing changed to avoid unnecessary updates
+        // But we need to clear editing state
+
+        if (editingNoteText.trim() || editingNoteContent.trim()) {
+            await updateNote(editingNoteId, {
+                title: editingNoteText.trim(),
+                content: editingNoteContent.trim()
+            });
         }
 
-        await updateNote(editingNoteId, {
-            title: editingNoteText.trim(),
-            content: editingNoteContent.trim()
-        });
-
+        // We don't clear editingNoteId here immediately if we want to keep focus?
+        // Actually onBlur triggers this, so we should clear it.
+        // But wait, the user said "input disappears". 
+        // If we clear editingNoteId, it switches back to view mode.
+        // We should only clear it if we are done editing.
         setEditingNoteId(null);
     };
 
@@ -261,7 +277,7 @@ export default function Notes() {
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-4 pb-20">
+                    <div className="flex-1 overflow-y-auto px-4 pb-32">
                         {/* Smart Lists Grid */}
                         <div className="grid grid-cols-2 gap-3 mb-6">
                             <button onClick={() => handleListClick('today')} className="bg-white dark:bg-zinc-900 p-3 rounded-xl flex flex-col justify-between h-20 shadow-sm">
@@ -355,7 +371,7 @@ export default function Notes() {
                 </div>
 
                 {/* Notes List */}
-                <div className="flex-1 overflow-y-auto px-4 pb-20">
+                <div className="flex-1 overflow-y-auto px-4 pb-32">
                     <div className="space-y-4">
                         {filteredNotes.length === 0 ? (
                             <div className="text-center py-20 text-zinc-400">
@@ -401,8 +417,6 @@ export default function Notes() {
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter') {
                                                                 e.preventDefault();
-                                                                // Move focus to content or save?
-                                                                // Let's save for now or maybe focus textarea
                                                                 handleSaveNote();
                                                             }
                                                         }}
@@ -454,18 +468,15 @@ export default function Notes() {
                         )}
                     </div>
                 </div>
-
-                {/* Footer */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
-                    <button
-                        onClick={handleAddNote}
-                        className="flex items-center gap-2 text-blue-500 font-medium"
-                    >
-                        <Plus className="w-5 h-5" />
-                        {t('notes.add_note') || 'New Note'}
-                    </button>
-                </div>
             </div>
+
+            {/* Floating Action Button (FAB) */}
+            <button
+                onClick={handleAddNote}
+                className="absolute bottom-24 right-6 w-14 h-14 bg-blue-500 rounded-full shadow-lg flex items-center justify-center text-white hover:bg-blue-600 transition-colors z-40"
+            >
+                <Plus className="w-8 h-8" />
+            </button>
 
             {/* Create/Edit List Modal */}
             {showCreateList && (
@@ -486,10 +497,16 @@ export default function Notes() {
                         <div className="space-y-6">
                             <div className="flex justify-center mb-8">
                                 <div
-                                    className="w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors"
+                                    className="w-24 h-24 rounded-full flex items-center justify-center text-4xl shadow-lg transition-colors relative overflow-hidden"
                                     style={{ backgroundColor: newListColor }}
                                 >
-                                    {newListIcon}
+                                    <input
+                                        type="text"
+                                        value={newListIcon}
+                                        onChange={(e) => setNewListIcon(e.target.value)}
+                                        className="w-full h-full text-center bg-transparent border-none focus:ring-0 text-4xl p-0 cursor-pointer"
+                                        maxLength={2}
+                                    />
                                 </div>
                             </div>
 
@@ -543,7 +560,7 @@ export default function Notes() {
             {/* Note Details Modal */}
             {showNoteDetails && (
                 <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl p-6 shadow-xl animate-slide-up">
+                    <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-3xl p-6 shadow-xl animate-slide-up mb-20 sm:mb-0">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
                                 {t('notes.details') || 'Details'}

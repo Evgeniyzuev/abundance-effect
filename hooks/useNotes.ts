@@ -23,7 +23,7 @@ export function useNotes() {
     const { user } = useUser();
     const [notes, setNotes] = useState<UserNote[]>([]);
     const [customLists, setCustomLists] = useState<CustomList[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const loadFromCache = useCallback(() => {
         const cached = storage.get<NotesCache>(STORAGE_KEYS.NOTES_CACHE);
@@ -61,133 +61,135 @@ export function useNotes() {
         }
     }, [user, saveToCache]);
 
-    const addNote = async (noteData: Partial<UserNote>) => {
-        if (!user) return null;
-        setIsLoading(true);
+    const addNote = useCallback(async (note: Partial<UserNote>) => {
+        // Optimistic update
+        const tempId = `temp-${Date.now()}`;
+        const optimisticNote = {
+            ...note,
+            id: tempId,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: user?.id || '',
+            is_completed: note.is_completed || false,
+            priority: note.priority || 'none'
+        } as UserNote;
+
+        setNotes(prev => [optimisticNote, ...prev]);
 
         try {
-            const result = await addNoteAction(noteData);
-
+            const result = await addNoteAction(note);
             if (result.success && result.data) {
-                await fetchNotes();
+                // Replace temp note with real note
+                setNotes(prev => prev.map(n => n.id === tempId ? result.data! : n));
                 return result.data;
             } else {
-                logger.error('Error adding note:', result.error);
-                alert('Failed to add note: ' + result.error);
+                // Revert on failure
+                setNotes(prev => prev.filter(n => n.id !== tempId));
+                logger.error('Failed to add note:', result.error);
                 return null;
             }
-        } catch (e) {
-            logger.error('Error adding note', e);
+        } catch (error) {
+            setNotes(prev => prev.filter(n => n.id !== tempId));
+            logger.error('Error adding note:', error);
             return null;
-        } finally {
-            setIsLoading(false);
         }
-    };
+    }, [user]);
 
-    const updateNote = async (id: string, updates: Partial<UserNote>) => {
-        if (!user) return false;
-        // Don't set global loading for small updates like toggle complete to keep UI snappy
-        // Or handle it optimistically in UI
+    const updateNote = useCallback(async (id: string, updates: Partial<UserNote>) => {
+        // Optimistic update
+        const originalNotes = [...notes];
+        setNotes(prev => prev.map(n => n.id === id ? { ...n, ...updates } : n));
 
         try {
             const result = await updateNoteAction(id, updates);
-
-            if (result.success) {
-                await fetchNotes();
-                return true;
-            } else {
-                logger.error('Error updating note:', result.error);
-                return false;
+            if (!result.success) {
+                // Revert on failure
+                setNotes(originalNotes);
+                logger.error('Failed to update note:', result.error);
             }
-        } catch (e) {
-            logger.error('Error updating note', e);
-            return false;
+        } catch (error) {
+            setNotes(originalNotes);
+            logger.error('Error updating note:', error);
         }
-    };
+    }, [notes]);
 
-    const deleteNote = async (id: string) => {
-        if (!user) return false;
+    const deleteNote = useCallback(async (id: string) => {
+        // Optimistic update
+        const originalNotes = [...notes];
+        setNotes(prev => prev.filter(n => n.id !== id));
 
         try {
             const result = await deleteNoteAction(id);
-
-            if (result.success) {
-                await fetchNotes();
-                return true;
-            } else {
-                logger.error('Error deleting note:', result.error);
-                return false;
+            if (!result.success) {
+                // Revert on failure
+                setNotes(originalNotes);
+                logger.error('Failed to delete note:', result.error);
             }
-        } catch (e) {
-            logger.error('Error deleting note', e);
-            return false;
+        } catch (error) {
+            setNotes(originalNotes);
+            logger.error('Error deleting note:', error);
         }
-    };
+    }, [notes]);
 
-    const addList = async (listData: Partial<CustomList>) => {
-        if (!user) return null;
-        setIsLoading(true);
+    const addList = useCallback(async (list: Partial<CustomList>) => {
+        // Optimistic update
+        const tempId = `temp-${Date.now()}`;
+        const optimisticList = {
+            ...list,
+            id: tempId,
+            created_at: new Date().toISOString(),
+            user_id: user?.id || ''
+        } as CustomList;
+
+        setCustomLists(prev => [...prev, optimisticList]);
 
         try {
-            const result = await addListAction(listData);
-
+            const result = await addListAction(list);
             if (result.success && result.data) {
-                await fetchNotes();
+                setCustomLists(prev => prev.map(l => l.id === tempId ? result.data! : l));
                 return result.data;
             } else {
-                logger.error('Error adding list:', result.error);
+                setCustomLists(prev => prev.filter(l => l.id !== tempId));
                 return null;
             }
-        } catch (e) {
-            logger.error('Error adding list', e);
+        } catch (error) {
+            setCustomLists(prev => prev.filter(l => l.id !== tempId));
             return null;
-        } finally {
-            setIsLoading(false);
         }
-    };
+    }, [user]);
 
-    const updateList = async (id: string, updates: Partial<CustomList>) => {
-        if (!user) return false;
+    const updateList = useCallback(async (id: string, updates: Partial<CustomList>) => {
+        const originalLists = [...customLists];
+        setCustomLists(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
 
         try {
             const result = await updateListAction(id, updates);
-
-            if (result.success) {
-                await fetchNotes();
-                return true;
-            } else {
-                logger.error('Error updating list:', result.error);
-                return false;
+            if (!result.success) {
+                setCustomLists(originalLists);
             }
-        } catch (e) {
-            logger.error('Error updating list', e);
-            return false;
+        } catch (error) {
+            setCustomLists(originalLists);
         }
-    };
+    }, [customLists]);
 
-    const deleteList = async (id: string) => {
-        if (!user) return false;
+    const deleteList = useCallback(async (id: string) => {
+        const originalLists = [...customLists];
+        setCustomLists(prev => prev.filter(l => l.id !== id));
 
         try {
             const result = await deleteListAction(id);
-
-            if (result.success) {
-                await fetchNotes();
-                return true;
-            } else {
-                logger.error('Error deleting list:', result.error);
-                return false;
+            if (!result.success) {
+                setCustomLists(originalLists);
             }
-        } catch (e) {
-            logger.error('Error deleting list', e);
-            return false;
+        } catch (error) {
+            setCustomLists(originalLists);
         }
-    };
+    }, [customLists]);
 
     return {
         notes,
         customLists,
-        isLoading,
+        loading,
         loadFromCache,
         fetchNotes,
         addNote,
