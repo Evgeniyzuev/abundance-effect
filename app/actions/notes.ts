@@ -120,3 +120,83 @@ export async function deleteNoteAction(id: string): Promise<ActionResponse<void>
         return { success: false, error: error.message }
     }
 }
+
+export async function addListAction(listData: Partial<CustomList>): Promise<ActionResponse<CustomList>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { data, error } = await supabase
+            .from('custom_lists')
+            .insert({
+                ...listData,
+                user_id: user.id
+            })
+            .select()
+            .single()
+
+        if (error) throw error
+
+        revalidatePath('/goals')
+        return { success: true, data: data as CustomList }
+    } catch (error: any) {
+        console.error('Error adding list:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+export async function updateListAction(id: string, updates: Partial<CustomList>): Promise<ActionResponse<CustomList>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { data, error } = await supabase
+            .from('custom_lists')
+            .update(updates)
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .select()
+            .single()
+
+        if (error) throw error
+
+        revalidatePath('/goals')
+        return { success: true, data: data as CustomList }
+    } catch (error: any) {
+        console.error('Error updating list:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+export async function deleteListAction(id: string): Promise<ActionResponse<void>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { error } = await supabase
+            .from('custom_lists')
+            .delete()
+            .eq('id', id)
+            .eq('user_id', user.id)
+
+        if (error) throw error
+
+        revalidatePath('/goals')
+        return { success: true }
+    } catch (error: any) {
+        console.error('Error deleting list:', error)
+        return { success: false, error: error.message }
+    }
+}

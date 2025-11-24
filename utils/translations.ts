@@ -60,9 +60,16 @@ export type TranslationKey =
     | 'notes.done'
     | 'notes.back'
     | 'notes.cancel'
+    | 'notes.confirm_delete_note'
+    | 'notes.confirm_delete_list'
+    | 'notes.my_lists'
+    | 'notes.list_name_placeholder'
     // Common
     | 'common.loading'
     | 'common.error'
+    | 'common.create'
+    | 'common.delete'
+    | 'common.save'
     // Auth
     | 'auth.login'
     | 'auth.logout'
@@ -124,9 +131,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.done': 'Done',
         'notes.back': 'Back',
         'notes.cancel': 'Cancel',
+        'notes.confirm_delete_note': 'Delete this note?',
+        'notes.confirm_delete_list': 'Delete this list?',
+        'notes.my_lists': 'My Lists',
+        'notes.list_name_placeholder': 'List Name',
         // Common
         'common.loading': 'Loading...',
         'common.error': 'Error',
+        'common.create': 'Create',
+        'common.delete': 'Delete',
+        'common.save': 'Save',
         // Auth
         'auth.login': 'Login',
         'auth.logout': 'Logout',
@@ -187,9 +201,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.done': '完成',
         'notes.back': '返回',
         'notes.cancel': '取消',
+        'notes.confirm_delete_note': '删除这条笔记？',
+        'notes.confirm_delete_list': '删除这个列表？',
+        'notes.my_lists': '我的列表',
+        'notes.list_name_placeholder': '列表名称',
         // Common
         'common.loading': '加载中...',
         'common.error': '错误',
+        'common.create': '创建',
+        'common.delete': '删除',
+        'common.save': '保存',
         // Auth
         'auth.login': '登录',
         'auth.logout': '登出',
@@ -250,9 +271,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.done': 'Listo',
         'notes.back': 'Volver',
         'notes.cancel': 'Cancelar',
+        'notes.confirm_delete_note': '¿Eliminar esta nota?',
+        'notes.confirm_delete_list': '¿Eliminar esta lista?',
+        'notes.my_lists': 'Mis Listas',
+        'notes.list_name_placeholder': 'Nombre de Lista',
         // Common
         'common.loading': 'Cargando...',
         'common.error': 'Error',
+        'common.create': 'Crear',
+        'common.delete': 'Eliminar',
+        'common.save': 'Guardar',
         // Auth
         'auth.login': 'Iniciar sesión',
         'auth.logout': 'Cerrar sesión',
@@ -313,9 +341,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.done': 'हो गया',
         'notes.back': 'वापस',
         'notes.cancel': 'रद्द करें',
+        'notes.confirm_delete_note': 'क्या आप इस नोट को हटाना चाहते हैं?',
+        'notes.confirm_delete_list': 'क्या आप इस सूची को हटाना चाहते हैं?',
+        'notes.my_lists': 'मेरी सूचियाँ',
+        'notes.list_name_placeholder': 'सूची का नाम',
         // Common
         'common.loading': 'लोड हो रहा है...',
         'common.error': 'त्रुटि',
+        'common.create': 'बनाएं',
+        'common.delete': 'हटाएं',
+        'common.save': 'सहेजें',
         // Auth
         'auth.login': 'लॉग इन करें',
         'auth.logout': 'लॉग आउट',
@@ -376,9 +411,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.done': 'تم',
         'notes.back': 'عودة',
         'notes.cancel': 'إلغاء',
+        'notes.confirm_delete_note': 'حذف هذه الملاحظة؟',
+        'notes.confirm_delete_list': 'حذف هذه القائمة؟',
+        'notes.my_lists': 'قوائمي',
+        'notes.list_name_placeholder': 'اسم القائمة',
         // Common
         'common.loading': 'جار التحميل...',
         'common.error': 'خطأ',
+        'common.create': 'إنشاء',
+        'common.delete': 'حذف',
+        'common.save': 'حفظ',
         // Auth
         'auth.login': 'تسجيل الدخول',
         'auth.logout': 'تسجيل الخروج',
@@ -439,9 +481,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.done': 'Готово',
         'notes.back': 'Назад',
         'notes.cancel': 'Отмена',
+        'notes.confirm_delete_note': 'Удалить эту заметку?',
+        'notes.confirm_delete_list': 'Удалить этот список?',
+        'notes.my_lists': 'Мои Списки',
+        'notes.list_name_placeholder': 'Название Списка',
         // Common
         'common.loading': 'Загрузка...',
         'common.error': 'Ошибка',
+        'common.create': 'Создать',
+        'common.delete': 'Удалить',
+        'common.save': 'Сохранить',
         // Auth
         'auth.login': 'Войти',
         'auth.logout': 'Выйти',

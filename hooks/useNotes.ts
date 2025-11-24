@@ -7,7 +7,10 @@ import {
     fetchNotesAction,
     addNoteAction,
     updateNoteAction,
-    deleteNoteAction
+    deleteNoteAction,
+    addListAction,
+    updateListAction,
+    deleteListAction
 } from '@/app/actions/notes';
 
 interface NotesCache {
@@ -121,6 +124,66 @@ export function useNotes() {
         }
     };
 
+    const addList = async (listData: Partial<CustomList>) => {
+        if (!user) return null;
+        setIsLoading(true);
+
+        try {
+            const result = await addListAction(listData);
+
+            if (result.success && result.data) {
+                await fetchNotes();
+                return result.data;
+            } else {
+                logger.error('Error adding list:', result.error);
+                return null;
+            }
+        } catch (e) {
+            logger.error('Error adding list', e);
+            return null;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const updateList = async (id: string, updates: Partial<CustomList>) => {
+        if (!user) return false;
+
+        try {
+            const result = await updateListAction(id, updates);
+
+            if (result.success) {
+                await fetchNotes();
+                return true;
+            } else {
+                logger.error('Error updating list:', result.error);
+                return false;
+            }
+        } catch (e) {
+            logger.error('Error updating list', e);
+            return false;
+        }
+    };
+
+    const deleteList = async (id: string) => {
+        if (!user) return false;
+
+        try {
+            const result = await deleteListAction(id);
+
+            if (result.success) {
+                await fetchNotes();
+                return true;
+            } else {
+                logger.error('Error deleting list:', result.error);
+                return false;
+            }
+        } catch (e) {
+            logger.error('Error deleting list', e);
+            return false;
+        }
+    };
+
     return {
         notes,
         customLists,
@@ -129,6 +192,9 @@ export function useNotes() {
         fetchNotes,
         addNote,
         updateNote,
-        deleteNote
+        deleteNote,
+        addList,
+        updateList,
+        deleteList
     };
 }
