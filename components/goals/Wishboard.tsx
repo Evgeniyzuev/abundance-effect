@@ -18,7 +18,7 @@ interface WishesCache {
 }
 
 export default function Wishboard() {
-    const { user } = useUser();
+    const { user, session } = useUser();
     const [userWishes, setUserWishes] = useState<UserWish[]>([]);
     const [recommendedWishes, setRecommendedWishes] = useState<RecommendedWish[]>([]);
     const [selectedWish, setSelectedWish] = useState<UserWish | RecommendedWish | null>(null);
@@ -119,10 +119,20 @@ export default function Wishboard() {
             return;
         }
 
-        logger.info('Adding recommended wish', { wishId: wish.id, userId: user.id });
+        logger.info('Adding recommended wish', {
+            wishId: wish.id,
+            userId: user.id,
+            hasSession: !!session,
+            sessionExpiresAt: session?.expires_at
+        });
 
         try {
-            const { error } = await supabase.from('user_wishes').insert({
+            // Create a promise that rejects after 10 seconds
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Request timed out')), 10000);
+            });
+
+            const insertPromise = supabase.from('user_wishes').insert({
                 user_id: user.id,
                 title: wish.title,
                 description: wish.description,
@@ -132,6 +142,9 @@ export default function Wishboard() {
                 is_completed: false,
                 recommended_source_id: wish.id
             });
+
+            // Race the insert against the timeout
+            const { error } = await Promise.race([insertPromise, timeoutPromise]) as any;
 
             if (error) {
                 logger.error('Error adding wish:', error);
