@@ -186,9 +186,9 @@ export default function Wishboard() {
 
             {/* Recommended Wishes Section */}
             {recommendedWishes.length > 0 && (
-                <div className="px-3">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 pl-1">Recommended for You</h3>
-                    <div className="grid grid-cols-3 gap-0.5 rounded-xl overflow-hidden">
+                <div className="mt-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 px-4">Recommended for You</h3>
+                    <div className="grid grid-cols-3 gap-0.5">
                         {recommendedWishes.map((wish) => (
                             <WishCard
                                 key={wish.id}
