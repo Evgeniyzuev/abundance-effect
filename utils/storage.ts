@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
     USER_SETTINGS: 'app-user-settings',
     USER_AUTH_CACHE: 'app-user-auth-cache',
     TELEGRAM_INIT_DATA: 'app-telegram-init-data',
+    WISHES_CACHE: 'app-wishes-cache',
 } as const;
 
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];

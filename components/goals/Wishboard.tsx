@@ -8,6 +8,13 @@ import WishCard from '@/components/WishCard';
 import WishDetailModal from '@/components/WishDetailModal';
 import AddWishModal from '@/components/AddWishModal';
 import { Plus } from 'lucide-react';
+import { storage, STORAGE_KEYS } from '@/utils/storage';
+
+interface WishesCache {
+    userWishes: UserWish[];
+    recommendedWishes: RecommendedWish[];
+    timestamp: number;
+}
 
 export default function Wishboard() {
     const { user } = useUser();
@@ -18,7 +25,32 @@ export default function Wishboard() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isRecommendedDetail, setIsRecommendedDetail] = useState(false);
 
+    // Edit state
+    const [editingWish, setEditingWish] = useState<UserWish | null>(null);
+
     const supabase = createClient();
+
+    const loadFromCache = () => {
+        const cached = storage.get<WishesCache>(STORAGE_KEYS.WISHES_CACHE);
+        if (cached) {
+            // Check cache age (e.g., 1 hour)
+            const CACHE_AGE = 60 * 60 * 1000;
+            if (Date.now() - cached.timestamp < CACHE_AGE) {
+                setUserWishes(cached.userWishes);
+                setRecommendedWishes(cached.recommendedWishes);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const saveToCache = (uWishes: UserWish[], rWishes: RecommendedWish[]) => {
+        storage.set(STORAGE_KEYS.WISHES_CACHE, {
+            userWishes: uWishes,
+            recommendedWishes: rWishes,
+            timestamp: Date.now()
+        });
+    };
 
     const fetchData = async () => {
         if (!user) return;
@@ -30,7 +62,6 @@ export default function Wishboard() {
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
 
-        if (wishes) setUserWishes(wishes);
         if (wishesError) console.error('Error fetching user wishes:', wishesError);
 
         // Fetch recommended wishes
@@ -39,11 +70,12 @@ export default function Wishboard() {
             .select('*')
             .order('created_at', { ascending: false });
 
-        if (recommended) {
+        if (recError) console.error('Error fetching recommended wishes:', recError);
+
+        if (wishes && recommended) {
             // Filter out wishes that the user already has
-            // We check both recommended_source_id AND title (for legacy/manual matches)
-            const userRecommendedIds = new Set(wishes?.map(w => w.recommended_source_id).filter(Boolean) || []);
-            const userWishTitles = new Set(wishes?.map(w => w.title.toLowerCase()) || []);
+            const userRecommendedIds = new Set(wishes.map(w => w.recommended_source_id).filter(Boolean));
+            const userWishTitles = new Set(wishes.map(w => w.title.toLowerCase()));
 
             const filteredRecommended = recommended.filter(r => {
                 const hasById = userRecommendedIds.has(r.id);
@@ -51,12 +83,17 @@ export default function Wishboard() {
                 return !hasById && !hasByTitle;
             });
 
+            setUserWishes(wishes);
             setRecommendedWishes(filteredRecommended);
+            saveToCache(wishes, filteredRecommended);
         }
-        if (recError) console.error('Error fetching recommended wishes:', recError);
     };
 
     useEffect(() => {
+        // Try load from cache first for instant UI
+        const loadedFromCache = loadFromCache();
+
+        // Then fetch fresh data
         fetchData();
     }, [user]);
 
@@ -77,7 +114,7 @@ export default function Wishboard() {
             estimated_cost: wish.estimated_cost,
             difficulty_level: wish.difficulty_level,
             is_completed: false,
-            recommended_source_id: wish.id // Link to recommendation
+            recommended_source_id: wish.id
         });
 
         if (error) {
@@ -85,7 +122,7 @@ export default function Wishboard() {
             alert('Failed to add wish');
         } else {
             setIsDetailOpen(false);
-            fetchData(); // Refresh lists
+            fetchData();
         }
     };
 
@@ -107,18 +144,25 @@ export default function Wishboard() {
     };
 
     const handleEditWish = (wish: UserWish) => {
-        alert('Edit functionality coming soon!');
+        setEditingWish(wish);
+        setIsDetailOpen(false); // Close detail modal
+        setIsAddModalOpen(true); // Open add modal in edit mode
+    };
+
+    const handleModalClose = () => {
+        setIsAddModalOpen(false);
+        setEditingWish(null); // Reset edit state
     };
 
     return (
-        <div className="pb-20">
+        <div className="pb-20 px-0.5">
             {/* User Wishes Section */}
             <div className="mb-8">
                 <div className="grid grid-cols-3 gap-0.5">
-                    {/* Add New Wish Button (First Item) */}
+                    {/* Add New Wish Button */}
                     <div
                         onClick={() => setIsAddModalOpen(true)}
-                        className="aspect-square bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="aspect-square bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors relative"
                     >
                         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 mb-1">
                             <Plus size={24} />
@@ -132,23 +176,25 @@ export default function Wishboard() {
                             key={wish.id}
                             wish={wish}
                             onClick={() => handleWishClick(wish, false)}
-                            className="rounded-none"
+                            className="rounded-none w-full h-full"
                         />
                     ))}
+
+                    {/* Fillers to maintain grid alignment if needed, though CSS grid handles this well */}
                 </div>
             </div>
 
             {/* Recommended Wishes Section */}
             {recommendedWishes.length > 0 && (
-                <div className="px-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommended for You</h3>
+                <div className="px-3">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 pl-1">Recommended for You</h3>
                     <div className="grid grid-cols-3 gap-0.5 rounded-xl overflow-hidden">
                         {recommendedWishes.map((wish) => (
                             <WishCard
                                 key={wish.id}
                                 wish={wish}
                                 onClick={() => handleWishClick(wish, true)}
-                                className="rounded-none"
+                                className="rounded-none w-full h-full"
                             />
                         ))}
                     </div>
@@ -170,8 +216,9 @@ export default function Wishboard() {
 
             <AddWishModal
                 isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
+                onClose={handleModalClose}
                 onSuccess={fetchData}
+                initialData={editingWish} // Pass data for editing
             />
         </div>
     );

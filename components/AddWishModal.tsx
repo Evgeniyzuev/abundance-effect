@@ -1,16 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/context/UserContext';
 import { Camera, Upload, Link, X } from 'lucide-react';
+import { UserWish } from '@/types/supabase';
 
 interface AddWishModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
+    initialData?: UserWish | null;
 }
 
-export default function AddWishModal({ isOpen, onClose, onSuccess }: AddWishModalProps) {
-    const { user } = useUser(); // Changed from dbUser to user based on context usually having user
+export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }: AddWishModalProps) {
+    const { user } = useUser();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [imageUrl, setImageUrl] = useState<string>("");
@@ -21,6 +23,37 @@ export default function AddWishModal({ isOpen, onClose, onSuccess }: AddWishModa
     const [localImageBase64, setLocalImageBase64] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Initialize form with data when editing
+    useEffect(() => {
+        if (isOpen && initialData) {
+            setTitle(initialData.title);
+            setDescription(initialData.description || "");
+            setEstimatedCost(initialData.estimated_cost || "");
+            setDifficultyLevel(initialData.difficulty_level || 1);
+
+            if (initialData.image_url) {
+                // Check if it's a base64 string (upload) or URL
+                if (initialData.image_url.startsWith('data:')) {
+                    setImageMode("upload");
+                    setLocalImageBase64(initialData.image_url);
+                } else {
+                    setImageMode("url");
+                    setImageUrl(initialData.image_url);
+                }
+            }
+        } else if (isOpen && !initialData) {
+            // Reset form for new wish
+            setTitle("");
+            setDescription("");
+            setImageUrl("");
+            setLocalImageBase64("");
+            setSelectedFile(null);
+            setEstimatedCost("");
+            setDifficultyLevel(1);
+            setImageMode("url");
+        }
+    }, [isOpen, initialData]);
 
     if (!isOpen) return null;
 
@@ -90,32 +123,42 @@ export default function AddWishModal({ isOpen, onClose, onSuccess }: AddWishModa
             const supabase = createClient();
             const finalImageUrl = imageMode === "url" ? imageUrl : localImageBase64;
 
-            const { error } = await supabase.from('user_wishes').insert({
+            const wishData = {
                 user_id: user.id,
                 title,
                 description: description || null,
                 image_url: finalImageUrl || null,
                 estimated_cost: estimatedCost || null,
                 difficulty_level: difficultyLevel,
-                is_completed: false
-            });
+                // Preserve existing fields if editing, otherwise set defaults
+                is_completed: initialData ? initialData.is_completed : false,
+                recommended_source_id: initialData ? initialData.recommended_source_id : null
+            };
+
+            let error;
+
+            if (initialData?.id) {
+                // Update existing wish
+                const { error: updateError } = await supabase
+                    .from('user_wishes')
+                    .update(wishData)
+                    .eq('id', initialData.id);
+                error = updateError;
+            } else {
+                // Insert new wish
+                const { error: insertError } = await supabase
+                    .from('user_wishes')
+                    .insert(wishData);
+                error = insertError;
+            }
 
             if (error) throw error;
 
             onSuccess?.();
             onClose();
-
-            // Reset form
-            setTitle("");
-            setDescription("");
-            setImageUrl("");
-            setLocalImageBase64("");
-            setSelectedFile(null);
-            setEstimatedCost("");
-            setDifficultyLevel(1);
         } catch (error) {
-            console.error("Error adding wish:", error);
-            alert("Failed to add wish");
+            console.error("Error saving wish:", error);
+            alert("Failed to save wish");
         } finally {
             setIsLoading(false);
         }
@@ -130,7 +173,9 @@ export default function AddWishModal({ isOpen, onClose, onSuccess }: AddWishModa
             <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10 max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">Add New Wish</h2>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            {initialData ? "Edit Wish" : "Add New Wish"}
+                        </h2>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                             <X size={24} />
                         </button>
@@ -259,7 +304,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess }: AddWishModa
                             disabled={isLoading}
                             className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                         >
-                            {isLoading ? "Saving..." : "Save Wish"}
+                            {isLoading ? "Saving..." : (initialData ? "Update Wish" : "Save Wish")}
                         </button>
                     </form>
                 </div>
