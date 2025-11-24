@@ -9,6 +9,7 @@ import WishDetailModal from '@/components/WishDetailModal';
 import AddWishModal from '@/components/AddWishModal';
 import { Plus } from 'lucide-react';
 import { storage, STORAGE_KEYS } from '@/utils/storage';
+import { logger } from '@/utils/logger';
 
 interface WishesCache {
     userWishes: UserWish[];
@@ -53,7 +54,12 @@ export default function Wishboard() {
     };
 
     const fetchData = async () => {
-        if (!user) return;
+        if (!user) {
+            logger.warn('fetchData called but no user found');
+            return;
+        }
+
+        logger.info('Fetching wishes for user', { userId: user.id });
 
         // Fetch user wishes
         const { data: wishes, error: wishesError } = await supabase
@@ -62,7 +68,11 @@ export default function Wishboard() {
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
 
-        if (wishesError) console.error('Error fetching user wishes:', wishesError);
+
+
+        if (wishesError) {
+            logger.error('Error fetching user wishes:', wishesError);
+        }
 
         // Fetch recommended wishes
         const { data: recommended, error: recError } = await supabase
@@ -104,7 +114,12 @@ export default function Wishboard() {
     };
 
     const handleAddFromRecommended = async (wish: RecommendedWish) => {
-        if (!user) return;
+        if (!user) {
+            logger.error('handleAddFromRecommended called but no user found');
+            return;
+        }
+
+        logger.info('Adding recommended wish', { wishId: wish.id, userId: user.id });
 
         const { error } = await supabase.from('user_wishes').insert({
             user_id: user.id,
@@ -118,9 +133,10 @@ export default function Wishboard() {
         });
 
         if (error) {
-            console.error('Error adding wish:', error);
+            logger.error('Error adding wish:', error);
             alert('Failed to add wish');
         } else {
+            logger.info('Successfully added recommended wish');
             setIsDetailOpen(false);
             fetchData();
         }
@@ -135,7 +151,7 @@ export default function Wishboard() {
             .eq('id', wish.id);
 
         if (error) {
-            console.error('Error deleting wish:', error);
+            logger.error('Error deleting wish:', error);
             alert('Failed to delete wish');
         } else {
             // Clean up local storage if needed

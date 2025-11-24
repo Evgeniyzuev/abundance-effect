@@ -4,6 +4,7 @@ import { useUser } from '@/context/UserContext';
 import { Camera, Upload, Link, X, ExternalLink } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
 import { storage } from '@/utils/storage';
+import { logger } from '@/utils/logger';
 
 interface AddWishModalProps {
     isOpen: boolean;
@@ -118,6 +119,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user?.id) {
+            logger.error('Submit attempted but no user logged in');
             alert("Please log in to add a wish");
             return;
         }
@@ -125,6 +127,12 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
             alert("Please enter a wish title");
             return;
         }
+
+        logger.info('Submitting wish', {
+            userId: user.id,
+            isEdit: !!initialData,
+            imageMode
+        });
 
         setIsLoading(true);
 
@@ -173,7 +181,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
             onSuccess?.();
             onClose();
         } catch (error) {
-            console.error("Error saving wish:", error);
+            logger.error("Error saving wish:", error);
             alert("Failed to save wish");
         } finally {
             setIsLoading(false);
