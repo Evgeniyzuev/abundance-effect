@@ -138,6 +138,12 @@ export default function Wishboard() {
             console.error('Error deleting wish:', error);
             alert('Failed to delete wish');
         } else {
+            // Clean up local storage if needed
+            if (wish.image_url && wish.image_url.startsWith('local://')) {
+                const localId = wish.image_url.replace('local://', '');
+                storage.removeWishImage(localId);
+            }
+
             setIsDetailOpen(false);
             fetchData();
         }

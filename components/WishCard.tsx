@@ -1,5 +1,6 @@
 import React from 'react';
 import { UserWish, RecommendedWish } from '@/types/supabase';
+import { storage } from '@/utils/storage';
 
 interface WishCardProps {
     wish: UserWish | RecommendedWish;
@@ -15,7 +16,9 @@ export default function WishCard({ wish, onClick, className = '' }: WishCardProp
         >
             {wish.image_url ? (
                 <img
-                    src={wish.image_url}
+                    src={wish.image_url.startsWith('local://')
+                        ? (storage.getWishImage(wish.image_url.replace('local://', '')) || wish.image_url)
+                        : wish.image_url}
                     alt={wish.title}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />

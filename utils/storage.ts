@@ -62,4 +62,33 @@ export const storage = {
         storage.remove(STORAGE_KEYS.USER_AUTH_CACHE);
         storage.remove(STORAGE_KEYS.TELEGRAM_INIT_DATA);
     },
+
+    // Wish image helpers
+    saveWishImage: (id: string, base64: string): void => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(`wish_image_${id}`, base64);
+        } catch (error) {
+            console.warn('Error saving wish image to localStorage:', error);
+        }
+    },
+
+    getWishImage: (id: string): string | null => {
+        if (typeof window === 'undefined') return null;
+        try {
+            return window.localStorage.getItem(`wish_image_${id}`);
+        } catch (error) {
+            console.warn('Error reading wish image from localStorage:', error);
+            return null;
+        }
+    },
+
+    removeWishImage: (id: string): void => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.removeItem(`wish_image_${id}`);
+        } catch (error) {
+            console.warn('Error removing wish image from localStorage:', error);
+        }
+    }
 };

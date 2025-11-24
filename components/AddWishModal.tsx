@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/context/UserContext';
-import { Camera, Upload, Link, X } from 'lucide-react';
+import { Camera, Upload, Link, X, ExternalLink } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
+import { storage } from '@/utils/storage';
 
 interface AddWishModalProps {
     isOpen: boolean;
@@ -23,6 +24,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
     const [localImageBase64, setLocalImageBase64] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [urlPlaceholder, setUrlPlaceholder] = useState("https://i.pinimg.com/1200x/c3/b8/c6/c3b8c6b28748cf8a45e24d321dfa1931.jpg");
 
     // Initialize form with data when editing
     useEffect(() => {
@@ -33,10 +35,17 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
             setDifficultyLevel(initialData.difficulty_level || 1);
 
             if (initialData.image_url) {
-                // Check if it's a base64 string (upload) or URL
+                // Check if it's a base64 string (upload) or URL or local storage ref
                 if (initialData.image_url.startsWith('data:')) {
                     setImageMode("upload");
                     setLocalImageBase64(initialData.image_url);
+                } else if (initialData.image_url.startsWith('local://')) {
+                    setImageMode("upload");
+                    const localId = initialData.image_url.replace('local://', '');
+                    const storedImage = storage.getWishImage(localId);
+                    if (storedImage) {
+                        setLocalImageBase64(storedImage);
+                    }
                 } else {
                     setImageMode("url");
                     setImageUrl(initialData.image_url);
@@ -121,7 +130,14 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
 
         try {
             const supabase = createClient();
-            const finalImageUrl = imageMode === "url" ? imageUrl : localImageBase64;
+            let finalImageUrl = imageMode === "url" ? imageUrl : localImageBase64;
+
+            // Handle local image storage
+            if (imageMode === "upload" && localImageBase64) {
+                const imageId = `local_img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                storage.saveWishImage(imageId, localImageBase64);
+                finalImageUrl = `local://${imageId}`;
+            }
 
             const wishData = {
                 user_id: user.id,
@@ -208,14 +224,25 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
                                     <Upload size={16} />
                                     Upload
                                 </button>
+                                <a
+                                    href="https://pinterest.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[#E60023] text-white hover:bg-[#ad081b] transition-colors ml-auto"
+                                >
+                                    <ExternalLink size={16} />
+                                    Pinterest
+                                </a>
                             </div>
 
                             {imageMode === "url" ? (
                                 <input
                                     type="url"
-                                    placeholder="Enter image URL"
+                                    placeholder={urlPlaceholder}
                                     value={imageUrl}
                                     onChange={(e) => setImageUrl(e.target.value)}
+                                    onFocus={() => setUrlPlaceholder("")}
+                                    onBlur={() => setUrlPlaceholder("https://i.pinimg.com/1200x/c3/b8/c6/c3b8c6b28748cf8a45e24d321dfa1931.jpg")}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             ) : (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserWish, RecommendedWish } from '@/types/supabase';
 import { X, Trash2, Edit2, Plus } from 'lucide-react';
+import { storage } from '@/utils/storage';
 
 interface WishDetailModalProps {
     wish: UserWish | RecommendedWish;
@@ -32,7 +33,13 @@ export default function WishDetailModal({
             <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10">
                 <div className="relative h-64">
                     {wish.image_url ? (
-                        <img src={wish.image_url} alt={wish.title} className="w-full h-full object-cover" />
+                        <img
+                            src={wish.image_url.startsWith('local://')
+                                ? (storage.getWishImage(wish.image_url.replace('local://', '')) || wish.image_url)
+                                : wish.image_url}
+                            alt={wish.title}
+                            className="w-full h-full object-cover"
+                        />
                     ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
                             <span className="text-6xl">🎯</span>
