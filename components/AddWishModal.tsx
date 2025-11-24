@@ -24,7 +24,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
     const [localImageBase64, setLocalImageBase64] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [urlPlaceholder, setUrlPlaceholder] = useState("https://i.pinimg.com/1200x/c3/b8/c6/c3b8c6b28748cf8a45e24d321dfa1931.jpg");
+
 
     // Initialize form with data when editing
     useEffect(() => {
@@ -238,11 +238,9 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
                             {imageMode === "url" ? (
                                 <input
                                     type="url"
-                                    placeholder={urlPlaceholder}
+                                    placeholder="Enter image URL"
                                     value={imageUrl}
                                     onChange={(e) => setImageUrl(e.target.value)}
-                                    onFocus={() => setUrlPlaceholder("")}
-                                    onBlur={() => setUrlPlaceholder("https://i.pinimg.com/1200x/c3/b8/c6/c3b8c6b28748cf8a45e24d321dfa1931.jpg")}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             ) : (
