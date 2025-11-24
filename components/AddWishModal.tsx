@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useUser } from '@/context/UserContext';
 import { Camera, Upload, Link, X, ExternalLink } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
 import { storage } from '@/utils/storage';
 import { logger } from '@/utils/logger';
+import { withValidSession } from '@/utils/supabase/sessionManager';
 
 interface AddWishModalProps {
     isOpen: boolean;
@@ -25,6 +26,9 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
     const [localImageBase64, setLocalImageBase64] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Use useMemo to ensure we don't recreate the client on each render
+    const supabase = useMemo(() => createClient(), []);
 
 
     // Initialize form with data when editing
@@ -137,7 +141,6 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
         setIsLoading(true);
 
         try {
-            const supabase = createClient();
             let finalImageUrl = imageMode === "url" ? imageUrl : localImageBase64;
 
             // Handle local image storage
@@ -159,24 +162,35 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData }
                 recommended_source_id: initialData ? initialData.recommended_source_id : null
             };
 
-            let error;
+            const result = await withValidSession(
+                supabase,
+                async () => {
+                    if (initialData?.id) {
+                        // Update existing wish
+                        return await supabase
+                            .from('user_wishes')
+                            .update(wishData)
+                            .eq('id', initialData.id);
+                    } else {
+                        // Insert new wish
+                        return await supabase
+                            .from('user_wishes')
+                            .insert(wishData);
+                    }
+                },
+                () => {
+                    alert('Your session has expired. Please refresh the page.');
+                }
+            );
 
-            if (initialData?.id) {
-                // Update existing wish
-                const { error: updateError } = await supabase
-                    .from('user_wishes')
-                    .update(wishData)
-                    .eq('id', initialData.id);
-                error = updateError;
-            } else {
-                // Insert new wish
-                const { error: insertError } = await supabase
-                    .from('user_wishes')
-                    .insert(wishData);
-                error = insertError;
+            if (!result) {
+                // Session was invalid
+                return;
             }
 
-            if (error) throw error;
+            if (result.error) {
+                throw result.error;
+            }
 
             onSuccess?.();
             onClose();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser } from '@/context/UserContext';
 import { createClient } from '@/utils/supabase/client';
 import { UserWish, RecommendedWish } from '@/types/supabase';
@@ -10,6 +10,7 @@ import AddWishModal from '@/components/AddWishModal';
 import { Plus } from 'lucide-react';
 import { storage, STORAGE_KEYS } from '@/utils/storage';
 import { logger } from '@/utils/logger';
+import { withValidSession } from '@/utils/supabase/sessionManager';
 
 interface WishesCache {
     userWishes: UserWish[];
@@ -29,7 +30,9 @@ export default function Wishboard() {
     // Edit state
     const [editingWish, setEditingWish] = useState<UserWish | null>(null);
 
-    const supabase = createClient();
+    // Use useMemo to ensure we don't recreate the client on each render
+    // This prevents creating multiple sessions
+    const supabase = useMemo(() => createClient(), []);
 
     const loadFromCache = () => {
         const cached = storage.get<WishesCache>(STORAGE_KEYS.WISHES_CACHE);
@@ -61,26 +64,53 @@ export default function Wishboard() {
 
         logger.info('Fetching wishes for user', { userId: user.id });
 
-        // Fetch user wishes
-        const { data: wishes, error: wishesError } = await supabase
-            .from('user_wishes')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+        const result = await withValidSession(
+            supabase,
+            async () => {
+                // Fetch user wishes
+                const wishesPromise = supabase
+                    .from('user_wishes')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
 
+                // Fetch recommended wishes
+                const recommendedPromise = supabase
+                    .from('recommended_wishes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
+                const [wishesResult, recommendedResult] = await Promise.all([
+                    wishesPromise,
+                    recommendedPromise
+                ]);
+
+                return {
+                    wishes: wishesResult.data,
+                    wishesError: wishesResult.error,
+                    recommended: recommendedResult.data,
+                    recError: recommendedResult.error
+                };
+            },
+            () => {
+                logger.warn('Session expired during data fetch');
+            }
+        );
+
+        if (!result) {
+            // Session was invalid, but we don't alert here as it's a background operation
+            return;
+        }
+
+        const { wishes, wishesError, recommended, recError } = result;
 
         if (wishesError) {
             logger.error('Error fetching user wishes:', wishesError);
         }
 
-        // Fetch recommended wishes
-        const { data: recommended, error: recError } = await supabase
-            .from('recommended_wishes')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (recError) console.error('Error fetching recommended wishes:', recError);
+        if (recError) {
+            logger.error('Error fetching recommended wishes:', recError);
+        }
 
         if (wishes && recommended) {
             // Filter out wishes that the user already has
@@ -126,65 +156,81 @@ export default function Wishboard() {
             sessionExpiresAt: session?.expires_at
         });
 
-        try {
-            // Create a promise that rejects after 10 seconds
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('Request timed out')), 10000);
-            });
+        const result = await withValidSession(
+            supabase,
+            async () => {
+                // Create a promise that rejects after 10 seconds
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Request timed out')), 10000);
+                });
 
-            const insertPromise = supabase.from('user_wishes').insert({
-                user_id: user.id,
-                title: wish.title,
-                description: wish.description,
-                image_url: wish.image_url,
-                estimated_cost: wish.estimated_cost,
-                difficulty_level: wish.difficulty_level,
-                is_completed: false,
-                recommended_source_id: wish.id
-            });
+                const insertPromise = supabase.from('user_wishes').insert({
+                    user_id: user.id,
+                    title: wish.title,
+                    description: wish.description,
+                    image_url: wish.image_url,
+                    estimated_cost: wish.estimated_cost,
+                    difficulty_level: wish.difficulty_level,
+                    is_completed: false,
+                    recommended_source_id: wish.id
+                });
 
-            // Race the insert against the timeout
-            const { error } = await Promise.race([insertPromise, timeoutPromise]) as any;
-
-            if (error) {
-                logger.error('Error adding wish:', error);
-                alert('Failed to add wish');
-            } else {
-                logger.info('Successfully added recommended wish');
-                setIsDetailOpen(false);
-                fetchData();
+                // Race the insert against the timeout
+                return await Promise.race([insertPromise, timeoutPromise]) as any;
+            },
+            () => {
+                alert('Your session has expired. Please refresh the page.');
             }
-        } catch (err) {
-            logger.error('Unexpected error in handleAddFromRecommended:', err);
-            alert('An unexpected error occurred');
+        );
+
+        if (!result) {
+            // Session was invalid
+            return;
+        }
+
+        if (result.error) {
+            logger.error('Error adding wish:', result.error);
+            alert('Failed to add wish');
+        } else {
+            logger.info('Successfully added recommended wish');
+            setIsDetailOpen(false);
+            fetchData();
         }
     };
 
     const handleDeleteWish = async (wish: UserWish) => {
         if (!confirm('Are you sure you want to delete this wish?')) return;
 
-        try {
-            const { error } = await supabase
-                .from('user_wishes')
-                .delete()
-                .eq('id', wish.id);
-
-            if (error) {
-                logger.error('Error deleting wish:', error);
-                alert('Failed to delete wish');
-            } else {
-                // Clean up local storage if needed
-                if (wish.image_url && wish.image_url.startsWith('local://')) {
-                    const localId = wish.image_url.replace('local://', '');
-                    storage.removeWishImage(localId);
-                }
-
-                setIsDetailOpen(false);
-                fetchData();
+        const result = await withValidSession(
+            supabase,
+            async () => {
+                return await supabase
+                    .from('user_wishes')
+                    .delete()
+                    .eq('id', wish.id);
+            },
+            () => {
+                alert('Your session has expired. Please refresh the page.');
             }
-        } catch (err) {
-            logger.error('Unexpected error in handleDeleteWish:', err);
-            alert('An unexpected error occurred');
+        );
+
+        if (!result) {
+            // Session was invalid
+            return;
+        }
+
+        if (result.error) {
+            logger.error('Error deleting wish:', result.error);
+            alert('Failed to delete wish');
+        } else {
+            // Clean up local storage if needed
+            if (wish.image_url && wish.image_url.startsWith('local://')) {
+                const localId = wish.image_url.replace('local://', '');
+                storage.removeWishImage(localId);
+            }
+
+            setIsDetailOpen(false);
+            fetchData();
         }
     };
 
