@@ -1,153 +1,48 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { createClient } from '@/utils/supabase/client';
-import { UserNote, CustomList } from '@/types/supabase';
 import { Plus, Search, CheckCircle2, Calendar } from 'lucide-react';
-import { storage, STORAGE_KEYS } from '@/utils/storage';
-import { logger } from '@/utils/logger';
-import { withValidSession } from '@/utils/supabase/sessionManager';
-
-interface NotesCache {
-    userNotes: UserNote[];
-    customLists: CustomList[];
-    timestamp: number;
-}
+import { useNotes } from '@/hooks/useNotes';
 
 type ListType = 'today' | 'planned' | 'all' | 'completed' | `custom-${string}`;
 
 export default function Notes() {
-    const { user, session } = useUser();
+    const { user } = useUser();
     const { t } = useLanguage();
-    const [notes, setNotes] = useState<UserNote[]>([]);
-    const [customLists, setCustomLists] = useState<CustomList[]>([]);
+    const {
+        notes,
+        customLists,
+        loadFromCache,
+        fetchNotes,
+        addNote,
+        updateNote
+    } = useNotes();
+
     const [currentListType, setCurrentListType] = useState<ListType>('all');
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editingText, setEditingText] = useState<string>('');
 
-    const supabase = useMemo(() => createClient(), []);
-
-    const loadFromCache = () => {
-        const cached = storage.get<NotesCache>(STORAGE_KEYS.NOTES_CACHE);
-        if (cached) {
-            const CACHE_AGE = 60 * 60 * 1000; // 1 hour
-            if (Date.now() - cached.timestamp < CACHE_AGE) {
-                setNotes(cached.userNotes);
-                setCustomLists(cached.customLists);
-                return true;
-            }
-        }
-        return false;
-    };
-
-    const saveToCache = (userNotes: UserNote[], lists: CustomList[]) => {
-        storage.set(STORAGE_KEYS.NOTES_CACHE, {
-            userNotes,
-            customLists: lists,
-            timestamp: Date.now()
-        });
-    };
-
-    const fetchData = async () => {
-        if (!user) {
-            logger.warn('fetchData called but no user found');
-            return;
-        }
-
-        logger.info('Fetching notes for user', { userId: user.id });
-
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                const notesPromise = supabase
-                    .from('user_notes')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false });
-
-                const listsPromise = supabase
-                    .from('custom_lists')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('created_at', { ascending: false });
-
-                const [notesResult, listsResult] = await Promise.all([
-                    notesPromise,
-                    listsPromise
-                ]);
-
-                return {
-                    notes: notesResult.data,
-                    notesError: notesResult.error,
-                    lists: listsResult.data,
-                    listsError: listsResult.error
-                };
-            },
-            () => {
-                logger.warn('Session expired during data fetch');
-            }
-        );
-
-        if (!result) return;
-
-        const { notes: fetchedNotes, notesError, lists, listsError } = result;
-
-        if (notesError) {
-            logger.error('Error fetching notes:', notesError);
-        }
-
-        if (listsError) {
-            logger.error('Error fetching lists:', listsError);
-        }
-
-        if (fetchedNotes && lists) {
-            setNotes(fetchedNotes);
-            setCustomLists(lists);
-            saveToCache(fetchedNotes, lists);
-        }
-    };
-
     useEffect(() => {
         loadFromCache();
-        fetchData();
-    }, [user]);
+        fetchNotes();
+    }, [user, loadFromCache, fetchNotes]);
 
     const handleAddNote = async () => {
         if (!user) return;
 
         const newNote = {
-            user_id: user.id,
             title: '',
             content: '',
-            is_completed: false,
-            priority: 'none'
+            priority: 'none' as const
         };
 
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                return await supabase
-                    .from('user_notes')
-                    .insert(newNote)
-                    .select()
-                    .single();
-            },
-            () => {
-                alert('Your session has expired. Please refresh the page.');
-            }
-        );
+        const createdNote = await addNote(newNote);
 
-        if (!result) return;
-
-        if (result.error) {
-            logger.error('Error adding note:', result.error);
-            alert('Failed to add note');
-        } else if (result.data) {
-            setEditingId(result.data.id);
+        if (createdNote) {
+            setEditingId(createdNote.id);
             setEditingText('');
-            fetchData();
         }
     };
 
@@ -155,26 +50,7 @@ export default function Notes() {
         const note = notes.find(n => n.id === noteId);
         if (!note) return;
 
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                return await supabase
-                    .from('user_notes')
-                    .update({ is_completed: !note.is_completed })
-                    .eq('id', noteId);
-            },
-            () => {
-                alert('Your session has expired. Please refresh the page.');
-            }
-        );
-
-        if (!result) return;
-
-        if (result.error) {
-            logger.error('Error toggling note:', result.error);
-        } else {
-            fetchData();
-        }
+        await updateNote(noteId, { is_completed: !note.is_completed });
     };
 
     const handleSaveEdit = async () => {
@@ -184,28 +60,10 @@ export default function Notes() {
             return;
         }
 
-        const result = await withValidSession(
-            supabase,
-            async () => {
-                return await supabase
-                    .from('user_notes')
-                    .update({ title: editingText.trim() })
-                    .eq('id', editingId);
-            },
-            () => {
-                alert('Your session has expired. Please refresh the page.');
-            }
-        );
+        await updateNote(editingId, { title: editingText.trim() });
 
-        if (!result) return;
-
-        if (result.error) {
-            logger.error('Error saving note:', result.error);
-        } else {
-            setEditingId(null);
-            setEditingText('');
-            fetchData();
-        }
+        setEditingId(null);
+        setEditingText('');
     };
 
     const filterNotesByType = (listType: ListType) => {
