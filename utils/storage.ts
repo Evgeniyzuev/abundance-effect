@@ -9,6 +9,7 @@ export const STORAGE_KEYS = {
     CUSTOM_LISTS_CACHE: 'app-custom-lists-cache',
     TASKS_CACHE: 'app-tasks-cache',
     RESULTS_CACHE: 'app-results-cache',
+    GAME_ITEMS_CACHE: 'app-game-items-cache',
 } as const;
 
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];

@@ -81,3 +81,22 @@ export async function updateResultsAction(updates: Partial<UserResults>): Promis
         return { success: false, error: error.message }
     }
 }
+
+export async function fetchGameItemsAction(): Promise<ActionResponse<any[]>> {
+    try {
+        const supabase = await createClient()
+
+        const { data, error } = await supabase
+            .from('game_items')
+            .select('*')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true })
+
+        if (error) throw error
+
+        return { success: true, data: data || [] }
+    } catch (error: any) {
+        console.error('Error fetching game items:', error)
+        return { success: false, error: error.message }
+    }
+}

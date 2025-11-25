@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { UserResults } from '@/types/supabase';
+import { UserResults, GameItem } from '@/types/supabase';
 import { storage, STORAGE_KEYS } from '@/utils/storage';
 import { useUser } from '@/context/UserContext';
-import { fetchResultsAction, updateResultsAction } from '@/app/actions/results';
+import { fetchResultsAction, updateResultsAction, fetchGameItemsAction } from '@/app/actions/results';
 
 export interface InventorySlot {
     slot: number;
@@ -14,17 +14,37 @@ export const useResults = () => {
     const { user } = useUser();
 
     const [results, setResults] = useState<UserResults | null>(null);
+    const [gameItems, setGameItems] = useState<GameItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const loadFromCache = useCallback(() => {
-        const cached = storage.get<UserResults>(STORAGE_KEYS.RESULTS_CACHE);
-        if (cached) {
-            setResults(cached);
+        const cachedResults = storage.get<UserResults>(STORAGE_KEYS.RESULTS_CACHE);
+        if (cachedResults) {
+            setResults(cachedResults);
+        }
+
+        const cachedItems = storage.get<GameItem[]>(STORAGE_KEYS.GAME_ITEMS_CACHE);
+        if (cachedItems) {
+            setGameItems(cachedItems);
+        }
+
+        if (cachedResults || cachedItems) {
             setIsLoading(false);
         }
     }, []);
 
     const fetchResults = useCallback(async () => {
+        // Fetch game items (public data, doesn't need user)
+        try {
+            const itemsResult = await fetchGameItemsAction();
+            if (itemsResult.success && itemsResult.data) {
+                setGameItems(itemsResult.data);
+                storage.set(STORAGE_KEYS.GAME_ITEMS_CACHE, itemsResult.data);
+            }
+        } catch (error) {
+            console.error('Error fetching game items:', error);
+        }
+
         if (!user) return;
 
         try {
@@ -86,6 +106,7 @@ export const useResults = () => {
 
     return {
         results,
+        gameItems,
         isLoading,
         loadFromCache,
         fetchResults,

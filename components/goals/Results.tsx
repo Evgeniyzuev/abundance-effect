@@ -4,13 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { useResults, InventorySlot } from '@/hooks/useResults';
 import { GameItem } from '@/types/supabase';
-import {
-    ACHIEVEMENTS,
-    INVENTORY_ITEMS,
-    KNOWLEDGE_ITEMS,
-    BASE_BACKGROUNDS,
-    CHARACTER_BACKGROUNDS
-} from '@/constants/results';
+
 
 interface ModalProps {
     open: boolean;
@@ -38,7 +32,13 @@ function Modal({ open, onClose, title, children }: ModalProps) {
 }
 
 export default function Results() {
-    const { results, loadFromCache, fetchResults, updateInventory, updateKnowledge, setBase, setCharacter } = useResults();
+    const { results, gameItems, loadFromCache, fetchResults, updateInventory, updateKnowledge, setBase, setCharacter } = useResults();
+
+    const ACHIEVEMENTS = gameItems.filter(i => i.type === 'achievement');
+    const INVENTORY_ITEMS = gameItems.filter(i => i.type === 'item');
+    const KNOWLEDGE_ITEMS = gameItems.filter(i => i.type === 'book');
+    const BASE_BACKGROUNDS = gameItems.filter(i => i.type === 'base');
+    const CHARACTER_BACKGROUNDS = gameItems.filter(i => i.type === 'character');
 
     const [floaterOpen, setFloaterOpen] = useState(false);
     const [circleSize, setCircleSize] = useState<number>(() => {
