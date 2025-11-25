@@ -62,17 +62,17 @@ export const useResults = () => {
     };
 
     const updateInventory = (slots: InventorySlot[]) => {
-        saveResults({ inventory: slots });
+        saveResults({ inventory: slots as any });
     };
 
     const updateKnowledge = (slots: InventorySlot[]) => {
-        saveResults({ knowledge: slots });
+        saveResults({ knowledge: slots as any });
     };
 
     const unlockAchievement = (achievementId: string) => {
         const current = (results?.unlocked_achievements as string[]) || [];
         if (!current.includes(achievementId)) {
-            saveResults({ unlocked_achievements: [...current, achievementId] });
+            saveResults({ unlocked_achievements: [...current, achievementId] as any });
         }
     };
 
