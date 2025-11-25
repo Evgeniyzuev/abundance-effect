@@ -8,6 +8,7 @@ This document outlines the workflow for Antigravity when working on the Abundanc
 
 ## Core Principle
 **Focus ONLY on the `2. NEXT` section of `MASTER_PLAN.md`.**
+**Don't use git. Write the commands, I'll execute them, then we'll continue.
 **Important! $200 tip bet: if you can do it on your first try. Take a deep breath and solve step by step.
 
 ## Workflow
