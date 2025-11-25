@@ -202,6 +202,35 @@ export interface Database {
                     updated_at?: string
                 }
             }
+            user_results: {
+                Row: {
+                    user_id: string
+                    inventory: Json
+                    knowledge: Json
+                    unlocked_achievements: Json
+                    selected_base_id: string | null
+                    selected_character_id: string | null
+                    updated_at: string
+                }
+                Insert: {
+                    user_id: string
+                    inventory?: Json
+                    knowledge?: Json
+                    unlocked_achievements?: Json
+                    selected_base_id?: string | null
+                    selected_character_id?: string | null
+                    updated_at?: string
+                }
+                Update: {
+                    user_id?: string
+                    inventory?: Json
+                    knowledge?: Json
+                    unlocked_achievements?: Json
+                    selected_base_id?: string | null
+                    selected_character_id?: string | null
+                    updated_at?: string
+                }
+            }
         }
     }
 }
@@ -211,3 +240,4 @@ export type RecommendedWish = Database['public']['Tables']['recommended_wishes']
 export type CustomList = Database['public']['Tables']['custom_lists']['Row']
 export type UserNote = Database['public']['Tables']['user_notes']['Row']
 export type PersonalTask = Database['public']['Tables']['personal_tasks']['Row']
+export type UserResults = Database['public']['Tables']['user_results']['Row']

@@ -6,6 +6,7 @@ import Wishboard from '@/components/goals/Wishboard';
 import Notes from '@/components/goals/Notes';
 import Tasks from '@/components/goals/Tasks';
 import Roadmap from '@/components/goals/Roadmap';
+import Results from '@/components/goals/Results';
 
 type Tab = 'wishboard' | 'notes' | 'tasks' | 'roadmap' | 'results';
 
@@ -21,7 +22,7 @@ export default function GoalsPage() {
                 {activeTab === 'notes' && <Notes />}
                 {activeTab === 'tasks' && <Tasks />}
                 {activeTab === 'roadmap' && <Roadmap />}
-                {activeTab === 'results' && <div className="p-4 text-center text-gray-500">Results coming soon</div>}
+                {activeTab === 'results' && <Results />}
             </div>
         </div>
     );
