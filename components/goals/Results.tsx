@@ -415,7 +415,7 @@ export default function Results() {
 
             {/* Base */}
             {activeTab === 'base' && (
-                <div className="relative h-full flex w-full">
+                <div className="relative h-full flex w-full overflow-hidden">
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                     <div
                         className="flex-1 relative bg-gray-200"
@@ -442,7 +442,7 @@ export default function Results() {
 
             {/* Character */}
             {activeTab === 'character' && (
-                <div className="relative h-full flex w-full">
+                <div className="relative h-full flex w-full overflow-hidden">
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                     <div
                         className="flex-1 relative bg-gray-200"
