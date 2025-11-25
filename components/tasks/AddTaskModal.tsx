@@ -66,7 +66,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
 
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
-            <div className="w-full max-w-lg bg-white rounded-t-3xl shadow-xl animate-slide-up">
+            <div className="w-full max-w-lg bg-white rounded-t-3xl shadow-xl animate-slide-up mb-16">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-900">

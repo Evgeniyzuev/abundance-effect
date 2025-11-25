@@ -48,7 +48,7 @@ export default function Tasks() {
     const completedTasks = tasks.filter(t => t.status === 'completed');
 
     return (
-        <div className="pb-20 bg-gray-50 min-h-screen">
+        <div className="pb-32 bg-gray-50 min-h-screen">
             {/* Active Tasks */}
             <div className="bg-white">
                 {activeTasks.length === 0 ? (
