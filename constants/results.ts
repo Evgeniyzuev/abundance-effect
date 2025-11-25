@@ -40,4 +40,3 @@ export const CHARACTER_BACKGROUNDS: GameItem[] = [
     { id: 'char_1', type: 'character', title: 'Casual', description: 'Ready for a relaxed day.', image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop' },
     { id: 'char_2', type: 'character', title: 'Business', description: 'Dressed for success.', image: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2190&auto=format&fit=crop' },
     { id: 'char_3', type: 'character', title: 'Traveler', description: 'Prepared for adventure.', image: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?q=80&w=1974&auto=format&fit=crop' },
-];

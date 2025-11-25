@@ -192,6 +192,10 @@ export default function Results() {
     const baseIndex = BASE_BACKGROUNDS.findIndex(b => b.id === selectedBaseId);
     const characterIndex = CHARACTER_BACKGROUNDS.findIndex(c => c.id === selectedCharacterId);
 
+    // Debug logging
+    console.log('Base:', { selectedBaseId, baseIndex, background: BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0] });
+    console.log('Character:', { selectedCharacterId, characterIndex, background: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0] });
+
     return (
         <div className="relative flex flex-col h-full bg-white overscroll-none">
             {/* Floating top-left control */}
@@ -377,15 +381,23 @@ export default function Results() {
             {activeTab === 'base' && (
                 <div className="relative h-full flex">
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-8 bg-gray-200 flex-shrink-0"></div>}
-                    <div className="flex-1 relative bg-gray-200" style={{ backgroundImage: `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0]?.image})`, backgroundSize: 'auto 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+                    <div
+                        className="flex-1 relative bg-gray-200"
+                        style={{
+                            backgroundImage: BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0]?.image ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                        }}
+                    >
                         <button
                             className="absolute bottom-4 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50"
                             onClick={() => {
-                                const nextIndex = (baseIndex + 1) % BASE_BACKGROUNDS.length;
+                                const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
                                 setBase(BASE_BACKGROUNDS[nextIndex].id);
                             }}
                         >
-                            {baseIndex + 1}
+                            {(baseIndex >= 0 ? baseIndex : 0) + 1}
                         </button>
                     </div>
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-8 bg-gray-200 flex-shrink-0"></div>}
@@ -396,15 +408,23 @@ export default function Results() {
             {activeTab === 'character' && (
                 <div className="relative h-full flex">
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-8 bg-gray-200 flex-shrink-0"></div>}
-                    <div className="flex-1 relative bg-gray-200" style={{ backgroundImage: `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0]?.image})`, backgroundSize: 'auto 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+                    <div
+                        className="flex-1 relative bg-gray-200"
+                        style={{
+                            backgroundImage: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0]?.image ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                        }}
+                    >
                         <button
                             className="absolute bottom-4 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50"
                             onClick={() => {
-                                const nextIndex = (characterIndex + 1) % CHARACTER_BACKGROUNDS.length;
+                                const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
                                 setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
                             }}
                         >
-                            {characterIndex + 1}
+                            {(characterIndex >= 0 ? characterIndex : 0) + 1}
                         </button>
                     </div>
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-8 bg-gray-200 flex-shrink-0"></div>}
