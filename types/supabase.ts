@@ -231,6 +231,44 @@ export interface Database {
                     updated_at?: string
                 }
             }
+            game_items: {
+                Row: {
+                    id: string
+                    type: 'achievement' | 'item' | 'book' | 'base' | 'character'
+                    title: string
+                    description: string | null
+                    image: string
+                    subtitle: string | null
+                    sort_order: number
+                    is_active: boolean
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id: string
+                    type: 'achievement' | 'item' | 'book' | 'base' | 'character'
+                    title: string
+                    description?: string | null
+                    image: string
+                    subtitle?: string | null
+                    sort_order?: number
+                    is_active?: boolean
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    type?: 'achievement' | 'item' | 'book' | 'base' | 'character'
+                    title?: string
+                    description?: string | null
+                    image?: string
+                    subtitle?: string | null
+                    sort_order?: number
+                    is_active?: boolean
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
         }
     }
 }
@@ -241,3 +279,4 @@ export type CustomList = Database['public']['Tables']['custom_lists']['Row']
 export type UserNote = Database['public']['Tables']['user_notes']['Row']
 export type PersonalTask = Database['public']['Tables']['personal_tasks']['Row']
 export type UserResults = Database['public']['Tables']['user_results']['Row']
+export type GameItem = Database['public']['Tables']['game_items']['Row']

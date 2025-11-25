@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { useResults, InventorySlot } from '@/hooks/useResults';
+import { GameItem } from '@/types/supabase';
 import {
     ACHIEVEMENTS,
     INVENTORY_ITEMS,
     KNOWLEDGE_ITEMS,
     BASE_BACKGROUNDS,
-    CHARACTER_BACKGROUNDS,
-    GameItem
+    CHARACTER_BACKGROUNDS
 } from '@/constants/results';
 
 interface ModalProps {
