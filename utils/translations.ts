@@ -96,6 +96,11 @@ export type TranslationKey =
     | 'tasks.complete_task'
     | 'tasks.task_details'
     | 'tasks.daily_progress'
+    // Roadmap
+    | 'roadmap.title'
+    | 'roadmap.current_level'
+    | 'roadmap.next_level'
+    | 'roadmap.keep_moving'
     // Common
     | 'common.loading'
     | 'common.error'
@@ -200,6 +205,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.complete_task': 'Complete Task',
         'tasks.task_details': 'Task Details',
         'tasks.daily_progress': 'Daily Progress',
+        // Roadmap
+        'roadmap.title': 'Roadmap',
+        'roadmap.current_level': 'Level',
+        'roadmap.next_level': 'Next Level',
+        'roadmap.keep_moving': 'Keep moving',
         // Common
         'common.loading': 'Loading...',
         'common.error': 'Error',
@@ -303,6 +313,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.complete_task': '完成任务',
         'tasks.task_details': '任务详情',
         'tasks.daily_progress': '每日进度',
+        // Roadmap
+        'roadmap.title': '路线图',
+        'roadmap.current_level': '等级',
+        'roadmap.next_level': '下一级',
+        'roadmap.keep_moving': '继续前进',
         // Common
         'common.loading': '加载中...',
         'common.error': '错误',
@@ -406,6 +421,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.complete_task': 'Completar Tarea',
         'tasks.task_details': 'Detalles de Tarea',
         'tasks.daily_progress': 'Progreso Diario',
+        // Roadmap
+        'roadmap.title': 'Hoja de Ruta',
+        'roadmap.current_level': 'Nivel',
+        'roadmap.next_level': 'Siguiente Nivel',
+        'roadmap.keep_moving': 'Sigue moviéndote',
         // Common
         'common.loading': 'Cargando...',
         'common.error': 'Error',
@@ -509,6 +529,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.complete_task': 'कार्य पूर्ण करें',
         'tasks.task_details': 'कार्य विवरण',
         'tasks.daily_progress': 'दैनिक प्रगति',
+        // Roadmap
+        'roadmap.title': 'रोडमैप',
+        'roadmap.current_level': 'स्तर',
+        'roadmap.next_level': 'अगला स्तर',
+        'roadmap.keep_moving': 'चलते रहो',
         // Common
         'common.loading': 'लोड हो रहा है...',
         'common.error': 'त्रुटि',
@@ -612,6 +637,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.complete_task': 'إكمال المهمة',
         'tasks.task_details': 'تفاصيل المهمة',
         'tasks.daily_progress': 'التقدم اليومي',
+        // Roadmap
+        'roadmap.title': 'خارطة الطريق',
+        'roadmap.current_level': 'المستوى',
+        'roadmap.next_level': 'المستوى التالي',
+        'roadmap.keep_moving': 'استمر في التحرك',
         // Common
         'common.loading': 'جار التحميل...',
         'common.error': 'خطأ',
@@ -715,6 +745,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.complete_task': 'Завершить задачу',
         'tasks.task_details': 'Детали задачи',
         'tasks.daily_progress': 'Ежедневный прогресс',
+        // Roadmap
+        'roadmap.title': 'Дорожная карта',
+        'roadmap.current_level': 'Уровень',
+        'roadmap.next_level': 'Следующий уровень',
+        'roadmap.keep_moving': 'Продолжай движение',
         // Common
         'common.loading': 'Загрузка...',
         'common.error': 'Ошибка',
