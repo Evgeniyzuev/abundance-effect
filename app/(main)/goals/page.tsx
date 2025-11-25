@@ -14,15 +14,17 @@ export default function GoalsPage() {
     const [activeTab, setActiveTab] = useState<Tab>('wishboard');
 
     return (
-        <div className="-m-4 min-h-screen bg-gray-50">
+        <div className="-m-4 h-screen flex flex-col bg-gray-50 overflow-hidden">
             <TopNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-            <div className="pt-14">
-                {activeTab === 'wishboard' && <Wishboard />}
-                {activeTab === 'notes' && <Notes />}
-                {activeTab === 'tasks' && <Tasks />}
-                {activeTab === 'roadmap' && <Roadmap />}
-                {activeTab === 'results' && <Results />}
+            <div className="flex-1 pt-14 overflow-hidden relative flex flex-col">
+                <div className="flex-1 w-full overflow-y-auto overflow-x-hidden">
+                    {activeTab === 'wishboard' && <Wishboard />}
+                    {activeTab === 'notes' && <Notes />}
+                    {activeTab === 'tasks' && <Tasks />}
+                    {activeTab === 'roadmap' && <Roadmap />}
+                    {activeTab === 'results' && <Results />}
+                </div>
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { useResults, InventorySlot } from '@/hooks/useResults';
 import { GameItem } from '@/types/supabase';
@@ -98,6 +98,37 @@ export default function Results() {
             setKnowledgeSlots(newKnowSlots);
         }
     }, [results]);
+
+    // Swipe logic
+    const touchStartX = useRef<number | null>(null);
+    const touchEndX = useRef<number | null>(null);
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchEndX.current = null;
+        touchStartX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStartX.current || !touchEndX.current) return;
+        const distance = touchStartX.current - touchEndX.current;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe || isRightSwipe) {
+            const currentIndex = tabs.findIndex(t => t.key === activeTab);
+            if (isLeftSwipe && currentIndex < tabs.length - 1) {
+                setActiveTab(tabs[currentIndex + 1].key);
+            }
+            if (isRightSwipe && currentIndex > 0) {
+                setActiveTab(tabs[currentIndex - 1].key);
+            }
+        }
+    };
 
     const openAchievementModal = (a: GameItem) => {
         setModalTitle(a.title);
@@ -197,7 +228,12 @@ export default function Results() {
     console.log('Character:', { selectedCharacterId, characterIndex, background: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0] });
 
     return (
-        <div className="relative flex flex-col h-full bg-white overscroll-none">
+        <div
+            className="relative flex flex-col h-full bg-white overscroll-none touch-pan-y"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+        >
             {/* Floating top-left control */}
             <div className="absolute top-0 left-0 z-50">
                 <div
@@ -379,7 +415,7 @@ export default function Results() {
 
             {/* Base */}
             {activeTab === 'base' && (
-                <div className="relative h-full flex">
+                <div className="relative h-full flex w-full">
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-8 bg-gray-200 flex-shrink-0"></div>}
                     <div
                         className="flex-1 relative bg-gray-200"
@@ -391,7 +427,7 @@ export default function Results() {
                         }}
                     >
                         <button
-                            className="absolute bottom-20 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors"
+                            className="absolute bottom-20 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors z-10"
                             onClick={() => {
                                 const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
                                 setBase(BASE_BACKGROUNDS[nextIndex].id);
@@ -406,7 +442,7 @@ export default function Results() {
 
             {/* Character */}
             {activeTab === 'character' && (
-                <div className="relative h-full flex">
+                <div className="relative h-full flex w-full">
                     {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-8 bg-gray-200 flex-shrink-0"></div>}
                     <div
                         className="flex-1 relative bg-gray-200"
@@ -418,7 +454,7 @@ export default function Results() {
                         }}
                     >
                         <button
-                            className="absolute bottom-20 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors"
+                            className="absolute bottom-20 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors z-10"
                             onClick={() => {
                                 const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
                                 setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
