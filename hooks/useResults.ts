@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/types/supabase';
+import { UserResults } from '@/types/supabase';
 import { storage, STORAGE_KEYS } from '@/utils/storage';
 import { useUser } from '@/context/UserContext';
-
-type UserResults = Database['public']['Tables']['user_results']['Row'];
+import { fetchResultsAction, updateResultsAction } from '@/app/actions/results';
 
 export interface InventorySlot {
     slot: number;
@@ -14,7 +12,6 @@ export interface InventorySlot {
 
 export const useResults = () => {
     const { user } = useUser();
-    const supabase = createClientComponentClient<Database>();
 
     const [results, setResults] = useState<UserResults | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -31,40 +28,18 @@ export const useResults = () => {
         if (!user) return;
 
         try {
-            const { data, error } = await supabase
-                .from('user_results')
-                .select('*')
-                .eq('user_id', user.id)
-                .single();
+            const result = await fetchResultsAction();
 
-            if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-                console.error('Error fetching results:', error);
-                return;
-            }
-
-            if (data) {
-                setResults(data);
-                storage.set(STORAGE_KEYS.RESULTS_CACHE, data);
-            } else {
-                // Initialize if not exists
-                const newResults: UserResults = {
-                    user_id: user.id,
-                    inventory: [],
-                    knowledge: [],
-                    unlocked_achievements: [],
-                    selected_base_id: null,
-                    selected_character_id: null,
-                    updated_at: new Date().toISOString()
-                };
-                // We don't necessarily need to insert immediately, but we can set local state
-                setResults(newResults);
+            if (result.success && result.data) {
+                setResults(result.data);
+                storage.set(STORAGE_KEYS.RESULTS_CACHE, result.data);
             }
         } catch (error) {
             console.error('Unexpected error fetching results:', error);
         } finally {
             setIsLoading(false);
         }
-    }, [user, supabase]);
+    }, [user]);
 
     const saveResults = async (updates: Partial<UserResults>) => {
         if (!user || !results) return;
@@ -75,13 +50,10 @@ export const useResults = () => {
         storage.set(STORAGE_KEYS.RESULTS_CACHE, newResults);
 
         try {
-            const { error } = await supabase
-                .from('user_results')
-                .upsert(newResults)
-                .eq('user_id', user.id);
+            const result = await updateResultsAction(updates);
 
-            if (error) {
-                console.error('Error saving results:', error);
+            if (!result.success) {
+                console.error('Error saving results:', result.error);
                 // Revert on error (optional, or just let next fetch fix it)
             }
         } catch (error) {
@@ -124,3 +96,4 @@ export const useResults = () => {
         setCharacter
     };
 };
+
