@@ -177,3 +177,70 @@ export async function completeTaskAction(id: string): Promise<ActionResponse<Per
         return { success: false, error: error.message }
     }
 }
+
+export async function markDayCompletedAction(id: string, date: string): Promise<ActionResponse<PersonalTask>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        // Fetch the task first
+        const { data: task, error: fetchError } = await supabase
+            .from('personal_tasks')
+            .select('*')
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .single()
+
+        if (fetchError || !task) {
+            throw new Error('Task not found')
+        }
+
+        // Get current completions array
+        const completions = (task.daily_completions as string[]) || []
+
+        // Check if date already marked
+        if (completions.includes(date)) {
+            return { success: true, data: task as PersonalTask }
+        }
+
+        // Add new date
+        const newCompletions = [...completions, date]
+        const newCurrent = newCompletions.length
+
+        let updates: Partial<PersonalTask> = {
+            daily_completions: newCompletions as any,
+            streak_current: newCurrent,
+            last_completed_at: new Date().toISOString()
+        }
+
+        // For streak tasks, update progress and check if goal reached
+        if (task.type === 'streak' && task.streak_goal) {
+            updates.progress_percentage = Math.round((newCurrent / task.streak_goal) * 100)
+
+            if (newCurrent >= task.streak_goal) {
+                updates.status = 'completed'
+            }
+        }
+
+        const { data, error } = await supabase
+            .from('personal_tasks')
+            .update(updates)
+            .eq('id', id)
+            .eq('user_id', user.id)
+            .select()
+            .single()
+
+        if (error) throw error
+
+        revalidatePath('/goals')
+        return { success: true, data: data as PersonalTask }
+    } catch (error: any) {
+        console.error('Error marking day completed:', error)
+        return { success: false, error: error.message }
+    }
+}
+

@@ -93,5 +93,34 @@ export const storage = {
         } catch (error) {
             console.warn('Error removing wish image from localStorage:', error);
         }
+    },
+
+    // Task image helpers
+    saveTaskImage: (id: string, base64: string): void => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(`task_image_${id}`, base64);
+        } catch (error) {
+            console.warn('Error saving task image to localStorage:', error);
+        }
+    },
+
+    getTaskImage: (id: string): string | null => {
+        if (typeof window === 'undefined') return null;
+        try {
+            return window.localStorage.getItem(`task_image_${id}`);
+        } catch (error) {
+            console.warn('Error reading task image from localStorage:', error);
+            return null;
+        }
+    },
+
+    removeTaskImage: (id: string): void => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.removeItem(`task_image_${id}`);
+        } catch (error) {
+            console.warn('Error removing task image from localStorage:', error);
+        }
     }
 };

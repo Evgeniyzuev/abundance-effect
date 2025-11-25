@@ -164,6 +164,8 @@ export interface Database {
                     streak_current: number | null
                     progress_percentage: number | null
                     last_completed_at: string | null
+                    image_url: string | null
+                    daily_completions: Json | null
                     created_at: string
                     updated_at: string
                 }
@@ -178,6 +180,8 @@ export interface Database {
                     streak_current?: number | null
                     progress_percentage?: number | null
                     last_completed_at?: string | null
+                    image_url?: string | null
+                    daily_completions?: Json | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -192,6 +196,8 @@ export interface Database {
                     streak_current?: number | null
                     progress_percentage?: number | null
                     last_completed_at?: string | null
+                    image_url?: string | null
+                    daily_completions?: Json | null
                     created_at?: string
                     updated_at?: string
                 }
