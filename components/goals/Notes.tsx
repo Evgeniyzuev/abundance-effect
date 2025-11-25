@@ -33,8 +33,7 @@ export default function Notes() {
     // Note Interaction State
     const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
     const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
-    const [editingNoteText, setEditingNoteText] = useState<string>('');
-    const [editingNoteContent, setEditingNoteContent] = useState<string>('');
+    const [editingNoteText, setEditingNoteText] = useState<string>(''); // combined title and content
     const [showNoteDetails, setShowNoteDetails] = useState<string | null>(null); // ID of note to show details for
 
     // List Creation/Editing State
@@ -76,16 +75,13 @@ export default function Notes() {
 
     const handleAddNote = async () => {
         if (!user) return;
-
         let scheduledDate = null;
         let listId = null;
-
         if (currentListType === 'today') {
             scheduledDate = new Date().toISOString().split('T')[0];
         } else if (currentListType.startsWith('custom-')) {
             listId = currentListType.replace('custom-', '');
         }
-
         const newNote = {
             title: '',
             content: '',
@@ -93,45 +89,26 @@ export default function Notes() {
             scheduled_date: scheduledDate,
             list_id: listId
         };
-
-        // If in lists view, default to 'all' or 'inbox' behavior (no listId)
         if (viewMode === 'lists') {
-            // For now, just add to 'All' (no list_id)
-            // Or maybe prompt? Let's just add to 'All' and switch to notes view?
-            // User said "same inside lists", so maybe just add to default list.
-            // Let's switch to 'all' view and add note.
             setCurrentListType('all');
             setViewMode('notes');
         }
-
         const createdNote = await addNote(newNote);
-
         if (createdNote) {
             setEditingNoteId(createdNote.id);
             setEditingNoteText('');
-            setEditingNoteContent('');
             setExpandedNoteId(createdNote.id);
         }
     };
 
     const handleSaveNote = async () => {
         if (!editingNoteId) return;
-
-        // Don't save if nothing changed to avoid unnecessary updates
-        // But we need to clear editing state
-
-        if (editingNoteText.trim() || editingNoteContent.trim()) {
-            await updateNote(editingNoteId, {
-                title: editingNoteText.trim(),
-                content: editingNoteContent.trim()
-            });
+        if (editingNoteText.trim()) {
+            const lines = editingNoteText.split('\n');
+            const title = lines[0];
+            const content = lines.slice(1).join('\n');
+            await updateNote(editingNoteId, { title, content });
         }
-
-        // We don't clear editingNoteId here immediately if we want to keep focus?
-        // Actually onBlur triggers this, so we should clear it.
-        // But wait, the user said "input disappears". 
-        // If we clear editingNoteId, it switches back to view mode.
-        // We should only clear it if we are done editing.
         setEditingNoteId(null);
     };
 
@@ -166,21 +143,11 @@ export default function Notes() {
 
     const handleCreateList = async () => {
         if (!newListName.trim()) return;
-
         if (editingList) {
-            await updateList(editingList.id, {
-                name: newListName,
-                color: newListColor,
-                icon: newListIcon
-            });
+            await updateList(editingList.id, { name: newListName, color: newListColor, icon: newListIcon });
         } else {
-            await addList({
-                name: newListName,
-                color: newListColor,
-                icon: newListIcon
-            });
+            await addList({ name: newListName, color: newListColor, icon: newListIcon });
         }
-
         setShowCreateList(false);
         setNewListName('');
         setNewListColor('#007AFF');
@@ -237,7 +204,6 @@ export default function Notes() {
         return '#007AFF';
     };
 
-    // Counts
     const getCount = (type: ListType) => {
         if (type === 'all') return notes.filter(n => !n.is_completed && !n.list_id).length;
         if (type === 'today') {
@@ -331,8 +297,7 @@ export default function Notes() {
                                     onMouseDown={() => handleTouchStart(list)}
                                     onMouseUp={handleTouchEnd}
                                     onClick={() => handleListClick(`custom-${list.id}`)}
-                                    className={`flex items-center gap-3 p-3 active:bg-zinc-100 dark:active:bg-zinc-800 cursor-pointer ${index !== customLists.length - 1 ? 'border-b border-zinc-100 dark:border-zinc-800' : ''
-                                        }`}
+                                    className={`flex items-center gap-3 p-3 active:bg-zinc-100 dark:active:bg-zinc-800 cursor-pointer ${index !== customLists.length - 1 ? 'border-b border-zinc-100 dark:border-zinc-800' : ''}`}
                                 >
                                     <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: list.color }}>
                                         <span className="text-lg">{list.icon}</span>
@@ -383,78 +348,47 @@ export default function Notes() {
                                     <button
                                         onClick={() => updateNote(note.id, { is_completed: !note.is_completed })}
                                         className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${note.is_completed
-                                                ? 'bg-blue-500 border-blue-500 text-white'
-                                                : 'border-zinc-300 dark:border-zinc-600 hover:border-blue-500'
+                                            ? 'bg-blue-500 border-blue-500 text-white'
+                                            : 'border-zinc-300 dark:border-zinc-600 hover:border-blue-500'
                                             }`}
                                     >
                                         {note.is_completed && <CheckCircle2 className="w-3.5 h-3.5" />}
                                     </button>
 
                                     <div className="flex-1 min-w-0 border-b border-zinc-100 dark:border-zinc-900 pb-4">
-                                        <div
-                                            onClick={() => {
-                                                if (expandedNoteId === note.id) {
-                                                    // If already expanded, just toggle edit mode if not editing
-                                                    if (editingNoteId !== note.id) {
-                                                        setEditingNoteId(note.id);
-                                                        setEditingNoteText(note.title);
-                                                        setEditingNoteContent(note.content || '');
-                                                    }
-                                                } else {
-                                                    setExpandedNoteId(note.id);
-                                                }
-                                            }}
-                                            className="cursor-pointer"
-                                        >
-                                            {editingNoteId === note.id ? (
-                                                <div className="space-y-2">
-                                                    <input
-                                                        autoFocus
-                                                        type="text"
-                                                        value={editingNoteText}
-                                                        onChange={(e) => setEditingNoteText(e.target.value)}
-                                                        onBlur={handleSaveNote}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter') {
-                                                                e.preventDefault();
-                                                                handleSaveNote();
-                                                            }
-                                                        }}
-                                                        className="w-full bg-transparent border-none p-0 text-zinc-900 dark:text-white font-bold focus:ring-0 text-base"
-                                                        placeholder={t('notes.add_note')}
-                                                    />
-                                                    <textarea
-                                                        value={editingNoteContent}
-                                                        onChange={(e) => setEditingNoteContent(e.target.value)}
-                                                        onBlur={handleSaveNote}
-                                                        className="w-full bg-transparent border-none p-0 text-zinc-600 dark:text-zinc-400 focus:ring-0 text-sm resize-none"
-                                                        placeholder="Add details..."
-                                                        rows={3}
-                                                    />
+                                        {editingNoteId === note.id ? (
+                                            <textarea
+                                                autoFocus
+                                                value={editingNoteText}
+                                                onChange={e => setEditingNoteText(e.target.value)}
+                                                onBlur={handleSaveNote}
+                                                className="w-full bg-transparent border-none p-0 text-zinc-900 dark:text-white text-base resize-none focus:ring-0"
+                                                rows={4}
+                                            />
+                                        ) : (
+                                            <div
+                                                onClick={() => {
+                                                    setEditingNoteId(note.id);
+                                                    const combined = note.title + (note.content ? '\n' + note.content : '');
+                                                    setEditingNoteText(combined);
+                                                }}
+                                                className="cursor-pointer"
+                                            >
+                                                <div className={`font-bold text-zinc-900 dark:text-white ${note.is_completed ? 'line-through text-zinc-400' : ''}`}>
+                                                    {note.title || (note.content ? note.content.split('\n')[0] : t('notes.add_note'))}
                                                 </div>
-                                            ) : (
-                                                <div>
-                                                    <div className={`font-bold text-zinc-900 dark:text-white ${note.is_completed ? 'line-through text-zinc-400' : ''}`}>
-                                                        {note.title || t('notes.add_note')}
+                                                {note.content && (
+                                                    <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
+                                                        {note.content.split('\n').slice(1).join('\n')}
                                                     </div>
-                                                    {expandedNoteId === note.id && note.content && (
-                                                        <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
-                                                            {note.content}
-                                                        </div>
-                                                    )}
-                                                    {note.scheduled_date && (
-                                                        <div className={`mt-1 text-xs ${new Date(note.scheduled_date) < new Date() ? 'text-red-500' : 'text-zinc-400'}`}>
-                                                            {new Date(note.scheduled_date).toLocaleDateString()}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {expandedNoteId === note.id && (
                                         <button
-                                            onClick={(e) => {
+                                            onClick={e => {
                                                 e.stopPropagation();
                                                 setShowNoteDetails(note.id);
                                             }}
@@ -503,7 +437,7 @@ export default function Notes() {
                                     <input
                                         type="text"
                                         value={newListIcon}
-                                        onChange={(e) => setNewListIcon(e.target.value)}
+                                        onChange={e => setNewListIcon(e.target.value)}
                                         className="w-full h-full text-center bg-transparent border-none focus:ring-0 text-4xl p-0 cursor-pointer"
                                         maxLength={2}
                                     />
@@ -517,7 +451,7 @@ export default function Notes() {
                                 <input
                                     type="text"
                                     value={newListName}
-                                    onChange={(e) => setNewListName(e.target.value)}
+                                    onChange={e => setNewListName(e.target.value)}
                                     placeholder={t('notes.list_name_placeholder')}
                                     className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-blue-500/20"
                                 />
@@ -528,8 +462,7 @@ export default function Notes() {
                                     <button
                                         key={color}
                                         onClick={() => setNewListColor(color)}
-                                        className={`w-10 h-10 rounded-full transition-transform ${newListColor === color ? 'scale-110 ring-2 ring-offset-2 ring-zinc-900 dark:ring-white' : ''
-                                            }`}
+                                        className={`w-10 h-10 rounded-full transition-transform ${newListColor === color ? 'scale-110 ring-2 ring-offset-2 ring-zinc-900 dark:ring-white' : ''}`}
                                         style={{ backgroundColor: color }}
                                     />
                                 ))}
@@ -582,7 +515,7 @@ export default function Notes() {
                                 <input
                                     type="date"
                                     value={notes.find(n => n.id === showNoteDetails)?.scheduled_date || ''}
-                                    onChange={(e) => updateNote(showNoteDetails, { scheduled_date: e.target.value })}
+                                    onChange={e => updateNote(showNoteDetails, { scheduled_date: e.target.value })}
                                     className="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl border-none focus:ring-2 focus:ring-blue-500/20"
                                 />
                             </div>
@@ -598,9 +531,8 @@ export default function Notes() {
                                             key={priority}
                                             onClick={() => updateNote(showNoteDetails, { priority: priority as any })}
                                             className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${notes.find(n => n.id === showNoteDetails)?.priority === priority
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
-                                                }`}
+                                                ? 'bg-blue-500 text-white'
+                                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}
                                         >
                                             {t(`notes.priority_${priority}` as any)}
                                         </button>
