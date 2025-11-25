@@ -337,13 +337,13 @@ export default function Notes() {
 
                 {/* Notes List */}
                 <div className="flex-1 overflow-y-auto px-4 pb-32">
-                    <div className="space-y-4">
+                    <div className="space-y-0">
                         {filteredNotes.length === 0 ? (
                             <div className="text-center py-20 text-zinc-400">
                                 {t('notes.no_notes')}
                             </div>
                         ) : (
-                            filteredNotes.map(note => (
+                            filteredNotes.map((note, index) => (
                                 <div key={note.id} className="flex items-start gap-3 group">
                                     <button
                                         onClick={() => updateNote(note.id, { is_completed: !note.is_completed })}
@@ -355,7 +355,7 @@ export default function Notes() {
                                         {note.is_completed && <CheckCircle2 className="w-3.5 h-3.5" />}
                                     </button>
 
-                                    <div className="flex-1 min-w-0 border-b border-zinc-100 dark:border-zinc-900 pb-4">
+                                    <div className={`flex-1 min-w-0 border-b border-zinc-100 dark:border-zinc-900 pb-4 ${index === 0 ? 'border-t pt-4' : ''}`}>
                                         {editingNoteId === note.id ? (
                                             <textarea
                                                 autoFocus
@@ -368,16 +368,22 @@ export default function Notes() {
                                         ) : (
                                             <div
                                                 onClick={() => {
-                                                    setEditingNoteId(note.id);
-                                                    const combined = note.title + (note.content ? '\n' + note.content : '');
-                                                    setEditingNoteText(combined);
+                                                    if (expandedNoteId === note.id) {
+                                                        // If already expanded, start editing
+                                                        setEditingNoteId(note.id);
+                                                        const combined = note.title + (note.content ? '\n' + note.content : '');
+                                                        setEditingNoteText(combined);
+                                                    } else {
+                                                        // First click expands the note
+                                                        setExpandedNoteId(note.id);
+                                                    }
                                                 }}
                                                 className="cursor-pointer"
                                             >
-                                                <div className={`font-bold text-zinc-900 dark:text-white ${note.is_completed ? 'line-through text-zinc-400' : ''}`}>
+                                                <div className={`font-bold text-zinc-900 dark:text-white ${note.is_completed ? 'line-through text-zinc-400' : ''} ${expandedNoteId === note.id ? '' : 'line-clamp-1'}`}>
                                                     {note.title || (note.content ? note.content.split('\n')[0] : t('notes.add_note'))}
                                                 </div>
-                                                {note.content && (
+                                                {note.content && expandedNoteId === note.id && (
                                                     <div className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
                                                         {note.content.split('\n').slice(1).join('\n')}
                                                     </div>
@@ -392,7 +398,7 @@ export default function Notes() {
                                                 e.stopPropagation();
                                                 setShowNoteDetails(note.id);
                                             }}
-                                            className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full"
+                                            className="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full flex-shrink-0"
                                         >
                                             <Info className="w-5 h-5" />
                                         </button>
