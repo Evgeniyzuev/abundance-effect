@@ -454,7 +454,7 @@ export default function Results() {
                         }}
                     >
                         <button
-                            className="absolute bottom-4 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors z-10"
+                            className="absolute bottom-16 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors z-10"
                             onClick={() => {
                                 const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
                                 setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
