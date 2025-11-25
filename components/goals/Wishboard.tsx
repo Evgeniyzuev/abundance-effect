@@ -30,8 +30,14 @@ export default function Wishboard() {
 
     useEffect(() => {
         if (!user) return;
+
+        // Load from cache first (synchronous) - instant display
         loadFromCache();
+
+        // Always fetch fresh data in background to keep cache updated
+        // This runs async and won't block the initial render
         fetchWishes();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
