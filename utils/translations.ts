@@ -64,12 +64,37 @@ export type TranslationKey =
     | 'notes.confirm_delete_list'
     | 'notes.my_lists'
     | 'notes.list_name_placeholder'
+    // Tasks page
+    | 'tasks.title'
+    | 'tasks.no_active'
+    | 'tasks.create_first'
+    | 'tasks.completed'
+    | 'tasks.expand'
+    | 'tasks.collapse'
+    | 'tasks.new_task'
+    | 'tasks.edit_task'
+    | 'tasks.title_field'
+    | 'tasks.title_placeholder'
+    | 'tasks.description_field'
+    | 'tasks.description_placeholder'
+    | 'tasks.task_type'
+    | 'tasks.type_one_time'
+    | 'tasks.type_streak'
+    | 'tasks.type_daily'
+    | 'tasks.streak_goal'
+    | 'tasks.streak_goal_placeholder'
+    | 'tasks.type_one_time_desc'
+    | 'tasks.type_streak_desc'
+    | 'tasks.type_daily_desc'
+    | 'tasks.confirm_delete'
+    | 'tasks.saving'
     // Common
     | 'common.loading'
     | 'common.error'
     | 'common.create'
     | 'common.delete'
     | 'common.save'
+    | 'common.cancel'
     // Auth
     | 'auth.login'
     | 'auth.logout'
@@ -135,12 +160,37 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.confirm_delete_list': 'Delete this list?',
         'notes.my_lists': 'My Lists',
         'notes.list_name_placeholder': 'List Name',
+        // Tasks
+        'tasks.title': 'Tasks',
+        'tasks.no_active': 'No active tasks yet',
+        'tasks.create_first': 'Create Your First Task',
+        'tasks.completed': 'Completed',
+        'tasks.expand': 'Expand',
+        'tasks.collapse': 'Collapse',
+        'tasks.new_task': 'New Task',
+        'tasks.edit_task': 'Edit Task',
+        'tasks.title_field': 'Title',
+        'tasks.title_placeholder': 'Enter task title...',
+        'tasks.description_field': 'Description',
+        'tasks.description_placeholder': 'Add details...',
+        'tasks.task_type': 'Task Type',
+        'tasks.type_one_time': 'One-time',
+        'tasks.type_streak': 'Streak',
+        'tasks.type_daily': 'Daily',
+        'tasks.streak_goal': 'Streak Goal (days)',
+        'tasks.streak_goal_placeholder': 'e.g., 30',
+        'tasks.type_one_time_desc': 'Complete once and mark as done.',
+        'tasks.type_streak_desc': 'Track consecutive days. Complete the goal to finish.',
+        'tasks.type_daily_desc': 'Track daily without a limit. Complete anytime.',
+        'tasks.confirm_delete': 'Are you sure you want to delete this task?',
+        'tasks.saving': 'Saving...',
         // Common
         'common.loading': 'Loading...',
         'common.error': 'Error',
         'common.create': 'Create',
         'common.delete': 'Delete',
         'common.save': 'Save',
+        'common.cancel': 'Cancel',
         // Auth
         'auth.login': 'Login',
         'auth.logout': 'Logout',
@@ -205,12 +255,37 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.confirm_delete_list': '删除这个列表？',
         'notes.my_lists': '我的列表',
         'notes.list_name_placeholder': '列表名称',
+        // Tasks
+        'tasks.title': '任务',
+        'tasks.no_active': '暂无活跃任务',
+        'tasks.create_first': '创建您的第一个任务',
+        'tasks.completed': '已完成',
+        'tasks.expand': '展开',
+        'tasks.collapse': '收起',
+        'tasks.new_task': '新任务',
+        'tasks.edit_task': '编辑任务',
+        'tasks.title_field': '标题',
+        'tasks.title_placeholder': '输入任务标题...',
+        'tasks.description_field': '描述',
+        'tasks.description_placeholder': '添加详情...',
+        'tasks.task_type': '任务类型',
+        'tasks.type_one_time': '一次性',
+        'tasks.type_streak': '连续',
+        'tasks.type_daily': '每日',
+        'tasks.streak_goal': '连续目标（天）',
+        'tasks.streak_goal_placeholder': '例如：30',
+        'tasks.type_one_time_desc': '完成一次并标记为完成。',
+        'tasks.type_streak_desc': '跟踪连续天数。完成目标即可结束。',
+        'tasks.type_daily_desc': '每日跟踪，无限制。随时完成。',
+        'tasks.confirm_delete': '确定要删除此任务吗？',
+        'tasks.saving': '保存中...',
         // Common
         'common.loading': '加载中...',
         'common.error': '错误',
         'common.create': '创建',
         'common.delete': '删除',
         'common.save': '保存',
+        'common.cancel': '取消',
         // Auth
         'auth.login': '登录',
         'auth.logout': '登出',
@@ -275,12 +350,37 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.confirm_delete_list': '¿Eliminar esta lista?',
         'notes.my_lists': 'Mis Listas',
         'notes.list_name_placeholder': 'Nombre de Lista',
+        // Tasks
+        'tasks.title': 'Tareas',
+        'tasks.no_active': 'Aún no hay tareas activas',
+        'tasks.create_first': 'Crea Tu Primera Tarea',
+        'tasks.completed': 'Completadas',
+        'tasks.expand': 'Expandir',
+        'tasks.collapse': 'Contraer',
+        'tasks.new_task': 'Nueva Tarea',
+        'tasks.edit_task': 'Editar Tarea',
+        'tasks.title_field': 'Título',
+        'tasks.title_placeholder': 'Ingresa el título de la tarea...',
+        'tasks.description_field': 'Descripción',
+        'tasks.description_placeholder': 'Agrega detalles...',
+        'tasks.task_type': 'Tipo de Tarea',
+        'tasks.type_one_time': 'Una vez',
+        'tasks.type_streak': 'Racha',
+        'tasks.type_daily': 'Diaria',
+        'tasks.streak_goal': 'Meta de Racha (días)',
+        'tasks.streak_goal_placeholder': 'ej., 30',
+        'tasks.type_one_time_desc': 'Completa una vez y marca como hecho.',
+        'tasks.type_streak_desc': 'Rastrea días consecutivos. Completa la meta para terminar.',
+        'tasks.type_daily_desc': 'Rastrea diariamente sin límite. Completa en cualquier momento.',
+        'tasks.confirm_delete': '¿Estás seguro de que quieres eliminar esta tarea?',
+        'tasks.saving': 'Guardando...',
         // Common
         'common.loading': 'Cargando...',
         'common.error': 'Error',
         'common.create': 'Crear',
         'common.delete': 'Eliminar',
         'common.save': 'Guardar',
+        'common.cancel': 'Cancelar',
         // Auth
         'auth.login': 'Iniciar sesión',
         'auth.logout': 'Cerrar sesión',
@@ -345,12 +445,37 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.confirm_delete_list': 'क्या आप इस सूची को हटाना चाहते हैं?',
         'notes.my_lists': 'मेरी सूचियाँ',
         'notes.list_name_placeholder': 'सूची का नाम',
+        // Tasks
+        'tasks.title': 'कार्य',
+        'tasks.no_active': 'अभी तक कोई सक्रिय कार्य नहीं',
+        'tasks.create_first': 'अपना पहला कार्य बनाएं',
+        'tasks.completed': 'पूर्ण',
+        'tasks.expand': 'विस्तार करें',
+        'tasks.collapse': 'संक्षिप्त करें',
+        'tasks.new_task': 'नया कार्य',
+        'tasks.edit_task': 'कार्य संपादित करें',
+        'tasks.title_field': 'शीर्षक',
+        'tasks.title_placeholder': 'कार्य शीर्षक दर्ज करें...',
+        'tasks.description_field': 'विवरण',
+        'tasks.description_placeholder': 'विवरण जोड़ें...',
+        'tasks.task_type': 'कार्य प्रकार',
+        'tasks.type_one_time': 'एक बार',
+        'tasks.type_streak': 'लगातार',
+        'tasks.type_daily': 'दैनिक',
+        'tasks.streak_goal': 'लगातार लक्ष्य (दिन)',
+        'tasks.streak_goal_placeholder': 'उदा., 30',
+        'tasks.type_one_time_desc': 'एक बार पूरा करें और पूर्ण के रूप में चिह्नित करें।',
+        'tasks.type_streak_desc': 'लगातार दिनों को ट्रैक करें। लक्ष्य पूरा करने के लिए समाप्त करें।',
+        'tasks.type_daily_desc': 'बिना सीमा के दैनिक ट्रैक करें। किसी भी समय पूरा करें।',
+        'tasks.confirm_delete': 'क्या आप वाकई इस कार्य को हटाना चाहते हैं?',
+        'tasks.saving': 'सहेजा जा रहा है...',
         // Common
         'common.loading': 'लोड हो रहा है...',
         'common.error': 'त्रुटि',
         'common.create': 'बनाएं',
         'common.delete': 'हटाएं',
         'common.save': 'सहेजें',
+        'common.cancel': 'रद्द करें',
         // Auth
         'auth.login': 'लॉग इन करें',
         'auth.logout': 'लॉग आउट',
@@ -415,12 +540,37 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.confirm_delete_list': 'حذف هذه القائمة؟',
         'notes.my_lists': 'قوائمي',
         'notes.list_name_placeholder': 'اسم القائمة',
+        // Tasks
+        'tasks.title': 'المهام',
+        'tasks.no_active': 'لا توجد مهام نشطة حتى الآن',
+        'tasks.create_first': 'أنشئ مهمتك الأولى',
+        'tasks.completed': 'مكتمل',
+        'tasks.expand': 'توسيع',
+        'tasks.collapse': 'طي',
+        'tasks.new_task': 'مهمة جديدة',
+        'tasks.edit_task': 'تحرير المهمة',
+        'tasks.title_field': 'العنوان',
+        'tasks.title_placeholder': 'أدخل عنوان المهمة...',
+        'tasks.description_field': 'الوصف',
+        'tasks.description_placeholder': 'أضف التفاصيل...',
+        'tasks.task_type': 'نوع المهمة',
+        'tasks.type_one_time': 'مرة واحدة',
+        'tasks.type_streak': 'متتالية',
+        'tasks.type_daily': 'يومية',
+        'tasks.streak_goal': 'هدف المتتالية (أيام)',
+        'tasks.streak_goal_placeholder': 'مثلاً، 30',
+        'tasks.type_one_time_desc': 'أكمل مرة واحدة وحدد كمنجز.',
+        'tasks.type_streak_desc': 'تتبع الأيام المتتالية. أكمل الهدف للإنهاء.',
+        'tasks.type_daily_desc': 'تتبع يومياً بدون حد. أكمل في أي وقت.',
+        'tasks.confirm_delete': 'هل أنت متأكد أنك تريد حذف هذه المهمة؟',
+        'tasks.saving': 'جاري الحفظ...',
         // Common
         'common.loading': 'جار التحميل...',
         'common.error': 'خطأ',
         'common.create': 'إنشاء',
         'common.delete': 'حذف',
         'common.save': 'حفظ',
+        'common.cancel': 'إلغاء',
         // Auth
         'auth.login': 'تسجيل الدخول',
         'auth.logout': 'تسجيل الخروج',
@@ -485,12 +635,37 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'notes.confirm_delete_list': 'Удалить этот список?',
         'notes.my_lists': 'Мои Списки',
         'notes.list_name_placeholder': 'Название Списка',
+        // Tasks
+        'tasks.title': 'Задачи',
+        'tasks.no_active': 'Пока нет активных задач',
+        'tasks.create_first': 'Создайте Вашу Первую Задачу',
+        'tasks.completed': 'Завершено',
+        'tasks.expand': 'Развернуть',
+        'tasks.collapse': 'Свернуть',
+        'tasks.new_task': 'Новая Задача',
+        'tasks.edit_task': 'Редактировать Задачу',
+        'tasks.title_field': 'Название',
+        'tasks.title_placeholder': 'Введите название задачи...',
+        'tasks.description_field': 'Описание',
+        'tasks.description_placeholder': 'Добавьте детали...',
+        'tasks.task_type': 'Тип Задачи',
+        'tasks.type_one_time': 'Разовая',
+        'tasks.type_streak': 'Серия',
+        'tasks.type_daily': 'Ежедневная',
+        'tasks.streak_goal': 'Цель серии (дни)',
+        'tasks.streak_goal_placeholder': 'напр., 30',
+        'tasks.type_one_time_desc': 'Выполните один раз и отметьте как завершённую.',
+        'tasks.type_streak_desc': 'Отслеживайте последовательные дни. Выполните цель для завершения.',
+        'tasks.type_daily_desc': 'Отслеживайте ежедневно без ограничений. Завершите в любое время.',
+        'tasks.confirm_delete': 'Вы уверены, что хотите удалить эту задачу?',
+        'tasks.saving': 'Сохранение...',
         // Common
         'common.loading': 'Загрузка...',
         'common.error': 'Ошибка',
         'common.create': 'Создать',
         'common.delete': 'Удалить',
         'common.save': 'Сохранить',
+        'common.cancel': 'Отмена',
         // Auth
         'auth.login': 'Войти',
         'auth.logout': 'Выйти',

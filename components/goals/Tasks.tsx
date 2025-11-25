@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
 import { PersonalTask } from '@/types/supabase';
 import TaskCard from '@/components/tasks/TaskCard';
@@ -11,6 +12,7 @@ import { Plus } from 'lucide-react';
 
 export default function Tasks() {
     const { user } = useUser();
+    const { t } = useLanguage();
     const {
         tasks,
         loadFromCache,
@@ -40,7 +42,7 @@ export default function Tasks() {
     };
 
     const handleDeleteTask = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this task?')) return;
+        if (!confirm(t('tasks.confirm_delete'))) return;
         await deleteTask(id);
     };
 
@@ -53,13 +55,13 @@ export default function Tasks() {
             <div className="bg-white">
                 {activeTasks.length === 0 ? (
                     <div className="p-8 text-center">
-                        <p className="text-gray-500 mb-4">No active tasks yet</p>
+                        <p className="text-gray-500 mb-4">{t('tasks.no_active')}</p>
                         <button
                             onClick={() => setIsAddModalOpen(true)}
                             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                         >
                             <Plus size={20} className="mr-2 inline" />
-                            Create Your First Task
+                            {t('tasks.create_first')}
                         </button>
                     </div>
                 ) : (
@@ -80,12 +82,12 @@ export default function Tasks() {
             {completedTasks.length > 0 && (
                 <div className="mt-4 bg-white">
                     <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                        <h4 className="text-sm font-medium text-gray-700">Completed</h4>
+                        <h4 className="text-sm font-medium text-gray-700">{t('tasks.completed')}</h4>
                         <button
                             onClick={() => setIsCompletedExpanded(!isCompletedExpanded)}
                             className="text-blue-500 hover:text-blue-600 px-3 py-1 rounded transition-colors text-sm"
                         >
-                            {isCompletedExpanded ? 'Collapse' : 'Expand'}
+                            {isCompletedExpanded ? t('tasks.collapse') : t('tasks.expand')}
                         </button>
                     </div>
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useLanguage } from '@/context/LanguageContext'
 import { PersonalTask } from "@/types/supabase"
 import { X } from "lucide-react"
 
@@ -12,6 +13,7 @@ interface AddTaskModalProps {
 }
 
 export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: AddTaskModalProps) {
+    const { t } = useLanguage()
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
     const [type, setType] = useState<'one_time' | 'streak' | 'daily'>('one_time')
@@ -34,12 +36,12 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
 
     const handleSave = async () => {
         if (!title.trim()) {
-            alert("Please enter a task title")
+            alert(t('tasks.title_placeholder'))
             return
         }
 
         if (type === 'streak' && (!streakGoal || parseInt(streakGoal) <= 0)) {
-            alert("Please enter a valid streak goal")
+            alert(t('tasks.streak_goal'))
             return
         }
 
@@ -70,7 +72,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-900">
-                        {initialData ? 'Edit Task' : 'New Task'}
+                        {initialData ? t('tasks.edit_task') : t('tasks.new_task')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -85,12 +87,12 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                     {/* Title */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Title *
+                            {t('tasks.title_field')} *
                         </label>
                         <input
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter task title..."
+                            placeholder={t('tasks.title_placeholder')}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
@@ -98,12 +100,12 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                     {/* Description */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Description
+                            {t('tasks.description_field')}
                         </label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Add details..."
+                            placeholder={t('tasks.description_placeholder')}
                             className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                         />
                     </div>
@@ -111,7 +113,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                     {/* Task Type */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Task Type
+                            {t('tasks.task_type')}
                         </label>
                         <div className="grid grid-cols-3 gap-2">
                             <button
@@ -121,7 +123,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                     }`}
                             >
-                                One-time
+                                {t('tasks.type_one_time')}
                             </button>
                             <button
                                 onClick={() => setType('streak')}
@@ -130,7 +132,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                     }`}
                             >
-                                Streak
+                                {t('tasks.type_streak')}
                             </button>
                             <button
                                 onClick={() => setType('daily')}
@@ -139,7 +141,7 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                     }`}
                             >
-                                Daily
+                                {t('tasks.type_daily')}
                             </button>
                         </div>
                     </div>
@@ -148,13 +150,13 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                     {type === 'streak' && (
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Streak Goal (days) *
+                                {t('tasks.streak_goal')} *
                             </label>
                             <input
                                 type="number"
                                 value={streakGoal}
                                 onChange={(e) => setStreakGoal(e.target.value)}
-                                placeholder="e.g., 30"
+                                placeholder={t('tasks.streak_goal_placeholder')}
                                 min="1"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -164,9 +166,9 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                     {/* Type descriptions */}
                     <div className="bg-gray-50 p-3 rounded-lg">
                         <p className="text-xs text-gray-600">
-                            {type === 'one_time' && "Complete once and mark as done."}
-                            {type === 'streak' && "Track consecutive days. Complete the goal to finish."}
-                            {type === 'daily' && "Track daily without a limit. Complete anytime."}
+                            {type === 'one_time' && t('tasks.type_one_time_desc')}
+                            {type === 'streak' && t('tasks.type_streak_desc')}
+                            {type === 'daily' && t('tasks.type_daily_desc')}
                         </p>
                     </div>
                 </div>
@@ -178,14 +180,14 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
                         disabled={isSaving}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </button>
                     <button
                         onClick={handleSave}
                         className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                         disabled={isSaving}
                     >
-                        {isSaving ? 'Saving...' : (initialData ? 'Save' : 'Create')}
+                        {isSaving ? t('tasks.saving') : (initialData ? t('common.save') : t('common.create'))}
                     </button>
                 </div>
             </div>
