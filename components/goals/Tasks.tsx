@@ -7,8 +7,10 @@ import { useTasks } from '@/hooks/useTasks';
 import { PersonalTask } from '@/types/supabase';
 import TaskCard from '@/components/tasks/TaskCard';
 import AddTaskModal from '@/components/tasks/AddTaskModal';
+import TaskDetailModal from '@/components/tasks/TaskDetailModal';
 import TabataTimer from '@/components/tasks/TabataTimer';
 import { Plus } from 'lucide-react';
+import { markDayCompletedAction } from '@/app/actions/tasks';
 
 export default function Tasks() {
     const { user } = useUser();
@@ -24,6 +26,8 @@ export default function Tasks() {
 
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isCompletedExpanded, setIsCompletedExpanded] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<PersonalTask | null>(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -37,13 +41,28 @@ export default function Tasks() {
         return success;
     };
 
+    const handleMarkDay = async (taskId: string, date: string) => {
+        const result = await markDayCompletedAction(taskId, date);
+        if (result.success) {
+            await fetchTasks();
+        }
+    };
+
     const handleCompleteTask = async (id: string) => {
         await completeTask(id);
+        setIsDetailModalOpen(false);
+        setSelectedTask(null);
     };
 
     const handleDeleteTask = async (id: string) => {
-        if (!confirm(t('tasks.confirm_delete'))) return;
         await deleteTask(id);
+        setIsDetailModalOpen(false);
+        setSelectedTask(null);
+    };
+
+    const handleTaskClick = (task: PersonalTask) => {
+        setSelectedTask(task);
+        setIsDetailModalOpen(true);
     };
 
     const activeTasks = tasks.filter(t => t.status === 'active');
@@ -70,8 +89,7 @@ export default function Tasks() {
                             <TaskCard
                                 key={task.id}
                                 task={task}
-                                onComplete={handleCompleteTask}
-                                onDelete={handleDeleteTask}
+                                onClick={() => handleTaskClick(task)}
                             />
                         ))}
                     </div>
@@ -97,8 +115,7 @@ export default function Tasks() {
                                 <TaskCard
                                     key={task.id}
                                     task={task}
-                                    onComplete={handleCompleteTask}
-                                    onDelete={handleDeleteTask}
+                                    onClick={() => handleTaskClick(task)}
                                 />
                             ))}
                         </div>
@@ -126,6 +143,19 @@ export default function Tasks() {
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 onSave={handleAddTask}
+            />
+
+            {/* Task Detail Modal */}
+            <TaskDetailModal
+                task={selectedTask}
+                isOpen={isDetailModalOpen}
+                onClose={() => {
+                    setIsDetailModalOpen(false);
+                    setSelectedTask(null);
+                }}
+                onMarkDay={handleMarkDay}
+                onComplete={handleCompleteTask}
+                onDelete={handleDeleteTask}
             />
         </div>
     );

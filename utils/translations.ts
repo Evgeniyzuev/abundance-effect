@@ -88,6 +88,14 @@ export type TranslationKey =
     | 'tasks.type_daily_desc'
     | 'tasks.confirm_delete'
     | 'tasks.saving'
+    | 'tasks.image_field'
+    | 'tasks.image_url_placeholder'
+    | 'tasks.choose_image'
+    | 'tasks.image_preview'
+    | 'tasks.mark_today'
+    | 'tasks.complete_task'
+    | 'tasks.task_details'
+    | 'tasks.daily_progress'
     // Common
     | 'common.loading'
     | 'common.error'
@@ -184,6 +192,14 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.type_daily_desc': 'Track daily without a limit. Complete anytime.',
         'tasks.confirm_delete': 'Are you sure you want to delete this task?',
         'tasks.saving': 'Saving...',
+        'tasks.image_field': 'Task Image',
+        'tasks.image_url_placeholder': 'Enter image URL...',
+        'tasks.choose_image': 'Choose Image',
+        'tasks.image_preview': 'Image preview',
+        'tasks.mark_today': 'Mark Today',
+        'tasks.complete_task': 'Complete Task',
+        'tasks.task_details': 'Task Details',
+        'tasks.daily_progress': 'Daily Progress',
         // Common
         'common.loading': 'Loading...',
         'common.error': 'Error',
@@ -279,6 +295,14 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.type_daily_desc': '每日跟踪，无限制。随时完成。',
         'tasks.confirm_delete': '确定要删除此任务吗？',
         'tasks.saving': '保存中...',
+        'tasks.image_field': '任务图片',
+        'tasks.image_url_placeholder': '输入图片URL...',
+        'tasks.choose_image': '选择图片',
+        'tasks.image_preview': '图片预览',
+        'tasks.mark_today': '标记今天',
+        'tasks.complete_task': '完成任务',
+        'tasks.task_details': '任务详情',
+        'tasks.daily_progress': '每日进度',
         // Common
         'common.loading': '加载中...',
         'common.error': '错误',
@@ -374,6 +398,14 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.type_daily_desc': 'Rastrea diariamente sin límite. Completa en cualquier momento.',
         'tasks.confirm_delete': '¿Estás seguro de que quieres eliminar esta tarea?',
         'tasks.saving': 'Guardando...',
+        'tasks.image_field': 'Imagen de Tarea',
+        'tasks.image_url_placeholder': 'Ingresa URL de imagen...',
+        'tasks.choose_image': 'Elegir Imagen',
+        'tasks.image_preview': 'Vista previa de imagen',
+        'tasks.mark_today': 'Marcar Hoy',
+        'tasks.complete_task': 'Completar Tarea',
+        'tasks.task_details': 'Detalles de Tarea',
+        'tasks.daily_progress': 'Progreso Diario',
         // Common
         'common.loading': 'Cargando...',
         'common.error': 'Error',
@@ -469,6 +501,14 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.type_daily_desc': 'बिना सीमा के दैनिक ट्रैक करें। किसी भी समय पूरा करें।',
         'tasks.confirm_delete': 'क्या आप वाकई इस कार्य को हटाना चाहते हैं?',
         'tasks.saving': 'सहेजा जा रहा है...',
+        'tasks.image_field': 'कार्य छवि',
+        'tasks.image_url_placeholder': 'छवि URL दर्ज करें...',
+        'tasks.choose_image': 'छवि चुनें',
+        'tasks.image_preview': 'छवि पूर्वावलोकन',
+        'tasks.mark_today': 'आज चिह्नित करें',
+        'tasks.complete_task': 'कार्य पूर्ण करें',
+        'tasks.task_details': 'कार्य विवरण',
+        'tasks.daily_progress': 'दैनिक प्रगति',
         // Common
         'common.loading': 'लोड हो रहा है...',
         'common.error': 'त्रुटि',
@@ -564,6 +604,14 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.type_daily_desc': 'تتبع يومياً بدون حد. أكمل في أي وقت.',
         'tasks.confirm_delete': 'هل أنت متأكد أنك تريد حذف هذه المهمة؟',
         'tasks.saving': 'جاري الحفظ...',
+        'tasks.image_field': 'صورة المهمة',
+        'tasks.image_url_placeholder': 'أدخل رابط الصورة...',
+        'tasks.choose_image': 'اختر صورة',
+        'tasks.image_preview': 'معاينة الصورة',
+        'tasks.mark_today': 'تحديد اليوم',
+        'tasks.complete_task': 'إكمال المهمة',
+        'tasks.task_details': 'تفاصيل المهمة',
+        'tasks.daily_progress': 'التقدم اليومي',
         // Common
         'common.loading': 'جار التحميل...',
         'common.error': 'خطأ',
@@ -659,6 +707,14 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'tasks.type_daily_desc': 'Отслеживайте ежедневно без ограничений. Завершите в любое время.',
         'tasks.confirm_delete': 'Вы уверены, что хотите удалить эту задачу?',
         'tasks.saving': 'Сохранение...',
+        'tasks.image_field': 'Изображение задачи',
+        'tasks.image_url_placeholder': 'Введите URL изображения...',
+        'tasks.choose_image': 'Выбрать изображение',
+        'tasks.image_preview': 'Предпросмотр изображения',
+        'tasks.mark_today': 'Отметить сегодня',
+        'tasks.complete_task': 'Завершить задачу',
+        'tasks.task_details': 'Детали задачи',
+        'tasks.daily_progress': 'Ежедневный прогресс',
         // Common
         'common.loading': 'Загрузка...',
         'common.error': 'Ошибка',
