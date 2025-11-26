@@ -44,7 +44,7 @@ export function useNotes() {
     const notes = data.notes;
     const customLists = data.lists;
 
-    const addNote = useCallback(async (note: Partial<UserNote>) => {
+    const addNote = useCallback(async (note: Partial<UserNote>, callbacks?: { onOptimisticAdd?: (note: UserNote) => void, onIdChange?: (oldId: string, newId: string) => void }) => {
         // Optimistic update
         const tempId = `temp-${Date.now()}`;
         const optimisticNote = {
@@ -60,6 +60,11 @@ export function useNotes() {
         const previousData = { ...data };
         setData(prev => ({ ...prev, notes: [optimisticNote, ...prev.notes] }));
 
+        // Notify UI immediately
+        if (callbacks?.onOptimisticAdd) {
+            callbacks.onOptimisticAdd(optimisticNote);
+        }
+
         try {
             const result = await addNoteAction(note);
             if (result.success && result.data) {
@@ -68,6 +73,12 @@ export function useNotes() {
                     ...prev,
                     notes: prev.notes.map(n => n.id === tempId ? result.data! : n)
                 }));
+
+                // Notify UI of ID change
+                if (callbacks?.onIdChange) {
+                    callbacks.onIdChange(tempId, result.data.id);
+                }
+
                 return result.data;
             } else {
                 // Revert on failure

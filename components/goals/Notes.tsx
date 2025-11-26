@@ -93,12 +93,19 @@ export default function Notes() {
             setCurrentListType('all');
             setViewMode('notes');
         }
-        const createdNote = await addNote(newNote);
-        if (createdNote) {
-            setEditingNoteId(createdNote.id);
-            setEditingNoteText('');
-            setExpandedNoteId(createdNote.id);
-        }
+
+        await addNote(newNote, {
+            onOptimisticAdd: (note) => {
+                setEditingNoteId(note.id);
+                setEditingNoteText('');
+                setExpandedNoteId(note.id);
+            },
+            onIdChange: (oldId, newId) => {
+                setEditingNoteId(prev => prev === oldId ? newId : prev);
+                setExpandedNoteId(prev => prev === oldId ? newId : prev);
+                setShowNoteDetails(prev => prev === oldId ? newId : prev);
+            }
+        });
     };
 
     const handleSaveNote = async () => {
