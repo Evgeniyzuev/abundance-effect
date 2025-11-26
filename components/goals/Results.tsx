@@ -215,37 +215,34 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
-            {/* Top Navigation Bar (Overlay) */}
+            {/* Vertical Navigation (Right Overlay) */}
             <div
                 className={`
-                    absolute top-0 left-0 right-0 z-50
-                    w-full overflow-x-auto no-scrollbar py-3 px-4 bg-white/10 backdrop-blur-md border-b border-white/10
-                    transition-all duration-500 ease-out transform
+                    absolute top-2 right-2 z-50 flex flex-col space-y-3
+                    transition-all duration-300 ease-out transform
                     ${menuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}
                 `}
             >
-                <div className="flex items-center justify-start sm:justify-center space-x-3 min-w-max mx-auto">
-                    {tabs.map(tab => {
-                        const Icon = tab.icon;
-                        const isActive = activeTab === tab.key;
-                        return (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={`
-                                    flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300
-                                    ${isActive
-                                        ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/30 scale-110 backdrop-blur-sm'
-                                        : 'bg-white/30 text-gray-600 hover:bg-white/50 hover:text-blue-500 hover:scale-105 shadow-sm backdrop-blur-sm'
-                                    }
-                                `}
-                                title={tab.title}
-                            >
-                                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-                            </button>
-                        );
-                    })}
-                </div>
+                {tabs.map(tab => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.key;
+                    return (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
+                            className={`
+                                flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300
+                                ${isActive
+                                    ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/30 scale-110 backdrop-blur-sm'
+                                    : 'bg-white/30 text-gray-600 hover:bg-white/50 hover:text-blue-500 hover:scale-105 shadow-sm backdrop-blur-sm'
+                                }
+                            `}
+                            title={tab.title}
+                        >
+                            <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Content Area */}
