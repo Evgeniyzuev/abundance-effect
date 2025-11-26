@@ -30,7 +30,7 @@ function Modal({ open, onClose, title, children }: ModalProps) {
     );
 }
 
-export default function Results() {
+export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
     const { results, gameItems, loadFromCache, fetchResults, updateInventory, updateKnowledge, setBase, setCharacter } = useResults();
 
     const ACHIEVEMENTS = gameItems.filter(i => i.type === 'achievement');
@@ -39,10 +39,7 @@ export default function Results() {
     const BASE_BACKGROUNDS = gameItems.filter(i => i.type === 'base');
     const CHARACTER_BACKGROUNDS = gameItems.filter(i => i.type === 'character');
 
-    const [mounted, setMounted] = useState(false);
-
     useEffect(() => {
-        setMounted(true);
         loadFromCache();
         fetchResults();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -218,12 +215,13 @@ export default function Results() {
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
-            {/* Top Navigation Bar */}
+            {/* Top Navigation Bar (Overlay) */}
             <div
                 className={`
-                    w-full overflow-x-auto no-scrollbar py-3 px-4 z-40 bg-white/60 backdrop-blur-md border-b border-white/20
+                    absolute top-0 left-0 right-0 z-50
+                    w-full overflow-x-auto no-scrollbar py-3 px-4 bg-white/10 backdrop-blur-md border-b border-white/10
                     transition-all duration-500 ease-out transform
-                    ${mounted ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}
+                    ${menuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}
                 `}
             >
                 <div className="flex items-center justify-start sm:justify-center space-x-3 min-w-max mx-auto">
@@ -237,8 +235,8 @@ export default function Results() {
                                 className={`
                                     flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300
                                     ${isActive
-                                        ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30 scale-110'
-                                        : 'bg-white/50 text-gray-500 hover:bg-white hover:text-blue-500 hover:scale-105 shadow-sm'
+                                        ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/30 scale-110 backdrop-blur-sm'
+                                        : 'bg-white/30 text-gray-600 hover:bg-white/50 hover:text-blue-500 hover:scale-105 shadow-sm backdrop-blur-sm'
                                     }
                                 `}
                                 title={tab.title}
@@ -251,7 +249,7 @@ export default function Results() {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 relative overflow-hidden">
+            <div className="flex-1 relative overflow-hidden h-full">
                 {/* Achievements */}
                 {activeTab === 'achievements' && (
                     <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300">
