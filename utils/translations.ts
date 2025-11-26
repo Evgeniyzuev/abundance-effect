@@ -61,6 +61,7 @@ export type TranslationKey =
     | 'profile.link_account'
     | 'profile.linked'
     | 'profile.not_linked'
+    | 'profile.google_telegram_error'
     // Notes page
     | 'notes.title'
     | 'notes.add_note'
@@ -204,6 +205,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.link_account': 'Link',
         'profile.linked': 'Linked',
         'profile.not_linked': 'Not Linked',
+        'profile.google_telegram_error': 'Google linking is not supported in Telegram. Please link Email first, open app in browser, and link Google there.',
         // Notes
         'notes.title': 'Notes',
         'notes.add_note': 'Add Note',
@@ -346,6 +348,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.link_account': '关联',
         'profile.linked': '已关联',
         'profile.not_linked': '未关联',
+        'profile.google_telegram_error': 'Telegram 不支持 Google 关联。请先关联电子邮件，在浏览器中打开应用，然后在那里关联 Google。',
         // Notes
         'notes.title': '笔记',
         'notes.add_note': '添加笔记',
@@ -488,6 +491,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.link_account': 'Vincular',
         'profile.linked': 'Vinculado',
         'profile.not_linked': 'No Vinculado',
+        'profile.google_telegram_error': 'La vinculación con Google no es compatible en Telegram. Vincula primero el correo electrónico, abre la aplicación en el navegador y vincula Google allí.',
         // Notes
         'notes.title': 'Notas',
         'notes.add_note': 'Agregar Nota',
@@ -630,6 +634,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.link_account': 'लिंक करें',
         'profile.linked': 'लिंक किया गया',
         'profile.not_linked': 'लिंक नहीं किया गया',
+        'profile.google_telegram_error': 'Telegram में Google लिंकिंग समर्थित नहीं है। कृपया पहले ईमेल लिंक करें, ब्राउज़र में ऐप खोलें, और वहां Google लिंक करें।',
         // Notes
         'notes.title': 'नोट्स',
         'notes.add_note': 'नोट जोड़ें',
@@ -772,6 +777,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.link_account': 'ربط',
         'profile.linked': 'مرتبط',
         'profile.not_linked': 'غير مرتبط',
+        'profile.google_telegram_error': 'ربط Google غير مدعوم في Telegram. يرجى ربط البريد الإلكتروني أولاً، ثم فتح التطبيق في المتصفح وربط Google هناك.',
         // Notes
         'notes.title': 'الملاحظات',
         'notes.add_note': 'إضافة ملاحظة',
@@ -914,6 +920,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.link_account': 'Привязать',
         'profile.linked': 'Привязано',
         'profile.not_linked': 'Не привязано',
+        'profile.google_telegram_error': 'Google нельзя привязать внутри Telegram. Привяжите Email, откройте приложение в браузере и привяжите Google там.',
         // Notes
         'notes.title': 'Заметки',
         'notes.add_note': 'Добавить Заметку',

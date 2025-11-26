@@ -18,6 +18,14 @@ export default function SocialPage() {
     };
 
     const handleLinkIdentity = async (provider: 'google' | 'apple') => {
+        // Check if running in Telegram WebApp
+        const isTelegram = typeof window !== 'undefined' && !!(window as any).Telegram?.WebApp?.initData;
+
+        if (isTelegram && provider === 'google') {
+            alert(t('profile.google_telegram_error') || 'Google linking is not supported in Telegram. Please link Email first, open app in browser, and link Google there.');
+            return;
+        }
+
         try {
             const origin = typeof window !== 'undefined' ? window.location.origin : '';
             const { data, error } = await supabase.auth.linkIdentity({
