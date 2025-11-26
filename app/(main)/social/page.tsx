@@ -29,7 +29,7 @@ export default function SocialPage() {
                     <h2 className="text-xl font-bold text-ios-primary">
                         {user?.first_name || user?.username || 'User'}
                     </h2>
-                    <p className="text-ios-secondary text-sm">{t('profile.level')} {user?.level || 1}</p>
+                    <p className="text-ios-secondary text-sm">{t('profile.level')} {user?.level ?? 1}</p>
                 </div>
 
                 <div className="p-0">

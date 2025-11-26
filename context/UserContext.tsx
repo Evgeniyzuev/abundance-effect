@@ -31,6 +31,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             first_name: dbUser.first_name,
             last_name: dbUser.last_name,
             avatar_url: dbUser.avatar_url,
+            level: dbUser.level,
+            wallet_balance: dbUser.wallet_balance,
+            aicore_balance: dbUser.aicore_balance,
+            reinvest_setup: dbUser.reinvest_setup,
             cached_at: Date.now(),
         };
         storage.set(STORAGE_KEYS.USER_AUTH_CACHE, cachedUser);
@@ -59,10 +63,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             phone_number: null,
             created_at: '',
             updated_at: '',
-            wallet_balance: 0,
-            aicore_balance: 0,
-            level: 1,
-            reinvest_setup: 0,
+            wallet_balance: cached.wallet_balance,
+            aicore_balance: cached.aicore_balance,
+            level: cached.level,
+            reinvest_setup: cached.reinvest_setup,
             referrer_id: null,
         } as DbUser;
     };

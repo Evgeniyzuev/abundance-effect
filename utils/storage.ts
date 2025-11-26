@@ -23,6 +23,10 @@ export interface CachedUserAuth {
     first_name: string | null;
     last_name: string | null;
     avatar_url: string | null;
+    level: number;
+    wallet_balance: number;
+    aicore_balance: number;
+    reinvest_setup: number;
     cached_at: number; // timestamp
 }
 
