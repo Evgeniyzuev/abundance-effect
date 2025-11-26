@@ -22,8 +22,32 @@ export type TranslationKey =
     | 'ai.coming_soon'
     // Wallet page
     | 'wallet.title'
-    | 'wallet.total_balance'
-    | 'wallet.aicore_balance'
+    | 'wallet.wallet_balance'
+    | 'wallet.core_balance'
+    | 'wallet.top_up'
+    | 'wallet.transfer_to_core'
+    | 'wallet.send'
+    | 'wallet.receive'
+    | 'wallet.daily_income'
+    | 'wallet.reinvest'
+    | 'wallet.level'
+    | 'wallet.core_growth_calculator'
+    | 'wallet.time_to_target'
+    | 'wallet.start_core'
+    | 'wallet.daily_rewards'
+    | 'wallet.years'
+    | 'wallet.future_core'
+    | 'wallet.target_amount'
+    | 'wallet.calculate'
+    | 'wallet.estimated_time'
+    | 'wallet.target_date'
+    | 'wallet.transfer_from_wallet'
+    | 'wallet.core_history'
+    | 'wallet.loading_history'
+    | 'wallet.no_operations'
+    | 'wallet.interest_earned'
+    | 'wallet.transfer'
+    | 'wallet.reinvest_op'
     // Profile/Social page
     | 'profile.title'
     | 'profile.language'
@@ -131,8 +155,32 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'ai.coming_soon': 'AI Squad coming soon.',
         // Wallet
         'wallet.title': 'Wallet',
-        'wallet.total_balance': 'Total Balance',
-        'wallet.aicore_balance': 'AI Core Balance',
+        'wallet.wallet_balance': 'Wallet Balance',
+        'wallet.core_balance': 'Core Balance',
+        'wallet.top_up': 'Top Up',
+        'wallet.transfer_to_core': 'To Core',
+        'wallet.send': 'Send',
+        'wallet.receive': 'Receive',
+        'wallet.daily_income': 'Daily Income',
+        'wallet.reinvest': 'Reinvest %',
+        'wallet.level': 'Level',
+        'wallet.core_growth_calculator': 'Core Growth Calculator',
+        'wallet.time_to_target': 'Time to Target',
+        'wallet.start_core': 'Start Core',
+        'wallet.daily_rewards': 'Daily Rewards',
+        'wallet.years': 'Years',
+        'wallet.future_core': 'Future Core',
+        'wallet.target_amount': 'Target Core Amount',
+        'wallet.calculate': 'Calculate',
+        'wallet.estimated_time': 'Estimated time to reach target',
+        'wallet.target_date': 'Target date',
+        'wallet.transfer_from_wallet': 'Transfer from Wallet',
+        'wallet.core_history': 'Core History',
+        'wallet.loading_history': 'Loading history...',
+        'wallet.no_operations': 'No operations yet',
+        'wallet.interest_earned': 'Interest Earned',
+        'wallet.transfer': 'Transfer',
+        'wallet.reinvest_op': 'Reinvest',
         // Profile
         'profile.title': 'Profile',
         'profile.language': 'Language',
@@ -239,8 +287,32 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'ai.coming_soon': 'AI 小队即将推出。',
         // Wallet
         'wallet.title': '钱包',
-        'wallet.total_balance': '总余额',
-        'wallet.aicore_balance': 'AI Core 余额',
+        'wallet.wallet_balance': '钱包余额',
+        'wallet.core_balance': '核心余额',
+        'wallet.top_up': '充值',
+        'wallet.transfer_to_core': '转到核心',
+        'wallet.send': '发送',
+        'wallet.receive': '接收',
+        'wallet.daily_income': '每日收入',
+        'wallet.reinvest': '再投资 %',
+        'wallet.level': '等级',
+        'wallet.core_growth_calculator': '核心增长计算器',
+        'wallet.time_to_target': '达到目标时间',
+        'wallet.start_core': '起始核心',
+        'wallet.daily_rewards': '每日奖励',
+        'wallet.years': '年',
+        'wallet.future_core': '未来核心',
+        'wallet.target_amount': '目标核心金额',
+        'wallet.calculate': '计算',
+        'wallet.estimated_time': '预计达到目标时间',
+        'wallet.target_date': '目标日期',
+        'wallet.transfer_from_wallet': '从钱包转账',
+        'wallet.core_history': '核心历史',
+        'wallet.loading_history': '加载历史...',
+        'wallet.no_operations': '暂无操作',
+        'wallet.interest_earned': '赚取利息',
+        'wallet.transfer': '转账',
+        'wallet.reinvest_op': '再投资',
         // Profile
         'profile.title': '个人资料',
         'profile.language': '语言',
@@ -347,8 +419,32 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'ai.coming_soon': 'Escuadrón de IA próximamente.',
         // Wallet
         'wallet.title': 'Billetera',
-        'wallet.total_balance': 'Saldo Total',
-        'wallet.aicore_balance': 'Saldo AI Core',
+        'wallet.wallet_balance': 'Saldo de Billetera',
+        'wallet.core_balance': 'Saldo de Core',
+        'wallet.top_up': 'Recargar',
+        'wallet.transfer_to_core': 'A Core',
+        'wallet.send': 'Enviar',
+        'wallet.receive': 'Recibir',
+        'wallet.daily_income': 'Ingreso Diario',
+        'wallet.reinvest': 'Reinversión %',
+        'wallet.level': 'Nivel',
+        'wallet.core_growth_calculator': 'Calculadora de Crecimiento Core',
+        'wallet.time_to_target': 'Tiempo hasta Objetivo',
+        'wallet.start_core': 'Core Inicial',
+        'wallet.daily_rewards': 'Recompensas Diarias',
+        'wallet.years': 'Años',
+        'wallet.future_core': 'Core Futuro',
+        'wallet.target_amount': 'Cantidad Core Objetivo',
+        'wallet.calculate': 'Calcular',
+        'wallet.estimated_time': 'Tiempo estimado para alcanzar objetivo',
+        'wallet.target_date': 'Fecha objetivo',
+        'wallet.transfer_from_wallet': 'Transferir desde Billetera',
+        'wallet.core_history': 'Historial Core',
+        'wallet.loading_history': 'Cargando historial...',
+        'wallet.no_operations': 'Aún no hay operaciones',
+        'wallet.interest_earned': 'Interés Ganado',
+        'wallet.transfer': 'Transferencia',
+        'wallet.reinvest_op': 'Reinversión',
         // Profile
         'profile.title': 'Perfil',
         'profile.language': 'Idioma',
@@ -455,8 +551,32 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'ai.coming_soon': 'AI स्क्वाड जल्द ही आ रहा है।',
         // Wallet
         'wallet.title': 'वॉलेट',
-        'wallet.total_balance': 'कुल बैलेंस',
-        'wallet.aicore_balance': 'AI Core बैलेंस',
+        'wallet.wallet_balance': 'वॉलेट बैलेंस',
+        'wallet.core_balance': 'कोर बैलेंस',
+        'wallet.top_up': 'टॉप अप',
+        'wallet.transfer_to_core': 'कोर में',
+        'wallet.send': 'भेजें',
+        'wallet.receive': 'प्राप्त करें',
+        'wallet.daily_income': 'दैनिक आय',
+        'wallet.reinvest': 'पुनर्निवेश %',
+        'wallet.level': 'स्तर',
+        'wallet.core_growth_calculator': 'कोर वृद्धि कैलकुलेटर',
+        'wallet.time_to_target': 'लक्ष्य तक समय',
+        'wallet.start_core': 'प्रारंभिक कोर',
+        'wallet.daily_rewards': 'दैनिक पुरस्कार',
+        'wallet.years': 'वर्ष',
+        'wallet.future_core': 'भविष्य कोर',
+        'wallet.target_amount': 'लक्ष्य कोर राशि',
+        'wallet.calculate': 'गणना करें',
+        'wallet.estimated_time': 'लक्ष्य तक पहुंचने का अनुमानित समय',
+        'wallet.target_date': 'लक्ष्य तिथि',
+        'wallet.transfer_from_wallet': 'वॉलेट से स्थानांतरण',
+        'wallet.core_history': 'कोर इतिहास',
+        'wallet.loading_history': 'इतिहास लोड हो रहा है...',
+        'wallet.no_operations': 'अभी तक कोई ऑपरेशन नहीं',
+        'wallet.interest_earned': 'अर्जित ब्याज',
+        'wallet.transfer': 'स्थानांतरण',
+        'wallet.reinvest_op': 'पुनर्निवेश',
         // Profile
         'profile.title': 'प्रोफ़ाइल',
         'profile.language': 'भाषा',
@@ -563,8 +683,32 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'ai.coming_soon': 'فريق الذكاء الاصطناعي قريباً.',
         // Wallet
         'wallet.title': 'المحفظة',
-        'wallet.total_balance': 'الرصيد الإجمالي',
-        'wallet.aicore_balance': 'رصيد AI Core',
+        'wallet.wallet_balance': 'رصيد المحفظة',
+        'wallet.core_balance': 'رصيد النواة',
+        'wallet.top_up': 'إعادة الشحن',
+        'wallet.transfer_to_core': 'إلى النواة',
+        'wallet.send': 'إرسال',
+        'wallet.receive': 'استقبال',
+        'wallet.daily_income': 'الدخل اليومي',
+        'wallet.reinvest': 'إعادة الاستثمار %',
+        'wallet.level': 'المستوى',
+        'wallet.core_growth_calculator': 'حاسبة نمو النواة',
+        'wallet.time_to_target': 'الوقت حتى الهدف',
+        'wallet.start_core': 'النواة الأولية',
+        'wallet.daily_rewards': 'المكافآت اليومية',
+        'wallet.years': 'سنوات',
+        'wallet.future_core': 'النواة المستقبلية',
+        'wallet.target_amount': 'مبلغ النواة المستهدف',
+        'wallet.calculate': 'احسب',
+        'wallet.estimated_time': 'الوقت المقدر للوصول إلى الهدف',
+        'wallet.target_date': 'تاريخ الهدف',
+        'wallet.transfer_from_wallet': 'تحويل من المحفظة',
+        'wallet.core_history': 'تاريخ النواة',
+        'wallet.loading_history': 'جاري تحميل التاريخ...',
+        'wallet.no_operations': 'لا توجد عمليات بعد',
+        'wallet.interest_earned': 'الفائدة المكتسبة',
+        'wallet.transfer': 'تحويل',
+        'wallet.reinvest_op': 'إعادة استثمار',
         // Profile
         'profile.title': 'الملف الشخصي',
         'profile.language': 'لغة',
@@ -671,8 +815,32 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'ai.coming_soon': 'AI Команда скоро.',
         // Wallet
         'wallet.title': 'Кошелёк',
-        'wallet.total_balance': 'Общий Баланс',
-        'wallet.aicore_balance': 'Баланс AI Core',
+        'wallet.wallet_balance': 'Баланс Кошелька',
+        'wallet.core_balance': 'Баланс Ядра',
+        'wallet.top_up': 'Пополнить',
+        'wallet.transfer_to_core': 'В Ядро',
+        'wallet.send': 'Отправить',
+        'wallet.receive': 'Получить',
+        'wallet.daily_income': 'Ежедневный Доход',
+        'wallet.reinvest': 'Реинвестиция %',
+        'wallet.level': 'Уровень',
+        'wallet.core_growth_calculator': 'Калькулятор Роста Ядра',
+        'wallet.time_to_target': 'Время до Цели',
+        'wallet.start_core': 'Начальное Ядро',
+        'wallet.daily_rewards': 'Ежедневные Награды',
+        'wallet.years': 'Лет',
+        'wallet.future_core': 'Будущее Ядро',
+        'wallet.target_amount': 'Целевая Сумма Ядра',
+        'wallet.calculate': 'Рассчитать',
+        'wallet.estimated_time': 'Ориентировочное время достижения цели',
+        'wallet.target_date': 'Дата достижения',
+        'wallet.transfer_from_wallet': 'Перевести из Кошелька',
+        'wallet.core_history': 'История Ядра',
+        'wallet.loading_history': 'Загрузка истории...',
+        'wallet.no_operations': 'Пока нет операций',
+        'wallet.interest_earned': 'Заработанные Проценты',
+        'wallet.transfer': 'Перевод',
+        'wallet.reinvest_op': 'Реинвестиция',
         // Profile
         'profile.title': 'Профиль',
         'profile.language': 'Язык',

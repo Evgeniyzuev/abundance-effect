@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { ArrowRight, Check } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Card, CardContent } from "@/components/ui/card"
 import { updateUserReinvest } from "@/app/actions/finance"
 import { useLevelCheck } from "@/hooks/useLevelCheck"
 import CoreHistory from "./CoreHistory"
+import { motion } from "framer-motion"
 
 interface CoreTabProps {
     coreBalance: number
@@ -191,119 +190,131 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
     const { currentLevel, nextLevelThreshold, progressPercentage } = calculateLevelProgress(coreBalance)
 
     return (
-        <div className="space-y-4 p-4">
-            {/* Balance Card with Level */}
-            <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl p-6 text-white shadow-lg">
-                <div className="flex justify-between items-start mb-3">
-                    <div>
-                        <p className="text-sm opacity-90 font-medium mb-1">Core Balance</p>
-                        <h1 className="text-3xl font-bold">${coreBalance.toFixed(2)}</h1>
-                    </div>
-                </div>
-
-                <div className="space-y-2">
-                    <div className="flex justify-between text-xs">
-                        <span className="font-medium">Level {currentLevel}</span>
-                        <span className="opacity-90">${coreBalance.toFixed(2)} / ${nextLevelThreshold}</span>
-                    </div>
-                    <Progress value={progressPercentage} className="h-1.5 bg-white/20 rounded-full" />
-                </div>
+        <div className="relative min-h-[calc(100vh-140px)] w-full overflow-hidden">
+            {/* Background with gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 z-0">
+                <div className="absolute inset-0 bg-black/20" />
             </div>
 
-            {/* Daily Income Card */}
-            <Card className="w-full bg-white border border-gray-100 shadow-sm">
-                <CardContent className="p-4">
+            {/* Content */}
+            <div className="relative z-10 p-6 space-y-4 pb-20">
+                {/* Balance Card with Level */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white shadow-xl"
+                >
+                    <p className="text-sm opacity-80 font-medium mb-2">Core Balance</p>
+                    <h1 className="text-4xl font-bold mb-4">${coreBalance.toFixed(2)}</h1>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                            <span className="font-medium">Level {currentLevel}</span>
+                            <span className="opacity-90">${coreBalance.toFixed(2)} / ${nextLevelThreshold}</span>
+                        </div>
+                        <Progress value={progressPercentage} className="h-2 bg-white/20 rounded-full" />
+                    </div>
+                </motion.div>
+
+                {/* Daily Income Card */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white shadow-xl"
+                >
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                <span className="text-base font-semibold text-gray-900">Daily Income</span>
+                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                <span className="text-base font-semibold">Daily Income</span>
                             </div>
-                            <span className="text-base font-bold text-green-600">
+                            <span className="text-base font-bold text-green-300">
                                 ${calculateDailyIncome(coreBalance).total.toFixed(8)}
                             </span>
                         </div>
 
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-700">Reinvest %</span>
+                                <span className="text-sm font-medium opacity-90">Reinvest %</span>
                                 <div className="flex items-center space-x-2">
                                     <Input
                                         type="text"
                                         value={reinvestInputValue}
                                         onChange={(e) => handleReinvestChange(e.target.value)}
-                                        className="h-8 text-sm w-16 text-center font-medium"
+                                        className="h-8 text-sm w-16 text-center font-medium bg-white/20 border-white/30 text-white placeholder:text-white/50"
                                     />
-                                    <span className="text-xs text-gray-500">%</span>
+                                    <span className="text-xs opacity-70">%</span>
                                     {isReinvestChanged && (
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="h-6 px-2"
+                                        <button
                                             onClick={handleSaveReinvest}
+                                            className="h-6 px-2 bg-green-500/30 hover:bg-green-500/50 rounded border border-green-400/50 transition-colors"
                                         >
-                                            <Check className="h-3 w-3 text-green-500" />
-                                        </Button>
+                                            <Check className="h-3 w-3 text-green-300" />
+                                        </button>
                                     )}
                                 </div>
                             </div>
-                            <Progress value={Number(reinvestInputValue)} className="h-1.5 bg-gray-100" />
+                            <Progress value={Number(reinvestInputValue)} className="h-2 bg-white/20 rounded-full" />
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="text-center p-3 bg-blue-50 rounded-lg">
-                                <span className="text-sm font-bold text-blue-700">
+                            <div className="text-center p-3 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-400/30">
+                                <span className="text-sm font-bold text-blue-200">
                                     💲 ${calculateDailyIncome(coreBalance).toWallet.toFixed(8)}
                                 </span>
                             </div>
-                            <div className="text-center p-3 bg-green-50 rounded-lg">
-                                <span className="text-sm font-bold text-green-700">
+                            <div className="text-center p-3 bg-green-500/20 backdrop-blur-sm rounded-xl border border-green-400/30">
+                                <span className="text-sm font-bold text-green-200">
                                     ⚛️ ${calculateDailyIncome(coreBalance).toCore.toFixed(8)}
                                 </span>
                             </div>
                         </div>
                     </div>
-                </CardContent>
-            </Card>
+                </motion.div>
 
-            {/* Core Growth Calculator */}
-            <Card className="w-full bg-white border border-gray-100 shadow-sm">
-                <CardContent className="p-4">
+                {/* Core Growth Calculator */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white shadow-xl"
+                >
                     <div className="space-y-4">
                         <div className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                            <span className="text-base font-semibold text-gray-900">Core Growth Calculator</span>
+                            <span className="text-base font-semibold">Core Growth Calculator</span>
                         </div>
 
                         <div className="grid grid-cols-3 gap-2">
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-700">Start Core</label>
+                                <label className="text-xs font-medium opacity-80">Start Core</label>
                                 <Input
                                     type="number"
                                     value={startCore}
                                     onChange={(e) => setStartCore(e.target.value)}
-                                    className="h-8 text-xs"
+                                    className="h-8 text-xs bg-white/20 border-white/30 text-white placeholder:text-white/50"
                                     placeholder="0"
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-700">Daily Rewards</label>
+                                <label className="text-xs font-medium opacity-80">Daily Rewards</label>
                                 <Input
                                     type="number"
                                     value={dailyRewards}
                                     onChange={(e) => setDailyRewards(e.target.value)}
-                                    className="h-8 text-xs"
+                                    className="h-8 text-xs bg-white/20 border-white/30 text-white placeholder:text-white/50"
                                     min={0}
                                     placeholder="10"
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-700">Years</label>
+                                <label className="text-xs font-medium opacity-80">Years</label>
                                 <Input
                                     type="number"
                                     value={yearsToCalculate}
                                     onChange={(e) => setYearsToCalculate(e.target.value)}
-                                    className="h-8 text-xs"
+                                    className="h-8 text-xs bg-white/20 border-white/30 text-white placeholder:text-white/50"
                                     min={1}
                                     max={100}
                                     placeholder="30"
@@ -312,61 +323,64 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="text-center p-3 bg-blue-50 rounded-lg">
-                                <span className="text-xs text-gray-600 block mb-1">Future Core Balance</span>
-                                <span className="text-sm font-bold text-blue-700">
+                            <div className="text-center p-3 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-400/30">
+                                <span className="text-xs opacity-80 block mb-1">Future Core</span>
+                                <span className="text-sm font-bold text-blue-200">
                                     ${formatWithSpaces(calculateFutureCore())}
                                 </span>
                             </div>
-                            <div className="text-center p-3 bg-green-50 rounded-lg">
-                                <span className="text-xs text-gray-600 block mb-1">Daily Income</span>
-                                <span className="text-sm font-bold text-green-700">
+                            <div className="text-center p-3 bg-green-500/20 backdrop-blur-sm rounded-xl border border-green-400/30">
+                                <span className="text-xs opacity-80 block mb-1">Daily Income</span>
+                                <span className="text-sm font-bold text-green-200">
                                     ${formatWithSpaces(calculateFutureCore() * DAILY_RATE)}
                                 </span>
                             </div>
                         </div>
                     </div>
-                </CardContent>
-            </Card>
+                </motion.div>
 
-            {/* Time to Target Calculator */}
-            <Card className="w-full bg-white border border-gray-100 shadow-sm">
-                <CardContent className="p-4">
+                {/* Time to Target Calculator */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white shadow-xl"
+                >
                     <div className="space-y-4">
                         <div className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                            <span className="text-base font-semibold text-gray-900">Time to Target</span>
+                            <span className="text-base font-semibold">Time to Target</span>
                         </div>
 
                         <div className="space-y-3">
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-gray-700">Target Core Amount</label>
+                                <label className="text-xs font-medium opacity-80">Target Core Amount</label>
                                 <div className="flex gap-2">
                                     <Input
                                         type="number"
                                         value={targetCoreAmount}
                                         onChange={(e) => setTargetCoreAmount(e.target.value)}
-                                        className="h-8 text-xs flex-1"
+                                        className="h-8 text-xs flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
                                         placeholder="Enter target amount"
                                     />
-                                    <Button
-                                        className="h-8 px-4 text-xs"
+                                    <button
+                                        className="h-8 px-4 text-xs bg-purple-500/30 hover:bg-purple-500/50 rounded-lg border border-purple-400/50 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white"
                                         onClick={calculateTimeToTarget}
                                         disabled={!targetCoreAmount || Number(targetCoreAmount) <= coreBalance}
                                     >
                                         Calculate
-                                    </Button>
+                                    </button>
                                 </div>
                             </div>
 
                             {timeToTarget !== null && (
-                                <div className="p-3 bg-purple-50 rounded-lg">
+                                <div className="p-3 bg-purple-500/20 backdrop-blur-sm rounded-xl border border-purple-400/30">
                                     <div className="text-center">
-                                        <span className="text-xs text-gray-600 block mb-1">Estimated time to reach target</span>
-                                        <span className="text-lg font-bold text-purple-700 mb-1 block">
+                                        <span className="text-xs opacity-80 block mb-1">Estimated time to reach target</span>
+                                        <span className="text-lg font-bold text-purple-200 mb-1 block">
                                             {formatTimeToTarget(timeToTarget)}
                                         </span>
-                                        <span className="text-xs text-gray-500">
+                                        <span className="text-xs opacity-70">
                                             Target date: {new Date(Date.now() + timeToTarget * 24 * 60 * 60 * 1000).toLocaleDateString()}
                                         </span>
                                     </div>
@@ -374,21 +388,32 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
                             )}
                         </div>
                     </div>
-                </CardContent>
-            </Card>
+                </motion.div>
 
-            {/* Transfer Button */}
-            <Button
-                className="w-full h-14 bg-white border-2 border-green-100 hover:border-green-200 hover:bg-green-50 text-green-700 font-semibold flex items-center justify-center space-x-2"
-                onClick={onTransfer}
-                disabled={!userId}
-            >
-                <ArrowRight className="h-5 w-5" />
-                <span className="text-sm">Transfer from Wallet</span>
-            </Button>
+                {/* Transfer Button */}
+                <motion.button
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="w-full h-14 bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl text-white font-semibold flex items-center justify-center space-x-2 hover:bg-white/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    onClick={onTransfer}
+                    disabled={!userId}
+                >
+                    <ArrowRight className="h-5 w-5" />
+                    <span className="text-sm">Transfer from Wallet</span>
+                </motion.button>
 
-            {/* Core History */}
-            {userId && <CoreHistory userId={userId} />}
+                {/* Core History */}
+                {userId && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <CoreHistory userId={userId} />
+                    </motion.div>
+                )}
+            </div>
         </div>
     )
 }

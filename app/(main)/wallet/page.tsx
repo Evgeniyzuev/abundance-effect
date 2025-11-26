@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Wallet, Atom } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import WalletTab from '@/components/wallet/WalletTab';
 import CoreTab from '@/components/wallet/CoreTab';
@@ -42,26 +43,28 @@ export default function WalletPage() {
 
     return (
         <div className="flex flex-col h-full bg-gray-50">
-            {/* Tabs */}
-            <div className="flex bg-white border-b border-gray-100 sticky top-0 z-10">
-                <button
-                    className={`flex-1 py-3 text-center font-semibold text-base relative ${activeTab === "wallet" ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"
-                        }`}
-                    onClick={() => setActiveTab("wallet")}
-                >
-                    Wallet
-                </button>
-                <button
-                    className={`flex-1 py-3 text-center font-semibold text-base relative ${activeTab === "core" ? "text-purple-600 border-b-2 border-purple-600" : "text-gray-500"
-                        }`}
-                    onClick={() => setActiveTab("core")}
-                >
-                    Core
-                </button>
+            {/* Icon Tabs */}
+            <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
+                <div className="flex justify-around items-center h-12">
+                    <button
+                        onClick={() => setActiveTab("wallet")}
+                        className={`flex items-center justify-center w-full h-full transition-colors ${activeTab === "wallet" ? "text-purple-600" : "text-gray-400 hover:text-gray-600"
+                            }`}
+                    >
+                        <Wallet size={24} strokeWidth={activeTab === "wallet" ? 2.5 : 2} />
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("core")}
+                        className={`flex items-center justify-center w-full h-full transition-colors ${activeTab === "core" ? "text-purple-600" : "text-gray-400 hover:text-gray-600"
+                            }`}
+                    >
+                        <Atom size={24} strokeWidth={activeTab === "core" ? 2.5 : 2} />
+                    </button>
+                </div>
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto pt-12">
                 {activeTab === "wallet" ? (
                     <WalletTab
                         walletBalance={walletBalance}

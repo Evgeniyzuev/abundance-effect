@@ -85,30 +85,34 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
         <div className="space-y-2">
             <button
                 onClick={toggleExpand}
-                className="w-full flex items-center justify-between p-2 bg-white rounded-lg border hover:bg-gray-50"
+                className="w-full flex items-center justify-between p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white hover:bg-white/15 transition-all shadow-lg"
             >
-                <span className="font-medium">Core History</span>
-                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                <span className="font-semibold">Core History</span>
+                {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
             </button>
 
             {isExpanded && (
                 <div className="space-y-2">
                     {isLoading ? (
-                        <div className="text-center py-4 text-gray-500">Loading history...</div>
+                        <div className="text-center py-6 text-white/70 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                            Loading history...
+                        </div>
                     ) : operations.length === 0 ? (
-                        <div className="text-center py-4 text-gray-500">No operations yet</div>
+                        <div className="text-center py-6 text-white/70 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                            No operations yet
+                        </div>
                     ) : (
                         <div className="space-y-2">
                             {operations.map((op) => (
                                 <div
                                     key={op.id}
-                                    className="flex items-center justify-between p-2 bg-white rounded-lg border"
+                                    className="flex items-center justify-between p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white shadow-lg"
                                 >
-                                    <div className="flex items-center space-x-2">
-                                        <span className="text-lg">{getOperationIcon(op.type)}</span>
+                                    <div className="flex items-center space-x-3">
+                                        <span className="text-2xl">{getOperationIcon(op.type)}</span>
                                         <div>
-                                            <div className="font-medium">{getOperationLabel(op.type)}</div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="font-semibold">{getOperationLabel(op.type)}</div>
+                                            <div className="text-xs opacity-70">
                                                 {new Date(op.created_at).toLocaleDateString('en-US', {
                                                     month: 'short',
                                                     day: 'numeric',
@@ -119,7 +123,7 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className={`font-medium ${op.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    <div className={`font-bold text-lg ${op.amount >= 0 ? 'text-green-300' : 'text-red-300'}`}>
                                         {op.amount >= 0 ? '+' : ''}{op.amount.toFixed(8)}
                                     </div>
                                 </div>
