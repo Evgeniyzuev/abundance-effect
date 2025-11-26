@@ -48,6 +48,7 @@ export default function Wishboard() {
     };
 
     const handleAddFromRecommended = async (wish: RecommendedWish) => {
+        setIsDetailOpen(false); // Close immediately for optimistic UI
         const success = await addWish({
             title: wish.title,
             description: wish.description,
@@ -57,15 +58,15 @@ export default function Wishboard() {
             recommended_source_id: wish.id
         }, true);
 
-        if (success) {
-            setIsDetailOpen(false);
-        } else {
-            alert('Failed to add wish');
+        if (!success) {
+            // If failed, we might want to show an error or re-open, but addWish already alerts
         }
     };
 
     const handleDeleteWish = async (wish: UserWish) => {
         if (!confirm('Are you sure you want to delete this wish?')) return;
+
+        setIsDetailOpen(false); // Close immediately
 
         const success = await deleteWish(wish.id);
         if (success) {
@@ -73,9 +74,6 @@ export default function Wishboard() {
                 const localId = wish.image_url.replace('local://', '');
                 storage.removeWishImage(localId);
             }
-            setIsDetailOpen(false);
-        } else {
-            alert('Failed to delete wish');
         }
     };
 
@@ -91,6 +89,8 @@ export default function Wishboard() {
     };
 
     const handleSaveWish = async (wishData: any) => {
+        handleModalClose(); // Close immediately
+
         let success = false;
         if (editingWish) {
             success = await updateWish(editingWish.id, wishData);
@@ -98,9 +98,6 @@ export default function Wishboard() {
             success = await addWish(wishData);
         }
 
-        if (success) {
-            handleModalClose();
-        }
         return success;
     };
 

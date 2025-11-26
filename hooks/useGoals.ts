@@ -25,12 +25,10 @@ export function useGoals() {
     const loadFromCache = useCallback(() => {
         const cached = storage.get<WishesCache>(STORAGE_KEYS.WISHES_CACHE);
         if (cached) {
-            const CACHE_AGE = 60 * 60 * 1000;
-            if (Date.now() - cached.timestamp < CACHE_AGE) {
-                setUserWishes(cached.userWishes);
-                setRecommendedWishes(cached.recommendedWishes);
-                return true;
-            }
+            // Always load from cache first for instant display, regardless of age
+            setUserWishes(cached.userWishes);
+            setRecommendedWishes(cached.recommendedWishes);
+            return true;
         }
         return false;
     }, []);
@@ -71,65 +69,112 @@ export function useGoals() {
 
     const addWish = async (wishData: Partial<UserWish>, isRecommended: boolean = false) => {
         if (!user) return false;
-        setIsLoading(true);
+
+        // Optimistic update
+        const tempId = `temp-${Date.now()}`;
+        const newWish: UserWish = {
+            id: tempId,
+            user_id: user.id,
+            title: wishData.title || '',
+            description: wishData.description || null,
+            image_url: wishData.image_url || null,
+            estimated_cost: wishData.estimated_cost || null,
+            difficulty_level: wishData.difficulty_level || 1,
+            is_completed: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            recommended_source_id: wishData.recommended_source_id || null,
+            ...wishData
+        } as UserWish;
+
+        const previousUserWishes = [...userWishes];
+        const previousRecommendedWishes = [...recommendedWishes];
+
+        setUserWishes(prev => [newWish, ...prev]);
+
+        if (isRecommended && wishData.recommended_source_id) {
+            setRecommendedWishes(prev => prev.filter(w => w.id !== wishData.recommended_source_id));
+        }
 
         try {
             const result = await addWishAction(wishData);
 
             if (result.success) {
+                // Fetch to get the real ID and sync
                 await fetchWishes();
                 return true;
             } else {
+                // Revert
+                setUserWishes(previousUserWishes);
+                setRecommendedWishes(previousRecommendedWishes);
                 logger.error('Error adding wish:', result.error);
                 alert('Failed to add wish: ' + result.error);
                 return false;
             }
         } catch (e) {
+            // Revert
+            setUserWishes(previousUserWishes);
+            setRecommendedWishes(previousRecommendedWishes);
             logger.error('Error adding wish', e);
             return false;
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const updateWish = async (id: string, updates: Partial<UserWish>) => {
         if (!user) return false;
-        setIsLoading(true);
+
+        const previousUserWishes = [...userWishes];
+
+        // Optimistic update
+        setUserWishes(prev => prev.map(w => w.id === id ? { ...w, ...updates, updated_at: new Date().toISOString() } : w));
 
         try {
             const result = await updateWishAction(id, updates);
 
             if (result.success) {
-                await fetchWishes();
+                // Silently sync in background
+                fetchWishes();
                 return true;
             } else {
+                // Revert
+                setUserWishes(previousUserWishes);
                 logger.error('Error updating wish:', result.error);
                 alert('Failed to update wish: ' + result.error);
                 return false;
             }
         } catch (e) {
+            // Revert
+            setUserWishes(previousUserWishes);
             logger.error('Error updating wish', e);
             return false;
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const deleteWish = async (id: string) => {
         if (!user) return false;
 
+        const previousUserWishes = [...userWishes];
+
+        // Optimistic update
+        setUserWishes(prev => prev.filter(w => w.id !== id));
+
         try {
             const result = await deleteWishAction(id);
 
             if (result.success) {
-                await fetchWishes();
+                // Silently sync in background
+                fetchWishes();
                 return true;
             } else {
+                // Revert
+                setUserWishes(previousUserWishes);
                 logger.error('Error deleting wish:', result.error);
                 alert('Failed to delete wish: ' + result.error);
                 return false;
             }
         } catch (e) {
+            // Revert
+            setUserWishes(previousUserWishes);
             logger.error('Error deleting wish', e);
             return false;
         }

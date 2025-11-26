@@ -1,8 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
 import { PersonalTask } from '@/types/supabase';
 import { logger } from '@/utils/logger';
-import { storage, STORAGE_KEYS } from '@/utils/storage';
+import { STORAGE_KEYS } from '@/utils/storage';
+import { useSyncData } from '@/hooks/useSyncData';
 import {
     fetchTasksAction,
     addTaskAction,
@@ -11,109 +12,108 @@ import {
     completeTaskAction
 } from '@/app/actions/tasks';
 
-interface TasksCache {
-    tasks: PersonalTask[];
-    timestamp: number;
-}
-
 export function useTasks() {
     const { user } = useUser();
-    const [tasks, setTasks] = useState<PersonalTask[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
 
-    const loadFromCache = useCallback(() => {
-        const cached = storage.get<TasksCache>(STORAGE_KEYS.TASKS_CACHE);
-        if (cached) {
-            const CACHE_AGE = 60 * 60 * 1000; // 1 hour
-            if (Date.now() - cached.timestamp < CACHE_AGE) {
-                setTasks(cached.tasks);
-                return true;
-            }
-        }
-        return false;
-    }, []);
-
-    const saveToCache = useCallback((tasks: PersonalTask[]) => {
-        storage.set(STORAGE_KEYS.TASKS_CACHE, {
-            tasks,
-            timestamp: Date.now()
-        });
-    }, []);
-
-    const fetchTasks = useCallback(async () => {
-        if (!user) return;
-
-        const result = await fetchTasksAction();
-
-        if (result.success && result.data) {
-            setTasks(result.data);
-            saveToCache(result.data);
-        } else {
-            logger.error('Error fetching tasks:', result.error);
-        }
-    }, [user, saveToCache]);
+    const {
+        data: tasks,
+        setData: setTasks,
+        refresh: fetchTasks
+    } = useSyncData<PersonalTask[]>({
+        key: STORAGE_KEYS.TASKS_CACHE,
+        fetcher: fetchTasksAction,
+        initialValue: []
+    });
 
     const addTask = async (taskData: Partial<PersonalTask>) => {
         if (!user) return false;
-        setIsLoading(true);
+
+        // Optimistic update
+        const tempId = `temp-${Date.now()}`;
+        const newTask = {
+            id: tempId,
+            user_id: user.id,
+            title: taskData.title || '',
+            description: taskData.description || null,
+            type: taskData.type || 'one_time',
+            status: 'active',
+            streak_goal: taskData.streak_goal || null,
+            streak_current: 0,
+            progress_percentage: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            ...taskData
+        } as PersonalTask;
+
+        const previousTasks = [...tasks];
+        setTasks(prev => [newTask, ...prev]);
 
         try {
             const result = await addTaskAction(taskData);
 
             if (result.success) {
-                await fetchTasks();
+                // Background sync to get real ID
+                fetchTasks();
                 return true;
             } else {
+                // Revert
+                setTasks(previousTasks);
                 logger.error('Error adding task:', result.error);
                 alert('Failed to add task: ' + result.error);
                 return false;
             }
         } catch (e) {
+            setTasks(previousTasks);
             logger.error('Error adding task', e);
             return false;
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const updateTask = async (id: string, updates: Partial<PersonalTask>) => {
         if (!user) return false;
-        setIsLoading(true);
+
+        const previousTasks = [...tasks];
+        setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates, updated_at: new Date().toISOString() } : t));
 
         try {
             const result = await updateTaskAction(id, updates);
 
             if (result.success) {
-                await fetchTasks();
+                fetchTasks();
                 return true;
             } else {
+                setTasks(previousTasks);
                 logger.error('Error updating task:', result.error);
                 alert('Failed to update task: ' + result.error);
                 return false;
             }
         } catch (e) {
+            setTasks(previousTasks);
             logger.error('Error updating task', e);
             return false;
-        } finally {
-            setIsLoading(false);
         }
     };
 
     const deleteTask = async (id: string) => {
         if (!user) return false;
 
+        const previousTasks = [...tasks];
+        setTasks(prev => prev.filter(t => t.id !== id));
+
         try {
             const result = await deleteTaskAction(id);
 
             if (result.success) {
-                await fetchTasks();
+                fetchTasks();
                 return true;
             } else {
+                setTasks(previousTasks);
                 logger.error('Error deleting task:', result.error);
                 alert('Failed to delete task: ' + result.error);
                 return false;
             }
         } catch (e) {
+            setTasks(previousTasks);
             logger.error('Error deleting task', e);
             return false;
         }
@@ -122,18 +122,33 @@ export function useTasks() {
     const completeTask = async (id: string) => {
         if (!user) return false;
 
+        const previousTasks = [...tasks];
+        // Optimistic completion logic (simplified)
+        setTasks(prev => prev.map(t => {
+            if (t.id === id) {
+                if (t.type === 'one_time') {
+                    return { ...t, status: 'completed', last_completed_at: new Date().toISOString() };
+                }
+                // For streak/daily, logic might be more complex, but we can optimistically update last_completed_at
+                return { ...t, last_completed_at: new Date().toISOString() };
+            }
+            return t;
+        }));
+
         try {
             const result = await completeTaskAction(id);
 
             if (result.success) {
-                await fetchTasks();
+                fetchTasks();
                 return true;
             } else {
+                setTasks(previousTasks);
                 logger.error('Error completing task:', result.error);
                 alert('Failed to complete task: ' + result.error);
                 return false;
             }
         } catch (e) {
+            setTasks(previousTasks);
             logger.error('Error completing task', e);
             return false;
         }
@@ -141,8 +156,8 @@ export function useTasks() {
 
     return {
         tasks,
-        isLoading,
-        loadFromCache,
+        isLoading: false, // No longer blocking
+        loadFromCache: () => { }, // No-op, handled internally
         fetchTasks,
         addTask,
         updateTask,
