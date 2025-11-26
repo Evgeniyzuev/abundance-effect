@@ -7,9 +7,10 @@ interface SyncDataOptions<T> {
     fetcher: () => Promise<{ success: boolean; data?: T; error?: any }>;
     initialValue: T;
     onFetchSuccess?: (data: T) => void;
+    parse?: (data: any) => T | null;
 }
 
-export function useSyncData<T>({ key, fetcher, initialValue, onFetchSuccess }: SyncDataOptions<T>) {
+export function useSyncData<T>({ key, fetcher, initialValue, onFetchSuccess, parse }: SyncDataOptions<T>) {
     const [data, setData] = useState<T>(initialValue);
     const [isInitialized, setIsInitialized] = useState(false);
     const hasLoadedFromCache = useRef(false);
@@ -20,17 +21,24 @@ export function useSyncData<T>({ key, fetcher, initialValue, onFetchSuccess }: S
 
         const cached = storage.get<any>(key);
         if (cached) {
-            // Handle both raw data and { data, timestamp } format
-            const value = cached.data || cached;
-            // If the cache structure matches T (roughly), use it
-            // Note: This assumes the cache structure is stable.
-            // For complex objects, we might need a specific selector, but for now we assume direct mapping.
+            let value = cached.data !== undefined ? cached.data : cached;
+
+            if (parse) {
+                const parsed = parse(cached);
+                if (parsed) {
+                    value = parsed;
+                } else {
+                    // Parse failed, ignore cache
+                    return false;
+                }
+            }
+
             setData(value);
             hasLoadedFromCache.current = true;
             return true;
         }
         return false;
-    }, [key]);
+    }, [key, parse]);
 
     // 2. Fetch from server (Background Sync)
     const refresh = useCallback(async () => {

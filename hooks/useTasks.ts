@@ -22,7 +22,17 @@ export function useTasks() {
     } = useSyncData<PersonalTask[]>({
         key: STORAGE_KEYS.TASKS_CACHE,
         fetcher: fetchTasksAction,
-        initialValue: []
+        initialValue: [],
+        parse: (cached) => {
+            // New format (raw array)
+            if (Array.isArray(cached)) return cached;
+            // New format (wrapped)
+            if (cached.data && Array.isArray(cached.data)) return cached.data;
+            // Old format
+            if (cached.tasks && Array.isArray(cached.tasks)) return cached.tasks;
+
+            return null;
+        }
     });
 
     const addTask = async (taskData: Partial<PersonalTask>) => {

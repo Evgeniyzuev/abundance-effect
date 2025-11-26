@@ -24,7 +24,21 @@ export function useNotes() {
     } = useSyncData<{ notes: UserNote[]; lists: CustomList[] }>({
         key: STORAGE_KEYS.NOTES_CACHE,
         fetcher: fetchNotesAction,
-        initialValue: { notes: [], lists: [] }
+        initialValue: { notes: [], lists: [] },
+        parse: (cached) => {
+            // New format (wrapped in data or direct)
+            if (cached.notes && Array.isArray(cached.notes)) return cached;
+            if (cached.data && cached.data.notes && Array.isArray(cached.data.notes)) return cached.data;
+
+            // Old format migration
+            if (cached.userNotes && Array.isArray(cached.userNotes)) {
+                return {
+                    notes: cached.userNotes,
+                    lists: cached.customLists || []
+                };
+            }
+            return null;
+        }
     });
 
     const notes = data.notes;
