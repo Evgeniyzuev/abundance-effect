@@ -31,9 +31,9 @@ export default function SocialPage() {
                 // Redirect to provider for linking
                 window.location.href = data.url;
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error linking identity:', error);
-            alert('Error linking account');
+            alert(`Error linking account: ${error.message || error}`);
         }
     };
 
