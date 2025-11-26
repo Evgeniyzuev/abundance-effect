@@ -17,7 +17,10 @@ export default function Home() {
       const webApp = (window as any).Telegram.WebApp;
       const tgUser = webApp.initDataUnsafe?.user;
       if (tgUser) {
-        setIsTelegramMiniApp(true);
+        setIsTelegramMiniApp(prev => {
+          if (!prev) return true;
+          return prev;
+        });
       }
     }
   }, []);

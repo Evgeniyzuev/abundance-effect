@@ -13,7 +13,7 @@ export default function WishCard({ wish, onClick, className = '' }: WishCardProp
     const [imageError, setImageError] = useState(false);
 
     useEffect(() => {
-        // Reset state when wish changes
+        // Reset error state when wish changes
         setImageError(false);
 
         if (!wish.image_url) {

@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { PersonalTask } from '@/types/supabase'
 import { revalidatePath } from 'next/cache'
 
-export type ActionResponse<T = any> = {
+export type ActionResponse<T = unknown> = {
     success: boolean
     data?: T
     error?: string
@@ -31,9 +31,9 @@ export async function fetchTasksAction(): Promise<ActionResponse<PersonalTask[]>
             success: true,
             data: data as PersonalTask[]
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error fetching tasks:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
@@ -60,9 +60,9 @@ export async function addTaskAction(taskData: Partial<PersonalTask>): Promise<Ac
 
         revalidatePath('/goals')
         return { success: true, data: data as PersonalTask }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error adding task:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
@@ -87,9 +87,9 @@ export async function updateTaskAction(id: string, updates: Partial<PersonalTask
 
         revalidatePath('/goals')
         return { success: true, data: data as PersonalTask }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error updating task:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
@@ -112,9 +112,9 @@ export async function deleteTaskAction(id: string): Promise<ActionResponse<void>
 
         revalidatePath('/goals')
         return { success: true }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error deleting task:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
@@ -140,7 +140,7 @@ export async function completeTaskAction(id: string): Promise<ActionResponse<Per
         }
 
         const now = new Date().toISOString()
-        let updates: Partial<PersonalTask> = {
+        const updates: Partial<PersonalTask> = {
             last_completed_at: now
         }
 
@@ -172,9 +172,9 @@ export async function completeTaskAction(id: string): Promise<ActionResponse<Per
 
         revalidatePath('/goals')
         return { success: true, data: data as PersonalTask }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error completing task:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
@@ -211,8 +211,8 @@ export async function markDayCompletedAction(id: string, date: string): Promise<
         const newCompletions = [...completions, date]
         const newCurrent = newCompletions.length
 
-        let updates: Partial<PersonalTask> = {
-            daily_completions: newCompletions as any,
+        const updates: Partial<PersonalTask> = {
+            daily_completions: newCompletions as string[],
             streak_current: newCurrent,
             last_completed_at: new Date().toISOString()
         }
@@ -238,9 +238,9 @@ export async function markDayCompletedAction(id: string, date: string): Promise<
 
         revalidatePath('/goals')
         return { success: true, data: data as PersonalTask }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error marking day completed:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 

@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { Plus, Search, CheckCircle2, Calendar, MoreHorizontal, Trash2, X, ChevronRight, List, Edit2, Info, ChevronLeft } from 'lucide-react';
+import { Plus, Search, CheckCircle2, Calendar, X, ChevronRight, List, Info, ChevronLeft } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 import { CustomList } from '@/types/supabase';
 
@@ -542,12 +542,12 @@ export default function Notes() {
                                     {['none', 'low', 'medium', 'high'].map(priority => (
                                         <button
                                             key={priority}
-                                            onClick={() => updateNote(showNoteDetails, { priority: priority as any })}
+                                            onClick={() => updateNote(showNoteDetails, { priority: priority as 'none' | 'low' | 'medium' | 'high' })}
                                             className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${notes.find(n => n.id === showNoteDetails)?.priority === priority
                                                 ? 'bg-blue-500 text-white'
                                                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'}`}
                                         >
-                                            {t(`notes.priority_${priority}` as any)}
+                                            {t(`notes.priority_${priority}` as keyof typeof import('@/utils/translations').translations['en'])}
                                         </button>
                                     ))}
                                 </div>

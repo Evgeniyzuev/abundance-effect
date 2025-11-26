@@ -1,10 +1,10 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { UserResults } from '@/types/supabase'
+import { UserResults, GameItem } from '@/types/supabase'
 import { revalidatePath } from 'next/cache'
 
-export type ActionResponse<T = any> = {
+export type ActionResponse<T = unknown> = {
     success: boolean
     data?: T
     error?: string
@@ -46,9 +46,9 @@ export async function fetchResultsAction(): Promise<ActionResponse<UserResults>>
         }
 
         return { success: true, data: data as UserResults }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error fetching results:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
@@ -76,13 +76,13 @@ export async function updateResultsAction(updates: Partial<UserResults>): Promis
 
         revalidatePath('/goals')
         return { success: true, data: data as UserResults }
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error updating results:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }
 
-export async function fetchGameItemsAction(): Promise<ActionResponse<any[]>> {
+export async function fetchGameItemsAction(): Promise<ActionResponse<GameItem[]>> {
     try {
         const supabase = await createClient()
 
@@ -94,9 +94,9 @@ export async function fetchGameItemsAction(): Promise<ActionResponse<any[]>> {
 
         if (error) throw error
 
-        return { success: true, data: data || [] }
-    } catch (error: any) {
+        return { success: true, data: (data as GameItem[]) || [] }
+    } catch (error: unknown) {
         console.error('Error fetching game items:', error)
-        return { success: false, error: error.message }
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
 }

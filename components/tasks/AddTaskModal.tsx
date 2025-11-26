@@ -29,40 +29,43 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
-        if (isOpen && initialData) {
-            setTitle(initialData.title)
-            setDescription(initialData.description || "")
-            setType(initialData.type)
-            setStreakGoal(initialData.streak_goal?.toString() || "")
+        if (isOpen) {
+            if (initialData) {
+                setTitle(initialData.title)
+                setDescription(initialData.description || "")
+                setType(initialData.type)
+                setStreakGoal(initialData.streak_goal?.toString() || "")
 
-            // Handle image
-            if (initialData.image_url) {
-                if (initialData.image_url.startsWith('data:')) {
-                    setImageMode("upload")
-                    setLocalImageBase64(initialData.image_url)
-                } else if (initialData.image_url.startsWith('local://')) {
-                    setImageMode("upload")
-                    const localId = initialData.image_url.replace('local://', '')
-                    const storedImage = storage.getTaskImage(localId)
-                    if (storedImage) {
-                        setLocalImageBase64(storedImage)
+                // Handle image
+                if (initialData.image_url) {
+                    if (initialData.image_url.startsWith('data:')) {
+                        setImageMode("upload")
+                        setLocalImageBase64(initialData.image_url)
+                    } else if (initialData.image_url.startsWith('local://')) {
+                        setImageMode("upload")
+                        const localId = initialData.image_url.replace('local://', '')
+                        const storedImage = storage.getTaskImage(localId)
+                        if (storedImage) {
+                            setLocalImageBase64(storedImage)
+                        }
+                    } else {
+                        setImageMode("url")
+                        setImageUrl(initialData.image_url)
                     }
-                } else {
-                    setImageMode("url")
-                    setImageUrl(initialData.image_url)
                 }
+            } else {
+                // Reset for new task
+                setTitle("")
+                setDescription("")
+                setType('one_time')
+                setStreakGoal("")
+                setImageMode("url")
+                setImageUrl("")
+                setLocalImageBase64("")
+                setSelectedFile(null)
             }
-        } else if (isOpen && !initialData) {
-            setTitle("")
-            setDescription("")
-            setType('one_time')
-            setStreakGoal("")
-            setImageMode("url")
-            setImageUrl("")
-            setLocalImageBase64("")
-            setSelectedFile(null)
         }
-    }, [initialData, isOpen])
+    }, [isOpen, initialData])
 
     const compressImage = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -190,8 +193,8 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                                 type="button"
                                 onClick={() => setImageMode("url")}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${imageMode === "url"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                     }`}
                             >
                                 <Link size={16} />
@@ -201,8 +204,8 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                                 type="button"
                                 onClick={() => setImageMode("upload")}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${imageMode === "upload"
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                                     }`}
                             >
                                 <Upload size={16} />
@@ -290,8 +293,8 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                             <button
                                 onClick={() => setType('one_time')}
                                 className={`px-4 py-2 rounded-lg border-2 transition-all ${type === 'one_time'
-                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 {t('tasks.type_one_time')}
@@ -299,8 +302,8 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                             <button
                                 onClick={() => setType('streak')}
                                 className={`px-4 py-2 rounded-lg border-2 transition-all ${type === 'streak'
-                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 {t('tasks.type_streak')}
@@ -308,8 +311,8 @@ export default function AddTaskModal({ isOpen, onClose, onSave, initialData }: A
                             <button
                                 onClick={() => setType('daily')}
                                 className={`px-4 py-2 rounded-lg border-2 transition-all ${type === 'daily'
-                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 {t('tasks.type_daily')}

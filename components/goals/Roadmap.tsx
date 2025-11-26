@@ -11,7 +11,10 @@ export default function Roadmap() {
     useEffect(() => {
         const savedLevel = localStorage.getItem('user_level');
         if (savedLevel) {
-            setLevel(parseInt(savedLevel));
+            const parsed = parseInt(savedLevel);
+            if (!isNaN(parsed)) {
+                setLevel(parsed);
+            }
         }
     }, []);
 
