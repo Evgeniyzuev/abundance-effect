@@ -96,7 +96,7 @@ export default function LoginPage() {
         };
     }, []); // Empty dependency array to prevent re-running
 
-    const handleOAuthLogin = async (provider: 'google') => {
+    const handleOAuthLogin = async (provider: 'google' | 'apple') => {
         setLoading(true);
         try {
             // Get the current URL origin (works in both dev and production)
@@ -120,6 +120,31 @@ export default function LoginPage() {
     const handleTelegramMiniApp = () => {
         // Open Telegram Mini App directly
         window.open('https://t.me/AbundanceEffectBot/Abundance', '_blank');
+    };
+
+    const [email, setEmail] = useState('');
+    const [magicLinkSent, setMagicLinkSent] = useState(false);
+
+    const handleMagicLinkLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const origin = typeof window !== 'undefined' ? window.location.origin : '';
+            const { error } = await supabase.auth.signInWithOtp({
+                email,
+                options: {
+                    emailRedirectTo: `${origin}/auth/callback`,
+                },
+            });
+            if (error) throw error;
+            setMagicLinkSent(true);
+            alert(t('auth.check_email'));
+        } catch (error) {
+            console.error('Error sending magic link:', error);
+            alert('Error sending magic link');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -181,16 +206,64 @@ export default function LoginPage() {
                         <span>{t('auth.telegram_mini_app')}</span>
                     </button>
 
-                    {/* Apple Button (optional) */}
+                    {/* Apple Button */}
                     <button
-                        disabled
-                        className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-white px-6 py-4 text-lg font-medium text-ios-primary opacity-50 cursor-not-allowed shadow-sm"
+                        onClick={() => handleOAuthLogin('apple')}
+                        disabled={loading}
+                        className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-white px-6 py-4 text-lg font-medium text-ios-primary shadow-sm transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                         </svg>
                         <span>{t('auth.apple')}</span>
                     </button>
+
+                    {/* Divider */}
+                    <div className="relative py-2">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-gray-300" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="bg-ios-background px-2 text-gray-500">
+                                {t('auth.or')}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Email Magic Link Form */}
+                    <form onSubmit={handleMagicLinkLogin} className="space-y-4">
+                        <div>
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder={t('auth.email_placeholder')}
+                                className="block w-full rounded-xl border-0 py-4 pl-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-lg sm:leading-6"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={loading || magicLinkSent}
+                            className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-ios-primary px-6 py-4 text-lg font-medium text-white shadow-sm transition-all hover:bg-opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {magicLinkSent ? (
+                                <>
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span>{t('auth.magic_link_sent')}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    <span>{t('auth.send_magic_link')}</span>
+                                </>
+                            )}
+                        </button>
+                    </form>
                 </div>
 
                 <div className="mt-8 flex justify-center">

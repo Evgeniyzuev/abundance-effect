@@ -55,7 +55,12 @@ export type TranslationKey =
     | 'profile.level'
     | 'profile.username'
     | 'profile.telegram_id'
+    | 'profile.telegram_id'
     | 'profile.reinvest'
+    | 'profile.linked_accounts'
+    | 'profile.link_account'
+    | 'profile.linked'
+    | 'profile.not_linked'
     // Notes page
     | 'notes.title'
     | 'notes.add_note'
@@ -140,7 +145,12 @@ export type TranslationKey =
     | 'auth.google'
     | 'auth.telegram'
     | 'auth.telegram_mini_app'
-    | 'auth.apple';
+    | 'auth.apple'
+    | 'auth.email_placeholder'
+    | 'auth.send_magic_link'
+    | 'auth.or'
+    | 'auth.check_email'
+    | 'auth.magic_link_sent';
 
 export const translations: { [key in Language]: { [key in TranslationKey]: string } } = {
     en: {
@@ -190,6 +200,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'Username',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': 'Reinvest',
+        'profile.linked_accounts': 'Linked Accounts',
+        'profile.link_account': 'Link',
+        'profile.linked': 'Linked',
+        'profile.not_linked': 'Not Linked',
         // Notes
         'notes.title': 'Notes',
         'notes.add_note': 'Add Note',
@@ -275,6 +289,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.telegram': 'Continue with Telegram',
         'auth.telegram_mini_app': 'Open Telegram Mini App',
         'auth.apple': 'Continue with Apple',
+        'auth.email_placeholder': 'Enter your email',
+        'auth.send_magic_link': 'Send Magic Link',
+        'auth.or': 'OR',
+        'auth.check_email': 'Check your email for the login link',
+        'auth.magic_link_sent': 'Magic link sent!',
     },
     zh: {
         // Goals
@@ -323,6 +342,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': '用户名',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': '再投资',
+        'profile.linked_accounts': '关联账户',
+        'profile.link_account': '关联',
+        'profile.linked': '已关联',
+        'profile.not_linked': '未关联',
         // Notes
         'notes.title': '笔记',
         'notes.add_note': '添加笔记',
@@ -408,6 +431,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.telegram': '通过 Telegram 继续',
         'auth.telegram_mini_app': '打开 Telegram 小程序',
         'auth.apple': '通过 Apple 继续',
+        'auth.email_placeholder': '输入您的电子邮件',
+        'auth.send_magic_link': '发送登录链接',
+        'auth.or': '或',
+        'auth.check_email': '请检查您的电子邮件以获取登录链接',
+        'auth.magic_link_sent': '登录链接已发送！',
     },
     es: {
         // Goals
@@ -456,6 +484,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'Nombre de usuario',
         'profile.telegram_id': 'ID de Telegram',
         'profile.reinvest': 'Reinversión',
+        'profile.linked_accounts': 'Cuentas Vinculadas',
+        'profile.link_account': 'Vincular',
+        'profile.linked': 'Vinculado',
+        'profile.not_linked': 'No Vinculado',
         // Notes
         'notes.title': 'Notas',
         'notes.add_note': 'Agregar Nota',
@@ -541,6 +573,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.telegram': 'Continuar con Telegram',
         'auth.telegram_mini_app': 'Abrir Mini App de Telegram',
         'auth.apple': 'Continuar con Apple',
+        'auth.email_placeholder': 'Ingresa tu correo electrónico',
+        'auth.send_magic_link': 'Enviar enlace mágico',
+        'auth.or': 'O',
+        'auth.check_email': 'Revisa tu correo para el enlace de inicio de sesión',
+        'auth.magic_link_sent': '¡Enlace mágico enviado!',
     },
     hi: {
         // Goals
@@ -589,6 +626,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'यूज़रनेम',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': 'पुनर्निवेश',
+        'profile.linked_accounts': 'लिंक किए गए खाते',
+        'profile.link_account': 'लिंक करें',
+        'profile.linked': 'लिंक किया गया',
+        'profile.not_linked': 'लिंक नहीं किया गया',
         // Notes
         'notes.title': 'नोट्स',
         'notes.add_note': 'नोट जोड़ें',
@@ -674,6 +715,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.telegram': 'Telegram के साथ जारी रखें',
         'auth.telegram_mini_app': 'Telegram मिनी ऐप खोलें',
         'auth.apple': 'Apple के साथ जारी रखें',
+        'auth.email_placeholder': 'अपना ईमेल दर्ज करें',
+        'auth.send_magic_link': 'मैजिक लिंक भेजें',
+        'auth.or': 'या',
+        'auth.check_email': 'लॉगिन लिंक के लिए अपना ईमेल चेक करें',
+        'auth.magic_link_sent': 'मैजिक लिंक भेजा गया!',
     },
     ar: {
         // Goals
@@ -722,6 +768,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'اسم المستخدم',
         'profile.telegram_id': 'معرف Telegram',
         'profile.reinvest': 'إعادة الاستثمار',
+        'profile.linked_accounts': 'الحسابات المرتبطة',
+        'profile.link_account': 'ربط',
+        'profile.linked': 'مرتبط',
+        'profile.not_linked': 'غير مرتبط',
         // Notes
         'notes.title': 'الملاحظات',
         'notes.add_note': 'إضافة ملاحظة',
@@ -807,6 +857,11 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.telegram': 'تواصل مع Telegram',
         'auth.telegram_mini_app': 'افتح تطبيق Telegram المصغر',
         'auth.apple': 'تواصل مع Apple',
+        'auth.email_placeholder': 'أدخل بريدك الإلكتروني',
+        'auth.send_magic_link': 'إرسال الرابط السحري',
+        'auth.or': 'أو',
+        'auth.check_email': 'تحقق من بريدك الإلكتروني للحصول على رابط تسجيل الدخول',
+        'auth.magic_link_sent': 'تم إرسال الرابط السحري!',
     },
     ru: {
         // Goals
@@ -855,6 +910,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'profile.username': 'Имя пользователя',
         'profile.telegram_id': 'Telegram ID',
         'profile.reinvest': 'Реинвестиция',
+        'profile.linked_accounts': 'Привязанные аккаунты',
+        'profile.link_account': 'Привязать',
+        'profile.linked': 'Привязано',
+        'profile.not_linked': 'Не привязано',
         // Notes
         'notes.title': 'Заметки',
         'notes.add_note': 'Добавить Заметку',
@@ -940,5 +999,10 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'auth.telegram': 'Войти через Telegram',
         'auth.telegram_mini_app': 'Открыть Telegram Mini App',
         'auth.apple': 'Войти через Apple',
+        'auth.email_placeholder': 'Введите ваш email',
+        'auth.send_magic_link': 'Отправить ссылку для входа',
+        'auth.or': 'ИЛИ',
+        'auth.check_email': 'Проверьте почту для входа',
+        'auth.magic_link_sent': 'Ссылка отправлена!',
     },
 };
