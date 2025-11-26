@@ -2,6 +2,7 @@
 
 import { Plus, ArrowRight, Send, ArrowDown } from "lucide-react"
 import { motion } from "framer-motion"
+import { useLanguage } from "@/context/LanguageContext"
 
 interface WalletTabProps {
     walletBalance: number
@@ -12,89 +13,78 @@ interface WalletTabProps {
 }
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, userId }: WalletTabProps) {
+    const { t } = useLanguage()
+
     return (
-        <div className="relative min-h-[calc(100vh-140px)] w-full overflow-hidden">
-            {/* Background with gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 z-0">
-                <div className="absolute inset-0 bg-black/20" />
+        <div className="w-full bg-white min-h-full">
+            {/* Balance Section */}
+            <div className="flex flex-col items-center justify-center py-10 space-y-2">
+                <p className="text-gray-500 text-sm font-medium">{t('wallet.wallet_balance')}</p>
+                <h1 className="text-5xl font-bold text-gray-900 tracking-tight">
+                    ${walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h1>
             </div>
 
-            {/* Content */}
-            <div className="relative z-10 p-6 space-y-6">
-                {/* Balance Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white shadow-xl"
-                >
-                    <p className="text-sm opacity-80 font-medium mb-2">Wallet Balance</p>
-                    <h1 className="text-4xl font-bold">${walletBalance.toFixed(2)}</h1>
-                </motion.div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-4">
+            {/* Action Buttons */}
+            <div className="grid grid-cols-4 gap-4 px-6 mb-8">
+                <div className="flex flex-col items-center space-y-2">
                     <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={onTopUp}
                         disabled={!userId}
-                        className="bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl p-6 text-white hover:bg-white/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                        className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <div className="flex flex-col items-center space-y-3">
-                            <div className="bg-blue-500/30 p-3 rounded-full">
-                                <Plus className="h-6 w-6" />
-                            </div>
-                            <span className="text-sm font-semibold">Top Up</span>
-                        </div>
+                        <Plus className="h-6 w-6" />
                     </motion.button>
+                    <span className="text-xs font-medium text-gray-600">{t('wallet.top_up')}</span>
+                </div>
 
+                <div className="flex flex-col items-center space-y-2">
                     <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={onTransfer}
                         disabled={!userId}
-                        className="bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl p-6 text-white hover:bg-white/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                        className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <div className="flex flex-col items-center space-y-3">
-                            <div className="bg-green-500/30 p-3 rounded-full">
-                                <ArrowRight className="h-6 w-6" />
-                            </div>
-                            <span className="text-sm font-semibold">To Core</span>
-                        </div>
+                        <ArrowRight className="h-6 w-6" />
                     </motion.button>
+                    <span className="text-xs font-medium text-gray-600">{t('wallet.transfer_to_core')}</span>
+                </div>
 
+                <div className="flex flex-col items-center space-y-2">
                     <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={onSend}
                         disabled={!userId}
-                        className="bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl p-6 text-white hover:bg-white/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                        className="w-14 h-14 rounded-full bg-purple-500 flex items-center justify-center text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <div className="flex flex-col items-center space-y-3">
-                            <div className="bg-purple-500/30 p-3 rounded-full">
-                                <Send className="h-6 w-6" />
-                            </div>
-                            <span className="text-sm font-semibold">Send</span>
-                        </div>
+                        <Send className="h-6 w-6" />
                     </motion.button>
+                    <span className="text-xs font-medium text-gray-600">{t('wallet.send')}</span>
+                </div>
 
-                    <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4 }}
+                <div className="flex flex-col items-center space-y-2">
+                    <button
                         disabled
-                        className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white/50 cursor-not-allowed shadow-lg"
+                        className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 cursor-not-allowed"
                     >
-                        <div className="flex flex-col items-center space-y-3">
-                            <div className="bg-orange-500/20 p-3 rounded-full">
-                                <ArrowDown className="h-6 w-6" />
-                            </div>
-                            <span className="text-sm font-semibold">Receive</span>
-                        </div>
-                    </motion.button>
+                        <ArrowDown className="h-6 w-6" />
+                    </button>
+                    <span className="text-xs font-medium text-gray-400">{t('wallet.receive')}</span>
+                </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-2 bg-gray-50 w-full" />
+
+            {/* Transactions Placeholder (Optional) */}
+            <div className="p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">{t('wallet.core_history')}</h3>
+                <div className="flex flex-col items-center justify-center py-10 text-gray-400 space-y-3">
+                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
+                        <ArrowRight className="h-8 w-8 text-gray-300" />
+                    </div>
+                    <p className="text-sm">{t('wallet.no_operations')}</p>
                 </div>
             </div>
         </div>

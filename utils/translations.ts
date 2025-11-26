@@ -48,6 +48,7 @@ export type TranslationKey =
     | 'wallet.interest_earned'
     | 'wallet.transfer'
     | 'wallet.reinvest_op'
+    | 'wallet.operation'
     // Profile/Social page
     | 'profile.title'
     | 'profile.language'
@@ -181,6 +182,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'wallet.interest_earned': 'Interest Earned',
         'wallet.transfer': 'Transfer',
         'wallet.reinvest_op': 'Reinvest',
+        'wallet.operation': 'Operation',
         // Profile
         'profile.title': 'Profile',
         'profile.language': 'Language',
@@ -313,6 +315,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'wallet.interest_earned': '赚取利息',
         'wallet.transfer': '转账',
         'wallet.reinvest_op': '再投资',
+        'wallet.operation': '操作',
         // Profile
         'profile.title': '个人资料',
         'profile.language': '语言',
@@ -445,6 +448,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'wallet.interest_earned': 'Interés Ganado',
         'wallet.transfer': 'Transferencia',
         'wallet.reinvest_op': 'Reinversión',
+        'wallet.operation': 'Operación',
         // Profile
         'profile.title': 'Perfil',
         'profile.language': 'Idioma',
@@ -577,6 +581,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'wallet.interest_earned': 'अर्जित ब्याज',
         'wallet.transfer': 'स्थानांतरण',
         'wallet.reinvest_op': 'पुनर्निवेश',
+        'wallet.operation': 'ऑपरेशन',
         // Profile
         'profile.title': 'प्रोफ़ाइल',
         'profile.language': 'भाषा',
@@ -709,6 +714,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'wallet.interest_earned': 'الفائدة المكتسبة',
         'wallet.transfer': 'تحويل',
         'wallet.reinvest_op': 'إعادة استثمار',
+        'wallet.operation': 'عملية',
         // Profile
         'profile.title': 'الملف الشخصي',
         'profile.language': 'لغة',
@@ -841,6 +847,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'wallet.interest_earned': 'Заработанные Проценты',
         'wallet.transfer': 'Перевод',
         'wallet.reinvest_op': 'Реинвестиция',
+        'wallet.operation': 'Операция',
         // Profile
         'profile.title': 'Профиль',
         'profile.language': 'Язык',

@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowRight, Check } from "lucide-react"
+import { ArrowRight, Check, TrendingUp, Calculator, Clock } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { updateUserReinvest } from "@/app/actions/finance"
 import { useLevelCheck } from "@/hooks/useLevelCheck"
 import CoreHistory from "./CoreHistory"
 import { motion } from "framer-motion"
+import { useLanguage } from "@/context/LanguageContext"
 
 interface CoreTabProps {
     coreBalance: number
@@ -18,6 +19,7 @@ interface CoreTabProps {
 }
 
 export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTransfer, onReinvestUpdate }: CoreTabProps) {
+    const { t } = useLanguage()
     const { levelThresholds } = useLevelCheck()
     const [reinvestInputValue, setReinvestInputValue] = useState(reinvestPercentage.toString())
     const [isReinvestChanged, setIsReinvestChanged] = useState(false)
@@ -173,9 +175,9 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
         if (years === 0) {
             return `${remainingDays} days`
         } else if (remainingDays === 0) {
-            return `${years} year${years > 1 ? 's' : ''}`
+            return `${years} ${t('wallet.years')}`
         } else {
-            return `${years} year${years > 1 ? 's' : ''} ${remainingDays} day${remainingDays > 1 ? 's' : ''}`
+            return `${years} ${t('wallet.years')} ${remainingDays} days`
         }
     }
 
@@ -190,228 +192,179 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
     const { currentLevel, nextLevelThreshold, progressPercentage } = calculateLevelProgress(coreBalance)
 
     return (
-        <div className="relative min-h-[calc(100vh-140px)] w-full overflow-hidden">
-            {/* Background with gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 z-0">
-                <div className="absolute inset-0 bg-black/20" />
+        <div className="w-full bg-white min-h-full pb-20">
+            {/* Core Balance Section */}
+            <div className="flex flex-col items-center justify-center py-8 space-y-2 bg-gray-50 border-b border-gray-100">
+                <p className="text-gray-500 text-sm font-medium">{t('wallet.core_balance')}</p>
+                <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+                    ${coreBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h1>
+
+                <div className="w-full max-w-xs mt-4 space-y-2 px-4">
+                    <div className="flex justify-between text-xs text-gray-500">
+                        <span className="font-medium">{t('wallet.level')} {currentLevel}</span>
+                        <span>${coreBalance.toFixed(0)} / ${nextLevelThreshold}</span>
+                    </div>
+                    <Progress value={progressPercentage} className="h-2 bg-gray-200" />
+                </div>
             </div>
 
-            {/* Content */}
-            <div className="relative z-10 p-6 space-y-4 pb-20">
-                {/* Balance Card with Level */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white shadow-xl"
-                >
-                    <p className="text-sm opacity-80 font-medium mb-2">Core Balance</p>
-                    <h1 className="text-4xl font-bold mb-4">${coreBalance.toFixed(2)}</h1>
-
-                    <div className="space-y-2">
-                        <div className="flex justify-between text-xs">
-                            <span className="font-medium">Level {currentLevel}</span>
-                            <span className="opacity-90">${coreBalance.toFixed(2)} / ${nextLevelThreshold}</span>
+            <div className="p-4 space-y-6">
+                {/* Daily Income & Reinvest */}
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2 text-gray-900">
+                            <TrendingUp className="w-5 h-5 text-green-500" />
+                            <span className="font-semibold">{t('wallet.daily_income')}</span>
                         </div>
-                        <Progress value={progressPercentage} className="h-2 bg-white/20 rounded-full" />
+                        <span className="font-bold text-green-600">
+                            ${calculateDailyIncome(coreBalance).total.toFixed(6)}
+                        </span>
                     </div>
-                </motion.div>
 
-                {/* Daily Income Card */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white shadow-xl"
-                >
-                    <div className="space-y-4">
+                    <div className="space-y-3 pt-2 border-t border-gray-50">
                         <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-600">{t('wallet.reinvest')}</span>
                             <div className="flex items-center space-x-2">
-                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                <span className="text-base font-semibold">Daily Income</span>
-                            </div>
-                            <span className="text-base font-bold text-green-300">
-                                ${calculateDailyIncome(coreBalance).total.toFixed(8)}
-                            </span>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium opacity-90">Reinvest %</span>
-                                <div className="flex items-center space-x-2">
+                                <div className="relative">
                                     <Input
                                         type="text"
                                         value={reinvestInputValue}
                                         onChange={(e) => handleReinvestChange(e.target.value)}
-                                        className="h-8 text-sm w-16 text-center font-medium bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                                        className="h-8 w-16 text-center text-sm font-medium pr-6"
                                     />
-                                    <span className="text-xs opacity-70">%</span>
-                                    {isReinvestChanged && (
-                                        <button
-                                            onClick={handleSaveReinvest}
-                                            className="h-6 px-2 bg-green-500/30 hover:bg-green-500/50 rounded border border-green-400/50 transition-colors"
-                                        >
-                                            <Check className="h-3 w-3 text-green-300" />
-                                        </button>
-                                    )}
+                                    <span className="absolute right-2 top-1.5 text-xs text-gray-400">%</span>
                                 </div>
+                                {isReinvestChanged && (
+                                    <button
+                                        onClick={handleSaveReinvest}
+                                        className="h-8 w-8 flex items-center justify-center bg-green-500 rounded-lg text-white shadow-sm hover:bg-green-600 transition-colors"
+                                    >
+                                        <Check className="h-4 w-4" />
+                                    </button>
+                                )}
                             </div>
-                            <Progress value={Number(reinvestInputValue)} className="h-2 bg-white/20 rounded-full" />
                         </div>
+                        <Progress value={Number(reinvestInputValue)} className="h-1.5 bg-gray-100" />
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="text-center p-3 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-400/30">
-                                <span className="text-sm font-bold text-blue-200">
-                                    💲 ${calculateDailyIncome(coreBalance).toWallet.toFixed(8)}
-                                </span>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div className="bg-gray-50 p-2 rounded-lg text-center">
+                                <span className="text-gray-500 block mb-1">Wallet</span>
+                                <span className="font-semibold text-gray-900">${calculateDailyIncome(coreBalance).toWallet.toFixed(6)}</span>
                             </div>
-                            <div className="text-center p-3 bg-green-500/20 backdrop-blur-sm rounded-xl border border-green-400/30">
-                                <span className="text-sm font-bold text-green-200">
-                                    ⚛️ ${calculateDailyIncome(coreBalance).toCore.toFixed(8)}
-                                </span>
+                            <div className="bg-gray-50 p-2 rounded-lg text-center">
+                                <span className="text-gray-500 block mb-1">Core</span>
+                                <span className="font-semibold text-gray-900">${calculateDailyIncome(coreBalance).toCore.toFixed(6)}</span>
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
 
-                {/* Core Growth Calculator */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white shadow-xl"
-                >
-                    <div className="space-y-4">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                            <span className="text-base font-semibold">Core Growth Calculator</span>
+                {/* Calculators Section */}
+                <div className="grid grid-cols-1 gap-4">
+                    {/* Growth Calculator */}
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4">
+                        <div className="flex items-center space-x-2 text-gray-900 mb-2">
+                            <Calculator className="w-5 h-5 text-blue-500" />
+                            <span className="font-semibold">{t('wallet.core_growth_calculator')}</span>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-3 gap-3">
                             <div className="space-y-1">
-                                <label className="text-xs font-medium opacity-80">Start Core</label>
+                                <label className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{t('wallet.start_core')}</label>
                                 <Input
                                     type="number"
                                     value={startCore}
                                     onChange={(e) => setStartCore(e.target.value)}
-                                    className="h-8 text-xs bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                                    placeholder="0"
+                                    className="h-9 text-sm bg-gray-50 border-gray-200"
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-medium opacity-80">Daily Rewards</label>
+                                <label className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{t('wallet.daily_rewards')}</label>
                                 <Input
                                     type="number"
                                     value={dailyRewards}
                                     onChange={(e) => setDailyRewards(e.target.value)}
-                                    className="h-8 text-xs bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                                    min={0}
-                                    placeholder="10"
+                                    className="h-9 text-sm bg-gray-50 border-gray-200"
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-xs font-medium opacity-80">Years</label>
+                                <label className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{t('wallet.years')}</label>
                                 <Input
                                     type="number"
                                     value={yearsToCalculate}
                                     onChange={(e) => setYearsToCalculate(e.target.value)}
-                                    className="h-8 text-xs bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                                    min={1}
-                                    max={100}
-                                    placeholder="30"
+                                    className="h-9 text-sm bg-gray-50 border-gray-200"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="text-center p-3 bg-blue-500/20 backdrop-blur-sm rounded-xl border border-blue-400/30">
-                                <span className="text-xs opacity-80 block mb-1">Future Core</span>
-                                <span className="text-sm font-bold text-blue-200">
-                                    ${formatWithSpaces(calculateFutureCore())}
-                                </span>
+                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                            <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-blue-600 font-medium">{t('wallet.future_core')}</span>
+                                <span className="text-sm font-bold text-blue-700">${formatWithSpaces(calculateFutureCore())}</span>
                             </div>
-                            <div className="text-center p-3 bg-green-500/20 backdrop-blur-sm rounded-xl border border-green-400/30">
-                                <span className="text-xs opacity-80 block mb-1">Daily Income</span>
-                                <span className="text-sm font-bold text-green-200">
-                                    ${formatWithSpaces(calculateFutureCore() * DAILY_RATE)}
-                                </span>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs text-blue-600/70">{t('wallet.daily_income')}</span>
+                                <span className="text-xs font-semibold text-blue-700/70">${formatWithSpaces(calculateFutureCore() * DAILY_RATE)}</span>
                             </div>
                         </div>
                     </div>
-                </motion.div>
 
-                {/* Time to Target Calculator */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white shadow-xl"
-                >
-                    <div className="space-y-4">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                            <span className="text-base font-semibold">Time to Target</span>
+                    {/* Time to Target */}
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-4">
+                        <div className="flex items-center space-x-2 text-gray-900 mb-2">
+                            <Clock className="w-5 h-5 text-purple-500" />
+                            <span className="font-semibold">{t('wallet.time_to_target')}</span>
                         </div>
 
-                        <div className="space-y-3">
-                            <div className="space-y-1">
-                                <label className="text-xs font-medium opacity-80">Target Core Amount</label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="number"
-                                        value={targetCoreAmount}
-                                        onChange={(e) => setTargetCoreAmount(e.target.value)}
-                                        className="h-8 text-xs flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                                        placeholder="Enter target amount"
-                                    />
-                                    <button
-                                        className="h-8 px-4 text-xs bg-purple-500/30 hover:bg-purple-500/50 rounded-lg border border-purple-400/50 font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white"
-                                        onClick={calculateTimeToTarget}
-                                        disabled={!targetCoreAmount || Number(targetCoreAmount) <= coreBalance}
-                                    >
-                                        Calculate
-                                    </button>
-                                </div>
+                        <div className="flex gap-2">
+                            <Input
+                                type="number"
+                                value={targetCoreAmount}
+                                onChange={(e) => setTargetCoreAmount(e.target.value)}
+                                className="h-10 flex-1 bg-gray-50 border-gray-200"
+                                placeholder={t('wallet.target_amount')}
+                            />
+                            <button
+                                className="h-10 px-4 bg-purple-600 text-white rounded-lg font-medium text-sm hover:bg-purple-700 transition-colors disabled:opacity-50"
+                                onClick={calculateTimeToTarget}
+                                disabled={!targetCoreAmount || Number(targetCoreAmount) <= coreBalance}
+                            >
+                                {t('wallet.calculate')}
+                            </button>
+                        </div>
+
+                        {timeToTarget !== null && (
+                            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100 text-center">
+                                <span className="text-xs text-purple-600 block mb-1">{t('wallet.estimated_time')}</span>
+                                <span className="text-lg font-bold text-purple-800 block mb-1">
+                                    {formatTimeToTarget(timeToTarget)}
+                                </span>
+                                <span className="text-xs text-purple-600/70">
+                                    {t('wallet.target_date')}: {new Date(Date.now() + timeToTarget * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                                </span>
                             </div>
-
-                            {timeToTarget !== null && (
-                                <div className="p-3 bg-purple-500/20 backdrop-blur-sm rounded-xl border border-purple-400/30">
-                                    <div className="text-center">
-                                        <span className="text-xs opacity-80 block mb-1">Estimated time to reach target</span>
-                                        <span className="text-lg font-bold text-purple-200 mb-1 block">
-                                            {formatTimeToTarget(timeToTarget)}
-                                        </span>
-                                        <span className="text-xs opacity-70">
-                                            Target date: {new Date(Date.now() + timeToTarget * 24 * 60 * 60 * 1000).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Transfer Button */}
-                <motion.button
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="w-full h-14 bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl text-white font-semibold flex items-center justify-center space-x-2 hover:bg-white/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                <button
+                    className="w-full h-12 bg-black text-white rounded-xl font-semibold flex items-center justify-center space-x-2 hover:bg-gray-800 transition-all disabled:opacity-50 shadow-sm"
                     onClick={onTransfer}
                     disabled={!userId}
                 >
-                    <ArrowRight className="h-5 w-5" />
-                    <span className="text-sm">Transfer from Wallet</span>
-                </motion.button>
+                    <ArrowRight className="h-4 w-4" />
+                    <span>{t('wallet.transfer_from_wallet')}</span>
+                </button>
 
                 {/* Core History */}
                 {userId && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                    >
+                    <div className="pt-4 border-t border-gray-100">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">{t('wallet.core_history')}</h3>
                         <CoreHistory userId={userId} />
-                    </motion.div>
+                    </div>
                 )}
             </div>
         </div>
