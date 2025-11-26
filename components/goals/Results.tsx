@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, ChevronLeft, X } from 'lucide-react';
+import { X, Home, User, Star, Trophy, Package, Book } from 'lucide-react';
 import { useResults, InventorySlot } from '@/hooks/useResults';
 import { GameItem } from '@/types/supabase';
-
 
 interface ModalProps {
     open: boolean;
@@ -17,15 +16,15 @@ function Modal({ open, onClose, title, children }: ModalProps) {
     if (!open) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-            <div className="relative bg-white rounded-lg shadow-lg max-w-lg w-full overflow-hidden">
-                <div className="p-4 border-b flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">{title}</h3>
-                    <button className="p-1 rounded hover:bg-gray-100" onClick={onClose} aria-label="Close">
-                        <X className="h-5 w-5" />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="p-4 border-b flex items-center justify-between bg-gray-50/50">
+                    <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+                    <button className="p-1 rounded-full hover:bg-gray-200 transition-colors" onClick={onClose} aria-label="Close">
+                        <X className="h-5 w-5 text-gray-500" />
                     </button>
                 </div>
-                <div className="p-4">{children}</div>
+                <div className="p-4 max-h-[70vh] overflow-y-auto">{children}</div>
             </div>
         </div>
     );
@@ -40,31 +39,22 @@ export default function Results() {
     const BASE_BACKGROUNDS = gameItems.filter(i => i.type === 'base');
     const CHARACTER_BACKGROUNDS = gameItems.filter(i => i.type === 'character');
 
-    const [floaterOpen, setFloaterOpen] = useState(false);
-    const [circleSize, setCircleSize] = useState<number>(() => {
-        if (typeof window === 'undefined') return 60;
-        return Math.floor(Math.min(window.innerWidth / 12, window.innerHeight / 24));
-    });
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        const onResize = () => setCircleSize(Math.floor(Math.min(window.innerWidth, window.innerHeight) / 12));
-        window.addEventListener('resize', onResize);
-        return () => window.removeEventListener('resize', onResize);
-    }, []);
-
-    useEffect(() => {
+        setMounted(true);
         loadFromCache();
         fetchResults();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const tabs = [
-        { key: 'base', emoji: '🏡', title: 'Base' },
-        { key: 'character', emoji: '😀', title: 'Character' },
-        { key: 'reputation', emoji: '👍', title: 'Reputation' },
-        { key: 'achievements', emoji: '🏆', title: 'Achievements' },
-        { key: 'inventory', emoji: '🎒', title: 'Inventory' },
-        { key: 'knowledge', emoji: '📚', title: 'Knowledge' },
+        { key: 'base', icon: Home, title: 'Base' },
+        { key: 'character', icon: User, title: 'Character' },
+        { key: 'reputation', icon: Star, title: 'Reputation' },
+        { key: 'achievements', icon: Trophy, title: 'Achievements' },
+        { key: 'inventory', icon: Package, title: 'Inventory' },
+        { key: 'knowledge', icon: Book, title: 'Knowledge' },
     ];
 
     const [activeTab, setActiveTab] = useState<string>('achievements');
@@ -133,14 +123,16 @@ export default function Results() {
     const openAchievementModal = (a: GameItem) => {
         setModalTitle(a.title);
         setModalContent(
-            <div className="space-y-3">
+            <div className="space-y-4">
                 {typeof a.image === 'string' && /^https?:\/\//.test(a.image) ? (
-                    <img src={a.image} alt={a.title} className="w-full max-h-56 object-contain rounded" />
+                    <img src={a.image} alt={a.title} className="w-full max-h-64 object-contain rounded-lg shadow-sm" />
                 ) : (
-                    <div className="text-6xl">{a.image}</div>
+                    <div className="text-6xl text-center py-4">{a.image}</div>
                 )}
-                {a.subtitle && <p className="text-sm text-gray-600">{a.subtitle}</p>}
-                <p className="text-gray-800">{a.description}</p>
+                <div>
+                    {a.subtitle && <p className="text-sm font-medium text-blue-600 mb-1">{a.subtitle}</p>}
+                    <p className="text-gray-700 leading-relaxed">{a.description}</p>
+                </div>
             </div>
         );
         setModalOpen(true);
@@ -149,13 +141,13 @@ export default function Results() {
     const openInventoryItemModal = (item: GameItem) => {
         setModalTitle(item.title);
         setModalContent(
-            <div className="space-y-3">
+            <div className="space-y-4">
                 {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
-                    <img src={item.image} alt={item.title} className="w-full max-h-56 object-contain rounded" />
+                    <img src={item.image} alt={item.title} className="w-full max-h-64 object-contain rounded-lg shadow-sm" />
                 ) : (
-                    <div className="text-6xl">{item.image}</div>
+                    <div className="text-6xl text-center py-4">{item.image}</div>
                 )}
-                <p className="text-gray-800">{item.description}</p>
+                <p className="text-gray-700 leading-relaxed">{item.description}</p>
             </div>
         );
         setModalOpen(true);
@@ -165,7 +157,7 @@ export default function Results() {
         const availableItems = type === 'inventory' ? INVENTORY_ITEMS : KNOWLEDGE_ITEMS;
         setModalTitle(`Choose ${type === 'inventory' ? 'item' : 'knowledge'}`);
         setModalContent(
-            <div className="grid grid-cols-6 gap-2 p-2 max-h-96 overflow-y-auto">
+            <div className="grid grid-cols-5 sm:grid-cols-6 gap-3 p-1 max-h-96 overflow-y-auto">
                 {availableItems.map((item) => (
                     <button
                         key={item.id}
@@ -184,13 +176,13 @@ export default function Results() {
                             }
                             setModalOpen(false);
                         }}
-                        className="flex items-center justify-center h-10 w-10 bg-white border rounded hover:bg-gray-50"
+                        className="flex items-center justify-center aspect-square bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all"
                         title={item.title}
                     >
                         {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
-                            <img src={item.image} alt={item.title} className="w-6 h-6 object-cover rounded" />
+                            <img src={item.image} alt={item.title} className="w-8 h-8 object-cover rounded" />
                         ) : (
-                            <span className="text-lg">{item.image}</span>
+                            <span className="text-2xl">{item.image}</span>
                         )}
                     </button>
                 ))}
@@ -213,267 +205,242 @@ export default function Results() {
         }
     };
 
-    const gap = 2;
-    const totalCircles = 7;
-    const panelWidth = circleSize * totalCircles + gap * (totalCircles - 1);
-
     const unlockedAchievements = (results?.unlocked_achievements as string[]) || [];
     const selectedBaseId = results?.selected_base_id || BASE_BACKGROUNDS[0]?.id;
     const selectedCharacterId = results?.selected_character_id || CHARACTER_BACKGROUNDS[0]?.id;
     const baseIndex = BASE_BACKGROUNDS.findIndex(b => b.id === selectedBaseId);
     const characterIndex = CHARACTER_BACKGROUNDS.findIndex(c => c.id === selectedCharacterId);
 
-    // Debug logging
-    console.log('Base:', { selectedBaseId, baseIndex, background: BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0] });
-    console.log('Character:', { selectedCharacterId, characterIndex, background: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0] });
-
     return (
         <div
-            className="relative flex flex-col h-full bg-white overscroll-none touch-pan-y"
+            className="relative flex flex-col h-full bg-gray-50 overscroll-none touch-pan-y"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
-            {/* Floating top-left control */}
-            <div className="absolute top-0 left-0 z-50">
-                <div
-                    className="relative rounded-full shadow-lg overflow-hidden"
-                    style={{ width: floaterOpen ? panelWidth : circleSize, height: circleSize, transition: 'width 260ms cubic-bezier(.2,.8,.2,1)' }}
-                >
-                    <div className="absolute inset-0 rounded-full bg-black/20 backdrop-blur-md" style={{ border: '1px solid rgba(255,255,255,0.06)' }} />
-
-                    <div className="relative z-10 h-full flex items-center">
-                        <div className="relative" style={{ width: panelWidth, height: '100%' }}>
-                            {tabs.map((tab, i) => {
-                                const size = circleSize;
-                                const offset = (i + 1) * (size + gap);
-                                const leftPos = floaterOpen ? offset : 0;
-                                const style: React.CSSProperties = {
-                                    left: leftPos,
-                                    transition: 'left 240ms cubic-bezier(.2,.8,.2,1), opacity 200ms',
-                                    opacity: floaterOpen ? 1 : 0,
-                                    pointerEvents: floaterOpen ? 'auto' : 'none',
-                                    position: 'absolute',
-                                    width: size,
-                                    height: size,
-                                    borderRadius: '9999px',
-                                    boxShadow: '0 6px 18px rgba(0,0,0,0.18)',
-                                };
-                                return (
-                                    <button
-                                        key={tab.key}
-                                        style={style}
-                                        aria-label={tab.title}
-                                        title={tab.title}
-                                        className="flex items-center justify-center"
-                                        onClick={() => setActiveTab(tab.key)}
-                                    >
-                                        <div style={{ width: '100%', height: '100%', borderRadius: '9999px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: Math.max(12, Math.floor(circleSize / 2.8)), background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(220,220,220,0.15))', border: '1px solid rgba(0,0,0,0.3)' }}>
-                                            <span>{tab.emoji}</span>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-
-                            {/* Toggle button */}
-                            <button onClick={() => setFloaterOpen((v) => !v)} aria-label="Toggle floating circles" className="relative flex items-center justify-center" style={{ left: 0, position: 'absolute', width: circleSize, height: circleSize }}>
-                                <div style={{ width: '100%', height: '100%', borderRadius: '9999px', background: 'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(220,220,220,0.15))', border: '1px solid rgba(0,0,0,0.3)' }} />
-                                {floaterOpen ? (
-                                    <ChevronLeft className="absolute" style={{ width: Math.max(12, Math.floor(circleSize / 5)), height: Math.max(12, Math.floor(circleSize / 5)), color: 'white' }} />
-                                ) : (
-                                    <ChevronRight className="absolute" style={{ width: Math.max(12, Math.floor(circleSize / 5)), height: Math.max(12, Math.floor(circleSize / 5)), color: 'white' }} />
-                                )}
+            {/* Top Navigation Bar */}
+            <div
+                className={`
+                    w-full overflow-x-auto no-scrollbar py-3 px-4 z-40 bg-white/60 backdrop-blur-md border-b border-white/20
+                    transition-all duration-500 ease-out transform
+                    ${mounted ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}
+                `}
+            >
+                <div className="flex items-center justify-start sm:justify-center space-x-3 min-w-max mx-auto">
+                    {tabs.map(tab => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                className={`
+                                    flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300
+                                    ${isActive
+                                        ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30 scale-110'
+                                        : 'bg-white/50 text-gray-500 hover:bg-white hover:text-blue-500 hover:scale-105 shadow-sm'
+                                    }
+                                `}
+                                title={tab.title}
+                            >
+                                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
                             </button>
-                        </div>
-                    </div>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* Achievements */}
-            {activeTab === 'achievements' && (
-                <div className="h-full flex flex-col">
-                    <div className="p-4 flex-1 overflow-y-auto">
-                        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
-                            {ACHIEVEMENTS.map((a) => {
-                                const isUnlocked = unlockedAchievements.includes(a.id);
+            {/* Content Area */}
+            <div className="flex-1 relative overflow-hidden">
+                {/* Achievements */}
+                {activeTab === 'achievements' && (
+                    <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="p-4 flex-1 overflow-y-auto">
+                            <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+                                {ACHIEVEMENTS.map((a) => {
+                                    const isUnlocked = unlockedAchievements.includes(a.id);
+                                    return (
+                                        <button
+                                            key={a.id}
+                                            onClick={() => openAchievementModal(a)}
+                                            className={`aspect-square bg-white rounded-xl border-2 ${isUnlocked ? 'border-green-400 shadow-sm' : 'border-dashed border-gray-200 opacity-70'} hover:border-blue-300 hover:shadow-md transition-all duration-200 text-left relative overflow-hidden flex flex-col items-center justify-center p-3`}
+                                        >
+                                            {typeof a.image === 'string' && /^https?:\/\//.test(a.image) ? (
+                                                <img src={a.image} alt={a.title} className="w-12 h-12 object-cover rounded mb-2" />
+                                            ) : (
+                                                <div className="text-3xl mb-2">{a.image}</div>
+                                            )}
+                                            <div className="text-center w-full">
+                                                <div className="font-semibold text-xs sm:text-sm text-gray-800 leading-tight truncate px-1">{a.title}</div>
+                                                {a.subtitle && <div className="text-[10px] text-gray-500 mt-1 truncate px-1">{a.subtitle}</div>}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Inventory */}
+                {activeTab === 'inventory' && (
+                    <div className="h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-0.5 p-0.5">
+                            {inventorySlots.map((slot, idx) => {
+                                const item = slot ? INVENTORY_ITEMS.find(i => i.id === slot.itemId) : null;
                                 return (
-                                    <button
-                                        key={a.id}
-                                        onClick={() => openAchievementModal(a)}
-                                        className={`aspect-square bg-white rounded-lg border-2 ${isUnlocked ? 'border-green-400' : 'border-dashed border-gray-300'} hover:border-gray-400 hover:shadow-md transition-all duration-200 text-left relative overflow-hidden flex flex-col items-center justify-center p-3`}
-                                    >
-                                        {typeof a.image === 'string' && /^https?:\/\//.test(a.image) ? (
-                                            <img src={a.image} alt={a.title} className="w-12 h-12 object-cover rounded mb-2" />
+                                    <div key={idx} className="relative aspect-square">
+                                        {item ? (
+                                            <div className="w-full h-full bg-white border border-gray-100 rounded-lg relative overflow-hidden flex items-center justify-center hover:shadow-md transition-shadow group">
+                                                <div
+                                                    onClick={() => openInventoryItemModal(item)}
+                                                    className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                                                >
+                                                    {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
+                                                        <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded" />
+                                                    ) : (
+                                                        <div className="text-4xl">{item.image}</div>
+                                                    )}
+                                                </div>
+                                                <div className="absolute bottom-1 left-1 right-1 text-center text-[10px] bg-white/90 backdrop-blur-sm rounded px-1 py-0.5 truncate shadow-sm">{item.title}</div>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeItem(idx, 'inventory');
+                                                    }}
+                                                    className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    aria-label="Remove item"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
                                         ) : (
-                                            <div className="text-3xl mb-2">{a.image}</div>
+                                            <div
+                                                className="w-full h-full bg-gray-50/50 border border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-300 hover:text-blue-400 hover:border-blue-300 hover:bg-blue-50/30 cursor-pointer transition-all"
+                                                onClick={() => openItemPicker(idx, 'inventory')}
+                                            >
+                                                <span className="text-2xl font-light">+</span>
+                                            </div>
                                         )}
-                                        <div className="text-center">
-                                            <div className="font-semibold text-sm text-gray-800 leading-tight">{a.title}</div>
-                                            {a.subtitle && <div className="text-xs text-gray-600 mt-1">{a.subtitle}</div>}
-                                        </div>
-                                    </button>
+                                    </div>
                                 );
                             })}
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Inventory */}
-            {activeTab === 'inventory' && (
-                <div className="py-0 px-0 overflow-y-auto">
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-0 justify-items-stretch">
-                        {inventorySlots.map((slot, idx) => {
-                            const item = slot ? INVENTORY_ITEMS.find(i => i.id === slot.itemId) : null;
-                            return (
-                                <div key={idx} className="relative">
-                                    {item ? (
-                                        <div className="aspect-square w-full bg-white border rounded-lg relative overflow-hidden flex items-center justify-center hover:shadow-sm">
-                                            <div
-                                                onClick={() => openInventoryItemModal(item)}
-                                                className="absolute inset-0 flex items-center justify-center text-5xl leading-none select-none"
-                                            >
-                                                {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
-                                                    <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded" />
-                                                ) : (
-                                                    <div className="text-5xl">{item.image}</div>
-                                                )}
+                {/* Knowledge */}
+                {activeTab === 'knowledge' && (
+                    <div className="h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-0.5 p-0.5">
+                            {knowledgeSlots.map((slot, idx) => {
+                                const item = slot ? KNOWLEDGE_ITEMS.find(i => i.id === slot.itemId) : null;
+                                return (
+                                    <div key={idx} className="relative aspect-square">
+                                        {item ? (
+                                            <div className="w-full h-full bg-white border border-gray-100 rounded-lg relative overflow-hidden flex items-center justify-center hover:shadow-md transition-shadow group">
+                                                <div
+                                                    onClick={() => openInventoryItemModal(item)}
+                                                    className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                                                >
+                                                    {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
+                                                        <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded" />
+                                                    ) : (
+                                                        <div className="text-4xl">{item.image}</div>
+                                                    )}
+                                                </div>
+                                                <div className="absolute bottom-1 left-1 right-1 text-center text-[10px] bg-white/90 backdrop-blur-sm rounded px-1 py-0.5 truncate shadow-sm">{item.title}</div>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeItem(idx, 'knowledge');
+                                                    }}
+                                                    className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    aria-label="Remove item"
+                                                >
+                                                    <X size={12} />
+                                                </button>
                                             </div>
-                                            <div className="absolute bottom-1 left-1 right-1 text-center text-xs bg-white/70 rounded px-1 py-0.5">{item.title}</div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removeItem(idx, 'inventory');
-                                                }}
-                                                className="absolute top-1 right-1 bg-white/80 rounded-full p-0.5 text-xs hover:bg-red-100"
-                                                aria-label="Remove item"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="aspect-square w-full bg-gray-50 border rounded-lg flex items-center justify-center text-sm text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
-                                            onClick={() => openItemPicker(idx, 'inventory')}
-                                        >
-                                            +
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* Knowledge */}
-            {activeTab === 'knowledge' && (
-                <div className="py-0 px-0 overflow-y-auto">
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-0 justify-items-stretch">
-                        {knowledgeSlots.map((slot, idx) => {
-                            const item = slot ? KNOWLEDGE_ITEMS.find(i => i.id === slot.itemId) : null;
-                            return (
-                                <div key={idx} className="relative">
-                                    {item ? (
-                                        <div className="aspect-square w-full bg-white border rounded-lg relative overflow-hidden flex items-center justify-center hover:shadow-sm">
+                                        ) : (
                                             <div
-                                                onClick={() => openInventoryItemModal(item)}
-                                                className="absolute inset-0 flex items-center justify-center text-5xl leading-none select-none"
+                                                className="w-full h-full bg-gray-50/50 border border-dashed border-gray-200 rounded-lg flex items-center justify-center text-gray-300 hover:text-blue-400 hover:border-blue-300 hover:bg-blue-50/30 cursor-pointer transition-all"
+                                                onClick={() => openItemPicker(idx, 'knowledge')}
                                             >
-                                                {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
-                                                    <img src={item.image} alt={item.title} className="w-12 h-12 object-cover rounded" />
-                                                ) : (
-                                                    <div className="text-5xl">{item.image}</div>
-                                                )}
+                                                <span className="text-2xl font-light">+</span>
                                             </div>
-                                            <div className="absolute bottom-1 left-1 right-1 text-center text-xs bg-white/70 rounded px-1 py-0.5">{item.title}</div>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removeItem(idx, 'knowledge');
-                                                }}
-                                                className="absolute top-1 right-1 bg-white/80 rounded-full p-0.5 text-xs hover:bg-red-100"
-                                                aria-label="Remove item"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="aspect-square w-full bg-gray-50 border rounded-lg flex items-center justify-center text-sm text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors"
-                                            onClick={() => openItemPicker(idx, 'knowledge')}
-                                        >
-                                            +
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Base */}
-            {activeTab === 'base' && (
-                <div className="relative h-full flex w-full overflow-hidden">
-                    {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                    <div
-                        className="flex-1 relative bg-gray-200"
-                        style={{
-                            backgroundImage: BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0]?.image ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})` : 'none',
-                            backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat'
-                        }}
-                    >
-                        <button
-                            className="absolute bottom-16 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors z-10"
-                            onClick={() => {
-                                const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
-                                setBase(BASE_BACKGROUNDS[nextIndex].id);
+                {/* Base */}
+                {activeTab === 'base' && (
+                    <div className="relative h-full flex w-full overflow-hidden animate-in fade-in duration-500">
+                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
+                        <div
+                            className="flex-1 relative bg-gray-200 transition-all duration-500"
+                            style={{
+                                backgroundImage: BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0]?.image ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})` : 'none',
+                                backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat'
                             }}
                         >
-                            {(baseIndex >= 0 ? baseIndex : 0) + 1}
-                        </button>
+                            <button
+                                className="absolute bottom-8 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                onClick={() => {
+                                    const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
+                                    setBase(BASE_BACKGROUNDS[nextIndex].id);
+                                }}
+                            >
+                                {(baseIndex >= 0 ? baseIndex : 0) + 1}
+                            </button>
+                        </div>
+                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                     </div>
-                    {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                </div>
-            )}
+                )}
 
-            {/* Character */}
-            {activeTab === 'character' && (
-                <div className="relative h-full flex w-full overflow-hidden">
-                    {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                    <div
-                        className="flex-1 relative bg-gray-200"
-                        style={{
-                            backgroundImage: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0]?.image ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})` : 'none',
-                            backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat'
-                        }}
-                    >
-                        <button
-                            className="absolute bottom-16 right-4 w-16 h-16 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/50 hover:bg-black/70 transition-colors z-10"
-                            onClick={() => {
-                                const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
-                                setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
+                {/* Character */}
+                {activeTab === 'character' && (
+                    <div className="relative h-full flex w-full overflow-hidden animate-in fade-in duration-500">
+                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
+                        <div
+                            className="flex-1 relative bg-gray-200 transition-all duration-500"
+                            style={{
+                                backgroundImage: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0]?.image ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})` : 'none',
+                                backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat'
                             }}
                         >
-                            {(characterIndex >= 0 ? characterIndex : 0) + 1}
-                        </button>
+                            <button
+                                className="absolute bottom-8 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                onClick={() => {
+                                    const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
+                                    setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
+                                }}
+                            >
+                                {(characterIndex >= 0 ? characterIndex : 0) + 1}
+                            </button>
+                        </div>
+                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                     </div>
-                    {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                </div>
-            )}
+                )}
 
-            {/* Reputation placeholder */}
-            {activeTab === 'reputation' && (
-                <div className="p-4">
-                    <h2 className="text-xl font-semibold">Reputation</h2>
-                    <p className="text-gray-600 mt-2">Coming soon...</p>
-                </div>
-            )}
+                {/* Reputation placeholder */}
+                {activeTab === 'reputation' && (
+                    <div className="p-8 flex flex-col items-center justify-center h-full text-center animate-in fade-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                            <Star className="w-10 h-10 text-blue-400" />
+                        </div>
+                        <h2 className="text-xl font-semibold text-gray-800">Reputation System</h2>
+                        <p className="text-gray-500 mt-2 max-w-xs">Track your standing with different factions and characters. Coming soon!</p>
+                    </div>
+                )}
+            </div>
 
             <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={modalTitle}>
                 {modalContent}
