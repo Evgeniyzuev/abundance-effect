@@ -1,17 +1,19 @@
 'use client';
 
 import { createClient } from '@/utils/supabase/client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useReferral } from '@/hooks/useReferral';
 
-export default function LoginPage() {
+function LoginContent() {
     const supabase = createClient();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const telegramWrapperRef = useRef<HTMLDivElement>(null);
     const { t } = useLanguage();
+    const referralCode = useReferral();
 
     useEffect(() => {
         // Check if already logged in
@@ -29,10 +31,16 @@ export default function LoginPage() {
         // Handle Telegram Widget callback
         const handleTelegramAuth = async (user: any) => {
             try {
+                // Add referrer_id to the request if available
+                const payload = { ...user };
+                if (referralCode) {
+                    payload.referrer_id = referralCode;
+                }
+
                 const response = await fetch('/api/auth/telegram-widget', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(user),
+                    body: JSON.stringify(payload),
                 });
 
                 const result = await response.json();
@@ -105,7 +113,7 @@ export default function LoginPage() {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider,
                 options: {
-                    redirectTo: `${origin}/auth/callback`,
+                    redirectTo: `${origin}/auth/callback${referralCode ? `?ref=${referralCode}` : ''}`,
                 },
             });
             if (error) throw error;
@@ -271,5 +279,13 @@ export default function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+            <LoginContent />
+        </Suspense>
     );
 }

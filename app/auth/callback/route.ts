@@ -5,11 +5,22 @@ export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
     const next = searchParams.get('next') ?? '/'
+    const ref = searchParams.get('ref')
 
     if (code) {
         const supabase = await createClient()
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
-        if (!error) {
+        const { error, data } = await supabase.auth.exchangeCodeForSession(code)
+        if (!error && data.user) {
+            // If there's a referral code, update the user's metadata
+            if (ref) {
+                const { error: updateError } = await supabase.auth.updateUser({
+                    data: { referrer_id: ref }
+                })
+                if (updateError) {
+                    console.error('Error updating referrer_id:', updateError)
+                }
+            }
+
             const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
             const isLocalEnv = process.env.NODE_ENV === 'development'
             if (isLocalEnv) {

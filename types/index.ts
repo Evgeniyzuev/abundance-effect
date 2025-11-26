@@ -11,5 +11,5 @@ export type DbUser = {
     aicore_balance: number;
     level: number;
     reinvest_setup: number;
-    referrer_id: number | null;
+    referrer_id: string | null;
 };

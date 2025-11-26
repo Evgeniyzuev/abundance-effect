@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, first_name, last_name, username, photo_url, auth_date, hash } = body;
+        const { id, first_name, last_name, username, photo_url, auth_date, hash, referrer_id } = body;
 
         if (!id || !hash) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         // Create data check string
         const dataCheckArr = [];
         for (const [key, value] of Object.entries(body)) {
-            if (key !== 'hash' && value) {
+            if (key !== 'hash' && key !== 'referrer_id' && value) {
                 dataCheckArr.push(`${key}=${value}`);
             }
         }
@@ -85,7 +85,8 @@ export async function POST(request: Request) {
                     username,
                     first_name,
                     last_name,
-                    avatar_url: photo_url
+                    avatar_url: photo_url,
+                    referrer_id: referrer_id || null
                 }
             });
             if (error) throw error;
@@ -116,7 +117,8 @@ export async function POST(request: Request) {
                         username,
                         first_name,
                         last_name,
-                        avatar_url: photo_url
+                        avatar_url: photo_url,
+                        // Don't update referrer_id on recovery/login if already exists, but here we assume recovery
                     }
                 });
 
@@ -151,7 +153,8 @@ export async function POST(request: Request) {
                     first_name,
                     last_name,
                     avatar_url: photo_url,
-                    email: email
+                    email: email,
+                    referrer_id: referrer_id || null
                 })
                 .select()
                 .single();

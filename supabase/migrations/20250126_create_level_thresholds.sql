@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.level_thresholds (
 ALTER TABLE public.level_thresholds ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Everyone can read level thresholds
+DROP POLICY IF EXISTS "Level thresholds are viewable by everyone" ON public.level_thresholds;
 CREATE POLICY "Level thresholds are viewable by everyone"
     ON public.level_thresholds
     FOR SELECT
@@ -73,6 +74,8 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+
+DROP TRIGGER IF EXISTS update_level_thresholds_updated_at ON public.level_thresholds;
 CREATE TRIGGER update_level_thresholds_updated_at 
     BEFORE UPDATE ON public.level_thresholds 
     FOR EACH ROW 
