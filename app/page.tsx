@@ -59,7 +59,7 @@ export default function Home() {
           Abundance Effect
         </h1>
         <p className="text-ios-secondary text-center mb-10 max-w-md text-lg leading-relaxed">
-          Journey to Abundance.
+          Journey to Abundance!
           <br />
           From 0 to $1M in 20 levels🚀
         </p>
