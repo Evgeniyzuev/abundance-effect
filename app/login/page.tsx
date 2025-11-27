@@ -141,7 +141,7 @@ function LoginContent() {
             const { error } = await supabase.auth.signInWithOtp({
                 email,
                 options: {
-                    emailRedirectTo: `${origin}/auth/callback`,
+                    emailRedirectTo: `${origin}/auth/callback${referralCode ? `?ref=${referralCode}` : ''}`,
                 },
             });
             if (error) throw error;

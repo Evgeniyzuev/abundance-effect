@@ -11,13 +11,25 @@ export async function GET(request: Request) {
         const supabase = await createClient()
         const { error, data } = await supabase.auth.exchangeCodeForSession(code)
         if (!error && data.user) {
-            // If there's a referral code, update the user's metadata
+            // If there's a referral code, update both metadata and public.users table
             if (ref) {
+                // Update auth metadata
                 const { error: updateError } = await supabase.auth.updateUser({
                     data: { referrer_id: ref }
                 })
                 if (updateError) {
-                    console.error('Error updating referrer_id:', updateError)
+                    console.error('Error updating referrer_id in metadata:', updateError)
+                }
+
+                // Update public.users table directly (only if referrer_id is not already set)
+                const { error: dbError } = await supabase
+                    .from('users')
+                    .update({ referrer_id: ref })
+                    .eq('id', data.user.id)
+                    .is('referrer_id', null)
+
+                if (dbError) {
+                    console.error('Error updating referrer_id in public.users:', dbError)
                 }
             }
 
