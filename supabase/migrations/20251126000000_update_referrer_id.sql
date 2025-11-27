@@ -8,16 +8,18 @@ ADD CONSTRAINT users_referrer_id_fkey
 FOREIGN KEY (referrer_id)
 REFERENCES public.users(id);
 
--- Update handle_new_user function to include referrer_id
+-- Update handle_new_user function to include referrer_id and other missing fields
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.users (id, first_name, avatar_url, username, referrer_id)
+  INSERT INTO public.users (id, first_name, last_name, avatar_url, username, telegram_id, referrer_id)
   VALUES (
     new.id,
-    new.raw_user_meta_data->>'full_name',
+    COALESCE(new.raw_user_meta_data->>'first_name', new.raw_user_meta_data->>'full_name'),
+    new.raw_user_meta_data->>'last_name',
     new.raw_user_meta_data->>'avatar_url',
-    new.raw_user_meta_data->>'user_name',
+    COALESCE(new.raw_user_meta_data->>'username', new.raw_user_meta_data->>'user_name'),
+    (new.raw_user_meta_data->>'telegram_id')::bigint,
     CASE 
       WHEN new.raw_user_meta_data->>'referrer_id' IS NOT NULL AND new.raw_user_meta_data->>'referrer_id' != '' 
       THEN (new.raw_user_meta_data->>'referrer_id')::uuid 
