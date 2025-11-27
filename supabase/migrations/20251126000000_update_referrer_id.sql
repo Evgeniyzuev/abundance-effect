@@ -1,12 +1,34 @@
--- Change referrer_id to uuid to support all users (not just Telegram)
-ALTER TABLE public.users
-ALTER COLUMN referrer_id TYPE uuid USING referrer_id::text::uuid;
+-- Change referrer_id to uuid if it's not already
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name = 'users'
+        AND column_name = 'referrer_id'
+        AND data_type != 'uuid'
+    ) THEN
+        ALTER TABLE public.users
+        ALTER COLUMN referrer_id TYPE uuid USING referrer_id::text::uuid;
+    END IF;
+END $$;
 
--- Add foreign key constraint
-ALTER TABLE public.users
-ADD CONSTRAINT users_referrer_id_fkey
-FOREIGN KEY (referrer_id)
-REFERENCES public.users(id);
+-- Add foreign key constraint if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.table_constraints
+        WHERE constraint_name = 'users_referrer_id_fkey'
+        AND table_name = 'users'
+    ) THEN
+        ALTER TABLE public.users
+        ADD CONSTRAINT users_referrer_id_fkey
+        FOREIGN KEY (referrer_id)
+        REFERENCES public.users(id);
+    END IF;
+END $$;
 
 -- Update handle_new_user function to include referrer_id and other missing fields
 CREATE OR REPLACE FUNCTION public.handle_new_user()
