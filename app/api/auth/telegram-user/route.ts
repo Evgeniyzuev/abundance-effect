@@ -13,13 +13,6 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { telegramUser, initData } = body;
 
-        console.log('📡 Incoming Telegram auth data:', {
-            telegramUser: telegramUser,
-            initDataLength: initData?.length || 0,
-            photo_url: telegramUser?.photo_url,
-            allFields: Object.keys(telegramUser || {})
-        });
-
         if (!telegramUser?.id) {
             return NextResponse.json({ error: 'Missing Telegram user data' }, { status: 400 });
         }

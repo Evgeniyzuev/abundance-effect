@@ -32,31 +32,12 @@ create policy "Public profiles are viewable by everyone" on public.users
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  -- Extract data from raw_user_meta_data (Google OAuth format) or user_metadata (custom auth)
-  -- Google format: full_name, avatar_url, user_name
-  -- Telegram format: first_name, last_name, username, avatar_url, telegram_id
-  insert into public.users (id, telegram_id, username, first_name, last_name, avatar_url)
+  insert into public.users (id, first_name, avatar_url, username)
   values (
     new.id,
-    (new.raw_user_meta_data->>'telegram_id')::bigint,
-    coalesce(
-      new.raw_user_meta_data->>'username',
-      new.user_metadata->>'username',
-      new.raw_user_meta_data->>'user_name'
-    ),
-    coalesce(
-      new.raw_user_meta_data->>'first_name',
-      new.user_metadata->>'first_name',
-      new.raw_user_meta_data->>'full_name'
-    ),
-    coalesce(
-      new.raw_user_meta_data->>'last_name',
-      new.user_metadata->>'last_name'
-    ),
-    coalesce(
-      new.raw_user_meta_data->>'avatar_url',
-      new.user_metadata->>'avatar_url'
-    )
+    new.raw_user_meta_data->>'full_name',
+    new.raw_user_meta_data->>'avatar_url',
+    new.raw_user_meta_data->>'user_name'
   );
   return new;
 end;

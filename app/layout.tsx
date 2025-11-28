@@ -43,28 +43,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            // Force load Telegram Web App SDK immediately
-            (function() {
-              if (!window.Telegram) {
-                console.log('🔧 Loading Telegram SDK immediately...');
-                var script = document.createElement('script');
-                script.src = 'https://telegram.org/js/telegram-web-app.js';
-                script.async = false; // Synchronous load
-                script.onerror = function() {
-                  console.error('❌ Failed to load Telegram SDK');
-                };
-                script.onload = function() {
-                  console.log('✅ Telegram SDK loaded successfully');
-                };
-                document.head.appendChild(script);
-              } else {
-                console.log('ℹ️ Telegram SDK already loaded');
-              }
-            })();
-          `
-        }} />
+        <script src="https://telegram.org/js/telegram-web-app.js" async></script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
