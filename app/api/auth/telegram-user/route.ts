@@ -13,43 +13,8 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { telegramUser, initData } = body;
 
-        if (!telegramUser?.id || !initData) {
-            return NextResponse.json({ error: 'Missing Telegram user data or initData' }, { status: 400 });
-        }
-
-        // Verify Telegram WebApp initData
-        const botToken = process.env.TELEGRAM_BOT_TOKEN;
-        if (!botToken) {
-            return NextResponse.json({ error: 'Bot token not configured' }, { status: 500 });
-        }
-
-        // Parse initData
-        const initDataObj: any = {};
-        const params = new URLSearchParams(initData);
-        for (const [key, value] of params) {
-            initDataObj[key] = value;
-        }
-
-        const { hash } = initDataObj;
-        if (!hash) {
-            return NextResponse.json({ error: 'Invalid initData' }, { status: 400 });
-        }
-
-        // Create data check string
-        const dataCheckArr = [];
-        for (const [key, value] of Object.entries(initDataObj)) {
-            if (key !== 'hash' && value) {
-                dataCheckArr.push(`${key}=${value}`);
-            }
-        }
-        const dataCheckString = dataCheckArr.sort().join('\n');
-
-        // Verify hash
-        const secretKey = crypto.createHash('sha256').update(botToken).digest();
-        const hmac = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
-
-        if (hmac !== hash) {
-            return NextResponse.json({ error: 'Invalid hash' }, { status: 403 });
+        if (!telegramUser?.id) {
+            return NextResponse.json({ error: 'Missing Telegram user data' }, { status: 400 });
         }
 
         const telegramId = telegramUser.id;
