@@ -10,6 +10,7 @@ type UserContextType = {
     user: DbUser | null
     session: Session | null
     isLoading: boolean
+    isTelegramAuthenticating: boolean
     refreshUser: () => Promise<void>
     logout: () => Promise<void>
 }
@@ -20,6 +21,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<DbUser | null>(null)
     const [session, setSession] = useState<Session | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [isTelegramAuthenticating, setIsTelegramAuthenticating] = useState(false)
     const supabase = createClient()
 
     // Save user to cache
@@ -121,34 +123,30 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const init = async () => {
-            // Step 1: Load from cache immediately for instant UI
-            const cachedUser = loadUserFromCache();
-            if (cachedUser) {
-                console.log('Loaded user from cache:', cachedUser);
-                setUser(cachedUser);
-                setIsLoading(false); // Show UI immediately
-            }
+            console.log('🔄 Starting auth initialization...');
 
-            try {
-                // Step 2: Check if we're in Telegram WebApp
-                if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
-                    const webApp = (window as any).Telegram.WebApp;
-                    webApp.ready();
+            // Step 1: Check if we're in Telegram WebApp FIRST
+            let isInTelegram = false;
+            if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+                const webApp = (window as any).Telegram.WebApp;
+                webApp.ready();
 
-                    const tgUser = webApp.initDataUnsafe?.user;
+                const tgUser = webApp.initDataUnsafe?.user;
+                isInTelegram = !!tgUser;
 
-                    if (tgUser) {
-                        console.log('Telegram user detected:', tgUser);
+                console.log('📱 Telegram WebApp check:', {
+                    hasWebApp: !!webApp,
+                    hasUser: !!tgUser,
+                    user: tgUser,
+                    initData: webApp.initData?.substring(0, 50) + '...'
+                });
 
-                        // Save Telegram init data to cache
-                        const tgCache: TelegramInitDataCache = {
-                            initData: webApp.initData,
-                            user: tgUser,
-                            cached_at: Date.now(),
-                        };
-                        storage.set(STORAGE_KEYS.TELEGRAM_INIT_DATA, tgCache);
+                if (tgUser) {
+                    console.log('🎯 Telegram user detected, starting authentication...');
+                    setIsTelegramAuthenticating(true);
 
-                        // Try to authenticate via our API
+                    // Try to authenticate via our API
+                    try {
                         const response = await fetch('/api/auth/telegram-user', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -159,53 +157,82 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         });
 
                         const result = await response.json();
+                        console.log('📡 Telegram API response:', result);
 
                         if (result.success && result.password) {
+                            console.log('🔐 Attempting Supabase sign in...');
                             // Sign in to Supabase
-                            const { error } = await supabase.auth.signInWithPassword({
+                            const { data, error } = await supabase.auth.signInWithPassword({
                                 email: `telegram_${tgUser.id}@abundance-effect.app`,
                                 password: result.password,
                             });
 
                             if (error) {
-                                console.error('Error signing in with Telegram:', error);
-                                // Clear cache on auth error
-                                storage.clearAuthCache();
-                                setUser(null);
+                                console.error('❌ Error signing in with Telegram:', error);
+                            } else {
+                                console.log('✅ Successfully signed in to Supabase:', data);
+                                // User will be set via auth state change listener
                             }
+                        } else {
+                            console.error('❌ Telegram auth failed:', result);
                         }
+                    } catch (apiError) {
+                        console.error('❌ API call error:', apiError);
+                    } finally {
+                        setIsTelegramAuthenticating(false);
                     }
+                } else {
+                    console.log('⚠️ No Telegram user data found');
                 }
+            } else {
+                console.log('🌐 Not in Telegram WebApp environment');
+            }
 
-                // Step 3: Check normal session (this runs in background if cache was loaded)
+            // Step 2: Load from cache (but not if we're in Telegram first time)
+            if (!isInTelegram) {
+                const cachedUser = loadUserFromCache();
+                if (cachedUser) {
+                    console.log('💾 Loaded user from cache:', cachedUser);
+                    setUser(cachedUser);
+                    setIsLoading(false);
+                    return; // Don't continue if cache loaded and not in Telegram
+                }
+            }
+
+            try {
+                // Step 3: Check normal session
+                console.log('🔍 Checking Supabase session...');
                 const { data: { session: currentSession } } = await supabase.auth.getSession()
+                console.log('📋 Session result:', currentSession ? 'exists' : 'none');
                 setSession(currentSession)
 
                 if (currentSession?.user) {
+                    console.log('👤 Session user found, fetching DB user...');
                     const dbUser = await fetchDbUser(currentSession.user.id)
                     if (dbUser) {
+                        console.log('✅ DB user loaded:', dbUser);
                         setUser(dbUser)
                         saveUserToCache(dbUser)
                     } else {
-                        // Auth session exists but no DB user - clear cache
+                        console.log('⚠️ Session exists but no DB user');
                         storage.clearAuthCache();
                         setUser(null);
                     }
                 } else {
-                    // No session - clear cache if it exists
+                    console.log('🚪 No session, clearing cache if exists');
+                    const cachedUser = loadUserFromCache();
                     if (cachedUser) {
-                        console.log('No session found, clearing cache');
                         storage.clearAuthCache();
                         setUser(null);
                     }
                 }
             } catch (error) {
-                console.error('Error initializing auth:', error)
-                // Clear cache on error
+                console.error('❌ Error initializing auth:', error)
                 storage.clearAuthCache();
                 setUser(null);
             } finally {
                 setIsLoading(false)
+                console.log('🏁 Auth initialization complete');
             }
 
             const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession: Session | null) => {
@@ -238,7 +265,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     return (
-        <UserContext.Provider value={{ user, session, isLoading, refreshUser, logout }}>
+        <UserContext.Provider value={{ user, session, isLoading, isTelegramAuthenticating, refreshUser, logout }}>
             {children}
         </UserContext.Provider>
     )
