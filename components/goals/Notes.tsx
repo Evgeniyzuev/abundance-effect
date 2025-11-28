@@ -121,13 +121,13 @@ export default function Notes() {
 
     const handleDeleteNote = async (noteId: string) => {
         if (confirm(t('notes.confirm_delete_note') || 'Delete this note?')) {
-            await deleteNote(noteId);
             if (editingNoteId === noteId) {
                 setEditingNoteId(null);
             }
             if (showNoteDetails === noteId) {
                 setShowNoteDetails(null);
             }
+            await deleteNote(noteId);
         }
     };
 
