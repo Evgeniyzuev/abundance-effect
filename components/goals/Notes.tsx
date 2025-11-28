@@ -73,7 +73,7 @@ export default function Notes() {
         }
     };
 
-    const handleAddNote = async () => {
+    const handleAddNote = () => {
         if (!user) return;
         let scheduledDate = null;
         let listId = null;
@@ -94,7 +94,7 @@ export default function Notes() {
             setViewMode('notes');
         }
 
-        await addNote(newNote, {
+        addNote(newNote, {
             onOptimisticAdd: (note) => {
                 setEditingNoteId(note.id);
                 setEditingNoteText('');

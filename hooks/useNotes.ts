@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useOptimistic } from 'react';
 import { useUser } from '@/context/UserContext';
 import { UserNote, CustomList } from '@/types/supabase';
 import { logger } from '@/utils/logger';
@@ -13,6 +13,18 @@ import {
     updateListAction,
     deleteListAction
 } from '@/app/actions/notes';
+
+type OptimisticNoteAction =
+    | { type: 'add'; item: UserNote }
+    | { type: 'update'; id: string; updates: Partial<UserNote> }
+    | { type: 'delete'; id: string }
+    | { type: 'revert delete'; item: UserNote };
+
+type OptimisticListAction =
+    | { type: 'add'; item: CustomList }
+    | { type: 'update'; id: string; updates: Partial<CustomList> }
+    | { type: 'delete'; id: string }
+    | { type: 'revert delete'; item: CustomList };
 
 export function useNotes() {
     const { user } = useUser();
@@ -43,6 +55,36 @@ export function useNotes() {
 
     const notes = data.notes;
     const customLists = data.lists;
+
+    const [optimisticNotes, addOptimisticNote] = useOptimistic<UserNote[], OptimisticNoteAction>(notes, (prevNotes, action) => {
+        switch (action.type) {
+            case 'add':
+                return [action.item, ...prevNotes];
+            case 'update':
+                return prevNotes.map(note => note.id === action.id ? { ...note, ...action.updates } : note);
+            case 'delete':
+                return prevNotes.filter(note => note.id !== action.id);
+            case 'revert delete':
+                return [action.item, ...prevNotes];
+            default:
+                return prevNotes;
+        }
+    });
+
+    const [optimisticLists, addOptimisticList] = useOptimistic<CustomList[], OptimisticListAction>(customLists, (prevLists, action) => {
+        switch (action.type) {
+            case 'add':
+                return [...prevLists, action.item];
+            case 'update':
+                return prevLists.map(list => list.id === action.id ? { ...list, ...action.updates } : list);
+            case 'delete':
+                return prevLists.filter(list => list.id !== action.id);
+            case 'revert delete':
+                return [...prevLists, action.item];
+            default:
+                return prevLists;
+        }
+    });
 
     const addNote = useCallback(async (note: Partial<UserNote>, callbacks?: { onOptimisticAdd?: (note: UserNote) => void, onIdChange?: (oldId: string, newId: string) => void }) => {
         // Optimistic update
@@ -196,8 +238,8 @@ export function useNotes() {
     }, [data, setData]);
 
     return {
-        notes,
-        customLists,
+        notes: optimisticNotes,
+        customLists: optimisticLists,
         loading: false,
         loadFromCache: () => { }, // No-op
         fetchNotes,
