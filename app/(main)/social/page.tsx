@@ -46,7 +46,7 @@ export default function SocialPage() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white pb-20">
+        <div className="flex flex-col h-full bg-white">
             {/* Header */}
             <div className="px-6 pt-12 pb-6">
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{t('profile.title')}</h1>
