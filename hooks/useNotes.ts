@@ -27,8 +27,8 @@ export function useNotes() {
     const loadFromCache = useCallback(() => {
         const cached = storage.get<NotesCache>(STORAGE_KEYS.NOTES_CACHE);
         if (cached) {
-            setNotes(cached.notes);
-            setCustomLists(cached.lists);
+            setNotes(cached.notes || []);
+            setCustomLists(cached.lists || []);
             return true;
         }
         return false;
