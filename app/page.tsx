@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
-  const { user, isLoading, isTelegramAuthenticating, logout } = useUser();
+  const { user, isLoading, logout } = useUser();
   const router = useRouter();
   const [isTelegramMiniApp, setIsTelegramMiniApp] = useState(false);
 
@@ -16,19 +16,12 @@ export default function Home() {
     if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
       const webApp = (window as any).Telegram.WebApp;
       const tgUser = webApp.initDataUnsafe?.user;
-      console.log('📱 Main page: Telegram check:', {
-        hasWebApp: !!webApp,
-        hasUser: !!tgUser,
-        user: tgUser
-      });
       if (tgUser) {
-        setIsTelegramMiniApp(true);
-        console.log('✅ Telegram Mini App detected');
-      } else {
-        console.log('❌ No Telegram user found');
+        setIsTelegramMiniApp(prev => {
+          if (!prev) return true;
+          return prev;
+        });
       }
-    } else {
-      console.log('🌐 Main page: Regular web environment');
     }
   }, []);
 
@@ -44,7 +37,7 @@ export default function Home() {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || isTelegramAuthenticating) {
+  if (isLoading) {
     // Show loading state while UserContext is initializing (including Telegram auth)
     return (
       <div className="flex h-screen w-full items-center justify-center bg-ios-background">
@@ -59,31 +52,7 @@ export default function Home() {
   }
 
   if (!user) {
-    // User is not logged in - show welcome screen ONLY if not in Telegram Mini App
-    if (isTelegramMiniApp) {
-      // In Telegram Mini App, we should never show login button - auth should happen automatically
-      // If we get here, it means auth failed - show error or try again
-      return (
-        <div className="flex h-screen w-full flex-col items-center justify-center bg-ios-background px-6">
-          <div className="text-center">
-            <div className="text-ios-primary text-xl mb-4 font-medium">
-              Ошибка авторизации
-            </div>
-            <div className="text-ios-secondary text-lg mb-6">
-              Попробуйте перезапустить приложение
-            </div>
-            <button
-              onClick={() => window.location.reload()}
-              className="ios-btn text-lg px-8 py-4 shadow-lg shadow-blue-500/30"
-            >
-              Попробовать снова
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    // Regular web environment - show welcome screen
+    // User is not logged in and NOT in Telegram Mini App - show welcome screen
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-ios-background px-6">
         <h1 className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-5xl font-bold text-transparent mb-6 text-center tracking-tight">
