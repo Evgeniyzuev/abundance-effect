@@ -1,10 +1,14 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-export default async function AuthErrorPage({
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function AuthErrorPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const router = useRouter();
   const error = searchParams.error as string;
   const errorCode = searchParams.error_code as string;
   const errorDescription = searchParams.error_description as string;
@@ -37,7 +41,7 @@ export default async function AuthErrorPage({
           )}
 
           <button
-            onClick={() => redirect('/login')}
+            onClick={() => router.push('/login')}
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
           >
             Try Again
