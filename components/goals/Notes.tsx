@@ -78,7 +78,7 @@ export default function Notes() {
         let scheduledDate = null;
         let listId = null;
         if (currentListType === 'today') {
-            scheduledDate = new Date().toISOString().split('T')[0];
+            scheduledDate = new Date().toLocaleDateString('en-CA');
         } else if (currentListType.startsWith('custom-')) {
             listId = currentListType.replace('custom-', '');
         }
@@ -173,7 +173,7 @@ export default function Notes() {
     const filteredNotes = notes.filter(note => {
         if (currentListType === 'all') return !note.is_completed && !note.list_id;
         if (currentListType === 'today') {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toLocaleDateString('en-CA');
             return !note.is_completed && note.scheduled_date === today;
         }
         if (currentListType === 'planned') return !note.is_completed && note.scheduled_date;
@@ -214,7 +214,7 @@ export default function Notes() {
     const getCount = (type: ListType) => {
         if (type === 'all') return notes.filter(n => !n.is_completed && !n.list_id).length;
         if (type === 'today') {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Date().toLocaleDateString('en-CA');
             return notes.filter(n => !n.is_completed && n.scheduled_date === today).length;
         }
         if (type === 'planned') return notes.filter(n => !n.is_completed && n.scheduled_date).length;
