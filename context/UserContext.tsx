@@ -125,64 +125,85 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const init = async () => {
             console.log('🔄 Starting auth initialization...');
 
-            // Step 1: Check if we're in Telegram WebApp FIRST
-            let isInTelegram = false;
-            if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
-                const webApp = (window as any).Telegram.WebApp;
-                webApp.ready();
+            // Step 1: Enhanced Telegram WebApp check with retries for desktop app
+            const checkTelegramWithRetries = async (retries = 10): Promise<boolean> => {
+                for (let i = 0; i < retries; i++) {
+                    if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+                        const webApp = (window as any).Telegram.WebApp;
 
-                const tgUser = webApp.initDataUnsafe?.user;
-                isInTelegram = !!tgUser;
+                        // Call ready multiple times to ensure proper initialization
+                        try {
+                            webApp.ready();
+                        } catch (e) {
+                            console.log(`⚠️ Telegram WebApp ready() failed (attempt ${i + 1}):`, e);
+                        }
 
-                console.log('📱 Telegram WebApp check:', {
-                    hasWebApp: !!webApp,
-                    hasUser: !!tgUser,
-                    user: tgUser,
-                    initData: webApp.initData?.substring(0, 50) + '...'
-                });
+                        const tgUser = webApp.initDataUnsafe?.user;
 
-                if (tgUser) {
-                    console.log('🎯 Telegram user detected, starting authentication...');
-                    setIsTelegramAuthenticating(true);
-
-                    // Try to authenticate via our API
-                    try {
-                        const response = await fetch('/api/auth/telegram-user', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                telegramUser: tgUser,
-                                initData: webApp.initData,
-                            }),
+                        console.log(`📱 Telegram WebApp check (${i + 1}/${retries}):`, {
+                            hasWebApp: !!webApp,
+                            hasUser: !!tgUser,
+                            user: tgUser?.id || 'no user',
+                            initData: webApp.initData?.length || 0,
+                            platform: webApp.platform || 'unknown'
                         });
 
-                        const result = await response.json();
-                        console.log('📡 Telegram API response:', result);
-
-                        if (result.success && result.password) {
-                            console.log('🔐 Attempting Supabase sign in...');
-                            // Sign in to Supabase
-                            const { data, error } = await supabase.auth.signInWithPassword({
-                                email: `telegram_${tgUser.id}@abundance-effect.app`,
-                                password: result.password,
-                            });
-
-                            if (error) {
-                                console.error('❌ Error signing in with Telegram:', error);
-                            } else {
-                                console.log('✅ Successfully signed in to Supabase:', data);
-                                // User will be set via auth state change listener
-                            }
-                        } else {
-                            console.error('❌ Telegram auth failed:', result);
+                        if (tgUser && tgUser.id) {
+                            console.log('🎯 Telegram user detected, starting authentication...');
+                            return true;
+                        } else if (i === retries - 1) {
+                            console.log('⚠️ No Telegram user data found after all retries');
                         }
-                    } catch (apiError) {
-                        console.error('❌ API call error:', apiError);
-                    } finally {
-                        setIsTelegramAuthenticating(false);
+                    } else {
+                        console.log(`🔄 Waiting for Telegram SDK... (${i + 1}/${retries})`);
                     }
-                } else {
-                    console.log('⚠️ No Telegram user data found');
+
+                    // Wait before next check, with increasing delay
+                    await new Promise(resolve => setTimeout(resolve, 200 + (i * 50)));
+                }
+                return false;
+            };
+
+            const isInTelegram = await checkTelegramWithRetries();
+
+            if (isInTelegram) {
+                setIsTelegramAuthenticating(true);
+
+                const webApp = (window as any).Telegram.WebApp;
+                const tgUser = webApp.initDataUnsafe?.user;
+
+                try {
+                    const response = await fetch('/api/auth/telegram-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            telegramUser: tgUser,
+                            initData: webApp.initData,
+                        }),
+                    });
+
+                    const result = await response.json();
+                    console.log('📡 Telegram API response:', result);
+
+                    if (result.success && result.password) {
+                        console.log('🔐 Attempting Supabase sign in...');
+                        const { data, error } = await supabase.auth.signInWithPassword({
+                            email: `telegram_${tgUser.id}@abundance-effect.app`,
+                            password: result.password,
+                        });
+
+                        if (error) {
+                            console.error('❌ Error signing in with Telegram:', error);
+                        } else {
+                            console.log('✅ Successfully signed in to Supabase:', data);
+                        }
+                    } else {
+                        console.error('❌ Telegram auth failed:', result);
+                    }
+                } catch (apiError) {
+                    console.error('❌ API call error:', apiError);
+                } finally {
+                    setIsTelegramAuthenticating(false);
                 }
             } else {
                 console.log('🌐 Not in Telegram WebApp environment');
