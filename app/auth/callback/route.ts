@@ -7,9 +7,12 @@ export async function GET(request: Request) {
     const next = searchParams.get('next') ?? '/'
     const ref = searchParams.get('ref')
 
+    let error: any;
+
     if (code) {
         const supabase = await createClient()
-        const { error, data } = await supabase.auth.exchangeCodeForSession(code)
+        const { error: exchangeError, data } = await supabase.auth.exchangeCodeForSession(code)
+        error = exchangeError;
         if (!error && data.user) {
             // If there's a referral code, update both metadata and public.users table
             if (ref) {
@@ -47,5 +50,7 @@ export async function GET(request: Request) {
     }
 
     // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+    const errorMessage = error?.message || 'Authentication failed';
+    const errorUrl = `${origin}/auth/auth-code-error?error=server_error&error_code=unexpected_failure&error_description=${encodeURIComponent(errorMessage)}`;
+    return NextResponse.redirect(errorUrl)
 }
