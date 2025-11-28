@@ -130,15 +130,41 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             }
 
             try {
-                // Step 2: Check if we're in Telegram WebApp
-                if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
-                    const webApp = (window as any).Telegram.WebApp;
-                    webApp.ready();
+            // Step 2: Check if we're in Telegram WebApp
+            // We use a small polling mechanism to handle potential race conditions where the script might not be fully ready
+            const getTelegramWebApp = async () => {
+                if (typeof window === 'undefined') return null;
 
-                    const tgUser = webApp.initDataUnsafe?.user;
+                // Helper to check existence
+                const getWebApp = () => (window as any).Telegram?.WebApp;
 
-                    if (tgUser) {
-                        console.log('Telegram user detected:', tgUser);
+                let webApp = getWebApp();
+                if (webApp) return webApp;
+
+                // If not found immediately, check if we should wait (heuristic: User Agent or hash)
+                const isTelegramEnv = window.navigator.userAgent.includes('Telegram') || 
+                                     window.location.hash.includes('tgWebAppData');
+                
+                if (isTelegramEnv) {
+                    console.log('Telegram environment detected but WebApp object missing. Polling...');
+                    for (let i = 0; i < 20; i++) { // Wait up to 2 seconds
+                        await new Promise(r => setTimeout(r, 100));
+                        webApp = getWebApp();
+                        if (webApp) return webApp;
+                    }
+                }
+                
+                return null;
+            };
+
+            const webApp = await getTelegramWebApp();
+
+            if (webApp) {
+                webApp.ready();
+                const tgUser = webApp.initDataUnsafe?.user;
+
+                if (tgUser) {
+                    console.log('Telegram user detected:', tgUser);
 
                         // Save Telegram init data to cache
                         const tgCache: TelegramInitDataCache = {
