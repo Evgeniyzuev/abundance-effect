@@ -66,21 +66,22 @@ export default function ChallengesPage() {
         return (
             <div className="ios-card p-3 mb-2 relative">
                 {/* Challenge image - positioned absolutely to be full height and extend outside padding */}
-                <div className="absolute left-0 top-0 bottom-0 flex items-center pl-3">
+                <div className="absolute left-0 top-0 bottom-0 flex items-center">
                     {challenge.image_url ? (
                         <img
                             src={challenge.image_url}
                             alt={getChallengeTitle(challenge, 'en')}
-                            className="w-14 h-full rounded-lg object-cover bg-gray-100"
+                            className="w-16 h-full rounded-lg object-cover bg-gray-100 ml-2"
                         />
                     ) : (
-                        <div className="w-14 h-full rounded-lg bg-gray-200 flex items-center justify-center">
+                        <div className="w-16 h-full rounded-lg bg-gray-200 flex items-center justify-center ml-2">
                             <Trophy className="w-7 h-7 text-gray-400" />
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 ml-17">
+                <div className="flex items-center gap-3 ml-20">
+                    {/* Main content */}
 
                     {/* Main content */}
                     <div className="flex-1 min-w-0">
