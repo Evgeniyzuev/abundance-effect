@@ -198,7 +198,7 @@ INSERT INTO public.challenges (
   'auto',
   '{
     "type": "script",
-    "function": "async ({ userId, supabase, challengeData }) => { try { const { data, error } = await supabase.from(''user_wishes'').select(''count'').eq(''user_id'', userId); if (error || !data || !data.length) { return false; } const count = data[0].count; return count > 0; } catch (e) { return false; } }"
+    "function": "async ({ userId, supabase, challengeData }) => { try { const adminSupabase = globalThis.createClient({ supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY }); const { count, error } = await adminSupabase.from(''user_wishes'').select(''*'', { count: ''exact'', head: true }).eq(''user_id'', userId); return !error && count > 0; } catch (e) { console.error(''Challenge verification error:'', e); return false; } }"
   }'::jsonb,
   'System',
   'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
