@@ -17,6 +17,9 @@ export type TranslationKey =
     // Challenges page
     | 'challenges.title'
     | 'challenges.no_active'
+    | 'challenges.available'
+    | 'challenges.accepted'
+    | 'challenges.completed'
     // AI page
     | 'ai.title'
     | 'ai.coming_soon'
@@ -162,6 +165,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         // Challenges
         'challenges.title': 'Challenges',
         'challenges.no_active': 'No active challenges yet.',
+        'challenges.available': 'Available Challenges',
+        'challenges.accepted': 'Accepted Challenges',
+        'challenges.completed': 'Completed Challenges',
         // AI
         'ai.title': 'AI Assistant',
         'ai.coming_soon': 'AI Squad coming soon.',
@@ -305,6 +311,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         // Challenges
         'challenges.title': '挑战',
         'challenges.no_active': '暂无活跃挑战。',
+        'challenges.available': 'Available Challenges',
+        'challenges.accepted': 'Accepted Challenges',
+        'challenges.completed': 'Completed Challenges',
         // AI
         'ai.title': 'AI 助手',
         'ai.coming_soon': 'AI 小队即将推出。',
@@ -448,6 +457,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         // Challenges
         'challenges.title': 'Desafíos',
         'challenges.no_active': 'Aún no hay desafíos activos.',
+        'challenges.available': 'Available Challenges',
+        'challenges.accepted': 'Accepted Challenges',
+        'challenges.completed': 'Completed Challenges',
         // AI
         'ai.title': 'Asistente de IA',
         'ai.coming_soon': 'Escuadrón de IA próximamente.',
@@ -591,6 +603,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         // Challenges
         'challenges.title': 'चुनौतियाँ',
         'challenges.no_active': 'अभी तक कोई सक्रिय चुनौती नहीं।',
+        'challenges.available': 'Available Challenges',
+        'challenges.accepted': 'Accepted Challenges',
+        'challenges.completed': 'Completed Challenges',
         // AI
         'ai.title': 'AI सहायक',
         'ai.coming_soon': 'AI स्क्वाड जल्द ही आ रहा है।',
@@ -734,6 +749,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         // Challenges
         'challenges.title': 'التحديات',
         'challenges.no_active': 'لا توجد تحديات نشطة حتى الآن.',
+        'challenges.available': 'Available Challenges',
+        'challenges.accepted': 'Accepted Challenges',
+        'challenges.completed': 'Completed Challenges',
         // AI
         'ai.title': 'مساعد الذكاء الاصطناعي',
         'ai.coming_soon': 'فريق الذكاء الاصطناعي قريباً.',
@@ -877,6 +895,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         // Challenges
         'challenges.title': 'Челленджи',
         'challenges.no_active': 'Пока нет активных челленджей.',
+        'challenges.available': 'Available Challenges',
+        'challenges.accepted': 'Accepted Challenges',
+        'challenges.completed': 'Completed Challenges',
         // AI
         'ai.title': 'AI Ассистент',
         'ai.coming_soon': 'AI Команда скоро.',
