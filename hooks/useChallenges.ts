@@ -27,6 +27,8 @@ export function useChallenges() {
     const [challenges, setChallenges] = useState<Challenge[]>([]);
     const [userParticipations, setUserParticipations] = useState<ChallengeParticipant[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [completedChallenge, setCompletedChallenge] = useState<Challenge | null>(null);
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
 
     // Load from cache
     const loadFromCache = useCallback(() => {
@@ -130,6 +132,7 @@ export function useChallenges() {
         if (!user) return false;
 
         const previousParticipations = [...userParticipations];
+        const challenge = challenges.find(c => c.id === challengeId);
 
         // Optimistic update
         setUserParticipations(prev => prev.map(p =>
@@ -149,6 +152,13 @@ export function useChallenges() {
             if (result.success) {
                 // Refresh to sync with server
                 await fetchChallenges();
+
+                // Show completion modal if challenge was completed
+                if (status === 'completed' && challenge) {
+                    setCompletedChallenge(challenge);
+                    setShowCompletionModal(true);
+                }
+
                 return true;
             } else {
                 // Revert
@@ -233,6 +243,9 @@ export function useChallenges() {
         fetchChallenges,
         joinChallenge,
         updateParticipation,
-        createChallenge
+        createChallenge,
+        completedChallenge,
+        showCompletionModal,
+        setShowCompletionModal
     };
 }

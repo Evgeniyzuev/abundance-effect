@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useChallenges } from '@/hooks/useChallenges';
 import { getChallengeTitle, getChallengeOwnerName, formatChallengeReward, getChallengeTypeName } from '@/utils/challengeTranslations';
 import { CheckCircle, Users, Trophy, Atom } from 'lucide-react';
+import { ChallengeCompletionModal } from '@/components/ChallengesCompletionModal';
 
 type ChallengeSection = 'available' | 'accepted' | 'completed';
 
@@ -13,7 +14,10 @@ export default function ChallengesPage() {
     const {
         challengesWithParticipation,
         joinChallenge,
-        updateParticipation
+        updateParticipation,
+        completedChallenge,
+        showCompletionModal,
+        setShowCompletionModal
     } = useChallenges();
 
     const [expandedSection, setExpandedSection] = useState<ChallengeSection>('available');
@@ -222,6 +226,13 @@ export default function ChallengesPage() {
                     challenges={completedChallenges}
                 />
             </div>
+
+            {/* Completion Modal */}
+            <ChallengeCompletionModal
+                isOpen={showCompletionModal}
+                onClose={() => setShowCompletionModal(false)}
+                challenge={completedChallenge}
+            />
         </div>
     );
 }
