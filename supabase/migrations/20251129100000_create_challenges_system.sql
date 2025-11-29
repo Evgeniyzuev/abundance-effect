@@ -187,6 +187,7 @@ INSERT INTO public.challenges (
   verification_type,
   verification_logic,
   owner_name,
+  image_url,
   priority
 ) VALUES (
   '{"en": "Add Your First Wish", "ru": "Добавьте свое первое желание", "zh": "添加您的第一个愿望"}'::jsonb,
@@ -198,6 +199,7 @@ INSERT INTO public.challenges (
   'auto',
   '{"action": "add_wish", "table": "user_wishes", "user_id_field": "user_id"}'::jsonb,
   'System',
+  'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
   100
 );
 
