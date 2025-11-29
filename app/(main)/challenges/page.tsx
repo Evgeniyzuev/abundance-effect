@@ -98,10 +98,16 @@ export default function ChallengesPage() {
 
                             {/* Action button */}
                             <button
-                                onClick={() => challenge.userParticipation
-                                    ? updateParticipation(challenge.id, 'completed')
-                                    : joinChallenge(challenge.id)
-                                }
+                                onClick={async () => {
+                                    if (challenge.userParticipation) {
+                                        // For challenge completion, we need to wait for server response (no optimistic UI)
+                                        // because verification script runs on server and may reject completion
+                                        await updateParticipation(challenge.id, 'completed');
+                                    } else {
+                                        // Join can use optimistic UI since it's straightforward
+                                        await joinChallenge(challenge.id);
+                                    }
+                                }}
                                 className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 ${
                                     challenge.userParticipation?.status === 'completed'
                                         ? 'bg-green-100 text-green-800'
