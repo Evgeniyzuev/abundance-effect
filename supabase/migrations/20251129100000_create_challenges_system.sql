@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS public.challenges (
   current_participants integer DEFAULT 0,
   deadline timestamp with time zone,
   verification_type text NOT NULL DEFAULT 'auto' CHECK (verification_type IN ('auto', 'manual_peer', 'manual_creator')),
-  verification_logic jsonb DEFAULT '{}'::jsonb, -- JS functions for verification
+  verification_logic text, -- Key to predefined verification function
   owner_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, -- NULL for system challenges
   owner_name text, -- "System" or username for display
   image_url text,
@@ -215,7 +215,7 @@ BEGIN
     END IF;
 END $$;
 
--- Insert sample system challenge: "Add one wish to wishboard" (with new verification_logic)
+-- Insert sample system challenge: "Add one wish to wishboard" (with server-side verification)
 INSERT INTO public.challenges (
   title,
   description,
@@ -236,10 +236,7 @@ INSERT INTO public.challenges (
   1,
   '"1$"'::jsonb,
   'auto',
-  '{
-    "type": "script",
-    "function": "async ({ userId, supabase, challengeData }) => { try { const { count, error } = await supabase.from(''user_wishes'').select(''*'', { count: ''exact'', head: true }).eq(''user_id'', userId); return !error && count > 0; } catch (e) { console.error(''Challenge verification error:'', e); return false; } }"
-  }'::jsonb,
+  'has_wish',
   'System',
   'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
   100
@@ -276,7 +273,7 @@ CREATE TRIGGER handle_factions_updated_at
   EXECUTE FUNCTION public.handle_factions_updated_at();
 
 -- ============================================================================
--- N: Auto-complete system challenges (JavaScript scripts)
+-- Auto-complete system challenges (server-side verification)
 -- ============================================================================
 
 -- Function to auto-complete system challenges when user meets criteria
@@ -288,40 +285,33 @@ DECLARE
 BEGIN
     -- Only process for user_wishes table when inserting new wish
     IF TG_TABLE_NAME = 'user_wishes' THEN
-        -- Check if this is the user's first wish
-        PERFORM 1 FROM public.user_wishes
-        WHERE user_id = NEW.user_id;
+        -- Find challenges that require having at least one wish
+        FOR challenge_record IN
+            SELECT id
+            FROM public.challenges
+            WHERE type = 'system'
+            AND verification_type = 'auto'
+            AND verification_logic = 'has_wish'
+            AND is_active = true
+        LOOP
+            -- Check if user has active participation in this challenge
+            SELECT * INTO participation_record
+            FROM public.challenge_participants
+            WHERE challenge_id = challenge_record.id
+            AND user_id = NEW.user_id
+            AND status = 'active';
 
-        -- If this is a valid first wish, check for relevant challenges
-        IF FOUND THEN
-            -- Find the "Add Your First Wish" challenge and active participations
-            FOR challenge_record IN
-                SELECT id, verification_logic
-                FROM public.challenges
-                WHERE type = 'system'
-                AND verification_type = 'auto'
-                AND verification_logic::text LIKE '%add_wish%'
-                AND is_active = true
-            LOOP
-                -- Check if user has active participation in this challenge
-                SELECT * INTO participation_record
-                FROM public.challenge_participants
-                WHERE challenge_id = challenge_record.id
-                AND user_id = NEW.user_id
-                AND status = 'active';
-
-                -- If user is participating and hasn't completed yet, auto-complete
-                IF participation_record.id IS NOT NULL THEN
-                    -- Update participation to completed
-                    UPDATE public.challenge_participants
-                    SET
-                        status = 'completed',
-                        completed_at = now(),
-                        progress_data = jsonb_set(progress_data, '{completed}', 'true')
-                    WHERE id = participation_record.id;
-                END IF;
-            END LOOP;
-        END IF;
+            -- If user is participating and hasn't completed yet, auto-complete
+            IF participation_record.id IS NOT NULL THEN
+                -- Update participation to completed
+                UPDATE public.challenge_participants
+                SET
+                    status = 'completed',
+                    completed_at = now(),
+                    progress_data = jsonb_set(progress_data, '{completed}', 'true')
+                WHERE id = participation_record.id;
+            END IF;
+        END LOOP;
     END IF;
 
     RETURN NEW;

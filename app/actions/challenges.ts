@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { Challenge, ChallengeParticipant } from '@/types/supabase';
 import { logger } from '@/utils/logger';
+import { CHALLENGE_VERIFICATIONS } from '@/utils/challengeVerifications';
 
 // Fetch available challenges for user
 export async function fetchChallengesAction() {
@@ -158,19 +159,19 @@ export async function updateParticipationAction(
             return { success: false, error: 'Participation not found' };
         }
 
-        // Always execute verification script if available, regardless of verification_type
-        const verificationLogic = challenge.verification_logic as any;
-        if (status === 'completed' && verificationLogic?.type === 'script') {
-            logger.info('Executing verification script for challenge:', challenge.id);
-            
-            // Execute verification script
-            const isVerified = await executeVerificationScript(verificationLogic, {
+        // Execute verification if available
+        const verificationKey = challenge.verification_logic as string;
+        if (status === 'completed' && verificationKey && typeof verificationKey === 'string') {
+            logger.info('Executing verification for challenge:', challenge.id);
+
+            // Execute verification
+            const isVerified = await executeVerification(verificationKey, {
                 userId: user.user.id,
                 challengeData: challenge,
                 supabase
             });
 
-            logger.info('Verification script result:', isVerified);
+            logger.info('Verification result:', isVerified);
 
             if (!isVerified) {
                 return { success: false, error: 'Verification failed. Challenge requirements not met.' };
@@ -241,14 +242,14 @@ export async function checkAutoChallengesAction() {
 
             if (challengeError || !challenge) continue;
 
-            const verificationLogic = challenge.verification_logic as any;
+            const verificationKey = challenge.verification_logic as string;
 
-            if (!verificationLogic?.type || verificationLogic?.type !== 'script') {
-                continue; // Skip old static verification
+            if (!verificationKey || typeof verificationKey !== 'string') {
+                continue; // Skip challenges without verification
             }
 
-            // Execute the verification script
-            const isCompleted = await executeVerificationScript(verificationLogic, {
+            // Execute verification
+            const isCompleted = await executeVerification(verificationKey, {
                 userId: user.user.id,
                 challengeData: challenge,
                 supabase
@@ -268,58 +269,33 @@ export async function checkAutoChallengesAction() {
     }
 }
 
-// Execute verification script with sandboxed context
-async function executeVerificationScript(scriptDefinition: any, context: {
+// Execute verification using predefined handlers
+async function executeVerification(verificationKey: string, context: {
     userId: string;
     challengeData: any;
     supabase: any;
 }) {
     try {
-        logger.info('executeVerificationScript called with context:', {
+        logger.info('executeVerification called:', {
+            verificationKey,
             userId: context.userId,
-            challengeId: context.challengeData?.id,
-            hasSupabase: !!context.supabase
+            challengeId: context.challengeData?.id
         });
 
-        const { function: scriptFunction } = scriptDefinition;
-
-        if (!scriptFunction || typeof scriptFunction !== 'string') {
-            logger.error('Invalid verification script: no function string');
+        const verification = CHALLENGE_VERIFICATIONS[verificationKey];
+        if (!verification) {
+            logger.error('Unknown verification key:', verificationKey);
             return false;
         }
 
-        logger.info('Script function length:', scriptFunction.length);
+        logger.info('Running verification:', verification.description);
 
-        // Create the async function from the script string
-        // The script expects parameters: { userId, supabase, challengeData }
-        const scriptCode = `
-            return (async function({ userId, supabase, challengeData }) {
-                ${scriptFunction}
-            });
-        `;
+        const result = await verification.verify(context.userId, context.challengeData, context.supabase);
 
-        // Execute the script to get the async function
-        const scriptFunctionExecutor = new Function(scriptCode);
-        const asyncVerifier = scriptFunctionExecutor();
-
-        if (typeof asyncVerifier !== 'function') {
-            logger.error('Invalid verification script: not a function');
-            return false;
-        }
-
-        logger.info('Running verification script...');
-
-        // Run the verification script with the provided context
-        const result = await asyncVerifier(context);
-
-        logger.info('Raw verification script result:', result);
-
-        // Ensure result is boolean
-        const isValid = Boolean(result);
-        logger.info('Final verification result:', isValid);
-        return isValid;
+        logger.info('Verification result:', result);
+        return result;
     } catch (error) {
-        logger.error('Error executing verification script:', error);
+        logger.error('Error executing verification:', error);
         logger.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
         return false;
     }
@@ -595,7 +571,7 @@ export async function checkUserWishesAction() {
     }
 }
 
-// Test verification script function
+// Test verification function
 export async function testVerificationScriptAction(challengeId: string) {
     try {
         const supabase = await createClient();
@@ -605,7 +581,7 @@ export async function testVerificationScriptAction(challengeId: string) {
             return { success: false, error: 'Not authenticated' };
         }
 
-        logger.info('Testing verification script for challenge:', challengeId);
+        logger.info('Testing verification for challenge:', challengeId);
 
         // Get challenge details
         const { data: challenge, error: challengeError } = await supabase
@@ -618,19 +594,19 @@ export async function testVerificationScriptAction(challengeId: string) {
             return { success: false, error: 'Challenge not found' };
         }
 
-        const verificationLogic = challenge.verification_logic as any;
-        if (!verificationLogic?.type || verificationLogic?.type !== 'script') {
-            return { success: false, error: 'Challenge does not have verification script' };
+        const verificationKey = challenge.verification_logic as string;
+        if (!verificationKey || typeof verificationKey !== 'string') {
+            return { success: false, error: 'Challenge does not have verification' };
         }
 
-        // Test the verification script
-        const isVerified = await executeVerificationScript(verificationLogic, {
+        // Test the verification
+        const isVerified = await executeVerification(verificationKey, {
             userId: user.user.id,
             challengeData: challenge,
             supabase
         });
 
-        // Also test direct database query for comparison
+        // Also test direct database query for comparison (for wishes)
         const { count, error } = await supabase
             .from('user_wishes')
             .select('*', { count: 'exact', head: true })
@@ -648,6 +624,7 @@ export async function testVerificationScriptAction(challengeId: string) {
                 challengeInfo: {
                     id: challenge.id,
                     title: challenge.title,
+                    verificationKey,
                     verificationType: challenge.verification_type
                 }
             }
