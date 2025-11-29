@@ -156,21 +156,18 @@ export async function updateParticipationAction(
             return { success: false, error: 'Participation not found' };
         }
 
-        // If status is 'completed' and we have verification script, execute it first
-        if (status === 'completed' && challenge.verification_type !== 'auto') {
-            const verificationLogic = challenge.verification_logic as any;
+        // Always execute verification script if available, regardless of verification_type
+        const verificationLogic = challenge.verification_logic as any;
+        if (status === 'completed' && verificationLogic?.type === 'script') {
+            // Execute verification script
+            const isVerified = await executeVerificationScript(verificationLogic, {
+                userId: user.user.id,
+                challengeData: challenge,
+                supabase
+            });
 
-            if (verificationLogic?.type === 'script') {
-                // Execute verification script
-                const isVerified = await executeVerificationScript(verificationLogic, {
-                    userId: user.user.id,
-                    challengeData: challenge,
-                    supabase
-                });
-
-                if (!isVerified) {
-                    return { success: false, error: 'Verification failed. Challenge requirements not met.' };
-                }
+            if (!isVerified) {
+                return { success: false, error: 'Verification failed. Challenge requirements not met.' };
             }
         }
 
@@ -333,7 +330,7 @@ async function awardChallengeRewards(userId: string, challenge: any) {
         let newWalletBalance = user.wallet_balance || 0;
         let newAiCoreBalance = user.aicore_balance || 0;
 
-        // Parse core reward - expected format like "1$", "1$+?", or equivalent JSON
+        // Parse core reward - expected format like "1$" (core tokens) or "1$+?" (guaranteed + random core)
         const rewardCore = challenge.reward_core;
         if (typeof rewardCore === 'string') {
             // Parse simple string format "1$" or "1$+?"
@@ -342,16 +339,15 @@ async function awardChallengeRewards(userId: string, challenge: any) {
                 coreRewardAmount = parseInt(coreMatch[1], 10);
                 const isRandom = rewardCore.includes('+?');
 
-                // For now, guaranteed amount goes to wallet, random part to aicore (simplified)
+                // "1$" recipient - core tokens go to aicore_balance
+                // Random portion splits between wallets
                 if (isRandom) {
-                    // Split between wallet and aicore
-                    const walletShare = Math.floor(coreRewardAmount * 0.7);
-                    const aiCoreShare = coreRewardAmount - walletShare;
-                    newWalletBalance += walletShare;
-                    newAiCoreBalance += aiCoreShare;
+                    // Split: guaranteed goes to aicore, random split
+                    newAiCoreBalance += Math.floor(coreRewardAmount * 0.7); // guaranteed core tokens
+                    newWalletBalance += coreRewardAmount - Math.floor(coreRewardAmount * 0.7); // random fiat bonus
                 } else {
-                    // All to wallet (regular transactions)
-                    newWalletBalance += coreRewardAmount;
+                    // "1$" = guaranteed core tokens -> aicore_balance
+                    newAiCoreBalance += coreRewardAmount;
                 }
             }
         }

@@ -118,12 +118,6 @@ export default function ChallengesPage() {
                                         : 'Join'
                                 }
                             </button>
-/*
-Button changes:
-- "Active" status now shows "Check" instead (when userParticipation?.status === 'active')
-- Improved contrast for "Check" button (blue on blue text is hard to read)
-- Keep the same functionality for now, but button text changed
-*/
                         </div>
 
                         {/* Reward and constraints in one line */}
