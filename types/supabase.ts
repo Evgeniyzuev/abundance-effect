@@ -276,7 +276,8 @@ export interface Database {
                     description: Json
                     type: 'system' | 'user_created' | 'event' | 'tournament'
                     category: string | null
-                    reward_core: number
+                    level: number
+                    reward_core: Json
                     reward_items: Json
                     max_participants: number
                     current_participants: number
@@ -297,7 +298,8 @@ export interface Database {
                     description?: Json
                     type: 'system' | 'user_created' | 'event' | 'tournament'
                     category?: string | null
-                    reward_core?: number
+                    level?: number
+                    reward_core?: Json
                     reward_items?: Json
                     max_participants?: number
                     current_participants?: number
@@ -318,7 +320,8 @@ export interface Database {
                     description?: Json
                     type?: 'system' | 'user_created' | 'event' | 'tournament'
                     category?: string | null
-                    reward_core?: number
+                    level?: number
+                    reward_core?: Json
                     reward_items?: Json
                     max_participants?: number
                     current_participants?: number

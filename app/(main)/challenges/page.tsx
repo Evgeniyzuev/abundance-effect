@@ -56,94 +56,91 @@ export default function ChallengesPage() {
     };
 
     const ChallengeCard = ({ challenge }: { challenge: any }) => {
-        // Calculate challenge level (for now, simple calculation based on reward_core)
-        const getChallengeLevel = (challenge: any) => {
-            const coreReward = challenge.reward_core || 0;
-            if (coreReward === 0) return 0;
-            if (coreReward < 10) return 1;
-            if (coreReward < 50) return 2;
-            if (coreReward < 100) return 3;
-            return 4;
-        };
+        const challengeLevel = challenge.level || 1;
+
+        // Get remaining spots (only show if limited and > 0)
+        const spotsLeft = challenge.max_participants
+            ? challenge.max_participants - challenge.current_participants
+            : null;
 
         return (
-            <div className="ios-card p-3 mb-3">
-                <div className="flex items-start gap-3">
-                    {/* Challenge image thumbnail */}
+            <div className="ios-card p-3 mb-2">
+                <div className="flex items-center gap-3">
+                    {/* Challenge image - full height, no vertical padding */}
                     <div className="flex-shrink-0">
                         {challenge.image_url ? (
                             <img
                                 src={challenge.image_url}
                                 alt={getChallengeTitle(challenge, 'en')}
-                                className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+                                className="w-14 h-14 rounded-lg object-cover bg-gray-100"
                             />
                         ) : (
-                            <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
-                                <Trophy className="w-6 h-6 text-gray-400" />
+                            <div className="w-14 h-14 rounded-lg bg-gray-200 flex items-center justify-center">
+                                <Trophy className="w-7 h-7 text-gray-400" />
                             </div>
                         )}
                     </div>
 
+                    {/* Main content */}
                     <div className="flex-1 min-w-0">
-                        {/* Title and level */}
-                        <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-semibold text-sm text-gray-900 truncate">
-                                {getChallengeTitle(challenge, 'en')}
-                            </h3>
-                            <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
-                                Lvl {getChallengeLevel(challenge)}
-                            </span>
+                        <div className="flex items-center justify-between">
+                            {/* Title and level */}
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <h3 className="font-semibold text-sm text-gray-900 truncate">
+                                    {getChallengeTitle(challenge, 'en')}
+                                </h3>
+                                <span className="text-xs font-medium text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded flex-shrink-0">
+                                    Lvl {challengeLevel}
+                                </span>
+                            </div>
+
+                            {/* Action button */}
+                            <button
+                                onClick={() => challenge.userParticipation
+                                    ? updateParticipation(challenge.id, 'completed')
+                                    : joinChallenge(challenge.id)
+                                }
+                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 ${
+                                    challenge.userParticipation?.status === 'completed'
+                                        ? 'bg-green-100 text-green-800'
+                                        : challenge.userParticipation?.status === 'active'
+                                            ? 'bg-blue-100 text-blue-800'
+                                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                                }`}
+                                disabled={challenge.userParticipation?.status === 'completed'}
+                            >
+                                {challenge.userParticipation?.status === 'completed'
+                                    ? '✓'
+                                    : challenge.userParticipation?.status === 'active'
+                                        ? 'Active'
+                                        : 'Join'
+                                }
+                            </button>
                         </div>
 
-                        {/* Reward display */}
-                        <div className="flex flex-wrap items-center gap-1 mb-2">
-                            {formatChallengeReward(challenge)}
-                        </div>
+                        {/* Reward and constraints in one line */}
+                        <div className="flex items-center justify-between mt-1">
+                            {/* Reward display */}
+                            <div className="flex items-center gap-1">
+                                {formatChallengeReward(challenge)}
+                            </div>
 
-                        {/* Deadline and spots */}
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                            <div className="flex items-center gap-3">
+                            {/* Constraints (deadline or spots) */}
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
                                 {challenge.deadline && (
-                                    <span className="flex items-center gap-1">
+                                    <span className="flex items-center gap-0.5">
                                         <span>⏰</span>
                                         <span>{new Date(challenge.deadline).toLocaleDateString()}</span>
                                     </span>
                                 )}
-                                {challenge.max_participants && (
-                                    <span className="flex items-center gap-1">
+                                {spotsLeft !== null && spotsLeft > 0 && (
+                                    <span className="flex items-center gap-0.5">
                                         <Users className="w-3 h-3" />
-                                        <span>
-                                            {challenge.max_participants - challenge.current_participants || 0}/{challenge.max_participants}
-                                        </span>
+                                        <span>{spotsLeft}</span>
                                     </span>
                                 )}
                             </div>
                         </div>
-                    </div>
-
-                    {/* Action button */}
-                    <div className="flex-shrink-0 ml-2">
-                        <button
-                            onClick={() => challenge.userParticipation
-                                ? updateParticipation(challenge.id, 'completed')
-                                : joinChallenge(challenge.id)
-                            }
-                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                                challenge.userParticipation?.status === 'completed'
-                                    ? 'bg-green-100 text-green-800'
-                                    : challenge.userParticipation?.status === 'active'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-blue-500 text-white hover:bg-blue-600'
-                            }`}
-                            disabled={challenge.userParticipation?.status === 'completed'}
-                        >
-                            {challenge.userParticipation?.status === 'completed'
-                                ? '✓'
-                                : challenge.userParticipation?.status === 'active'
-                                    ? 'Active'
-                                    : 'Join'
-                            }
-                        </button>
                     </div>
                 </div>
             </div>

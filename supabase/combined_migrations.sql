@@ -574,7 +574,8 @@ CREATE TABLE IF NOT EXISTS public.challenges (
   description jsonb DEFAULT '{}'::jsonb,
   type text NOT NULL CHECK (type IN ('system', 'user_created', 'event', 'tournament')),
   category text, -- health, education, finance, etc.
-  reward_core numeric DEFAULT 0,
+  level integer DEFAULT 1, -- Challenge difficulty level
+  reward_core jsonb DEFAULT '"{}"'::jsonb, -- Core reward: {"$": 1, "+$": 0} or similar
   reward_items jsonb DEFAULT '[]'::jsonb, -- Array of item references
   max_participants integer DEFAULT 0, -- 0 = unlimited
   current_participants integer DEFAULT 0,
@@ -746,6 +747,7 @@ INSERT INTO public.challenges (
   description,
   type,
   category,
+  level,
   reward_core,
   verification_type,
   verification_logic,
@@ -756,7 +758,8 @@ INSERT INTO public.challenges (
   '{"en": "Create your vision board by adding your first wish. What would you like to achieve?", "ru": "Создайте свою доску желаний, добавив первое желание. Чего вы хотите достичь?", "zh": "通过添加第一个愿望来创建您的愿景板。您想要实现什么？"}'::jsonb,
   'system',
   'goal_setting',
-  10,
+  1,
+  '"1$"'::jsonb,
   'auto',
   '{"action": "add_wish", "table": "user_wishes", "user_id_field": "user_id"}'::jsonb,
   'System',

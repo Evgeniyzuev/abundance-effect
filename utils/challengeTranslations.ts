@@ -50,96 +50,47 @@ export function getChallengeOwnerName(challenge: Challenge): string {
 
 // Format reward display as JSX with icons
 export function formatChallengeReward(challenge: Challenge): React.ReactElement {
-  const coreReward = challenge.reward_core || 0;
+  const coreReward = challenge.reward_core as string || '';
   const itemRewards = challenge.reward_items as any[] || [];
 
   const rewardParts: React.ReactElement[] = [];
 
-  // Core rewards: guaranteed + random (simulated for now)
-  if (coreReward > 0) {
-    const guaranteed = Math.floor(coreReward * 0.7);
-    const random = coreReward - guaranteed;
+  // Parse core reward: e.g., "1$" (guaranteed 1 core) or "1$+?" (guaranteed 1 + random)
+  if (coreReward && typeof coreReward === 'string') {
+    const coreMatch = coreReward.match(/^(\d+)\$/) || coreReward.match(/^(\d+)\$\+\?/);
+    if (coreMatch) {
+      const amount = parseInt(coreMatch[1], 10);
+      const isRandom = coreReward.includes('+?');
 
-    if (guaranteed > 0) {
       rewardParts.push(
         React.createElement('span', {
-          key: 'core-guaranteed',
+          key: 'core',
           className: 'flex items-center gap-0.5'
         }, [
           React.createElement(Atom, { key: 'atom', className: 'w-3 h-3 text-orange-500' }),
           React.createElement('span', {
             key: 'amount',
             className: 'text-sm font-medium text-green-700'
-          }, guaranteed.toString())
-        ])
-      );
-    }
-
-    if (random > 0) {
-      rewardParts.push(
-        React.createElement('span', {
-          key: 'core-random',
-          className: 'flex items-center gap-0.5'
-        }, [
-          React.createElement(Atom, { key: 'atom', className: 'w-3 h-3 text-orange-500' }),
-          React.createElement('span', {
-            key: 'amount',
-            className: 'text-sm font-medium text-green-600'
-          }, `${random}+?`)
+          }, `${amount}${isRandom ? '+?' : ''}`)
         ])
       );
     }
   }
 
-  // Items: 🎒 for items
+  // Items: 🎒 for items (only if guaranteed count > 0)
   if (itemRewards.length > 0) {
-    const guaranteedItems = Math.floor(itemRewards.length * 0.5);
-    const randomItems = itemRewards.length - guaranteedItems;
+    const guaranteedItems = itemRewards.length; // Assume all items are guaranteed
 
-    if (guaranteedItems > 0) {
-      rewardParts.push(
-        React.createElement('span', {
-          key: 'items-guaranteed',
-          className: 'flex items-center gap-0.5'
-        }, [
-          React.createElement('span', { key: 'icon', className: 'text-sm' }, '🎒'),
-          React.createElement('span', {
-            key: 'amount',
-            className: 'text-sm font-medium text-purple-600'
-          }, guaranteedItems.toString())
-        ])
-      );
-    }
-
-    if (randomItems > 0) {
-      rewardParts.push(
-        React.createElement('span', {
-          key: 'items-random',
-          className: 'flex items-center gap-0.5'
-        }, [
-          React.createElement('span', { key: 'icon', className: 'text-sm' }, '🎒'),
-          React.createElement('span', {
-            key: 'amount',
-            className: 'text-sm font-medium text-purple-600'
-          }, `${randomItems}+?`)
-        ])
-      );
-    }
-  }
-
-  // Wallet rewards: if there were wallet-specific rewards (currently simulated)
-  const walletReward = Math.floor(coreReward * 0.3); // Simulate wallet reward
-  if (walletReward > 0) {
     rewardParts.push(
       React.createElement('span', {
-        key: 'wallet',
+        key: 'items',
         className: 'flex items-center gap-0.5'
       }, [
-        React.createElement('span', { key: 'icon', className: 'text-sm' }, '👛'),
+        React.createElement('span', { key: 'icon', className: 'text-sm' }, '🎒'),
         React.createElement('span', {
           key: 'amount',
-          className: 'text-sm font-medium text-blue-600'
-        }, walletReward.toString())
+          className: 'text-sm font-medium text-purple-600'
+        }, guaranteedItems.toString())
       ])
     );
   }
