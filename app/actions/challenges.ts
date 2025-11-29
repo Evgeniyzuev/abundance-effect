@@ -275,23 +275,40 @@ async function executeVerificationScript(scriptDefinition: any, context: {
             return false;
         }
 
-        // Create safe sandbox context
-        const sandboxContext = {
-            userId: context.userId,
-            challengeData: context.challengeData,
-            supabase: context.supabase
+        // Import createClient dynamically to avoid circular imports
+        const { createClient } = await import('@supabase/supabase-js');
+
+        // Create safe sandbox context with global createClient
+        const globalContext = {
+            createClient,
+            // Environment variables
+            SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+            SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
         };
 
-        // Create the async function from the script string
+        // Create the async function from the script string with global context
         const scriptCode = `
             return (async function({ userId, supabase, challengeData }) {
+                // Make createClient available globally in script context
+                globalThis.createClient = function(options) {
+                    return createClient(options.supabaseUrl, options.supabaseKey);
+                };
+
+                // Access environment variables
+                process = {
+                    env: {
+                        NEXT_PUBLIC_SUPABASE_URL: arguments[3].SUPABASE_URL,
+                        SUPABASE_SERVICE_ROLE_KEY: arguments[3].SERVICE_ROLE_KEY
+                    }
+                };
+
                 ${scriptFunction}
             });
         `;
 
         // Execute the script with limited privileges (function sandboxing)
-        const scriptFunctionExecutor = new Function(scriptCode);
-        const asyncVerifier = scriptFunctionExecutor();
+        const scriptFunctionExecutor = new Function('createClient', scriptCode);
+        const asyncVerifier = scriptFunctionExecutor(createClient);
 
         if (typeof asyncVerifier !== 'function') {
             logger.error('Invalid verification script: not a function');
@@ -299,7 +316,7 @@ async function executeVerificationScript(scriptDefinition: any, context: {
         }
 
         // Run the verification script
-        const result = await asyncVerifier(sandboxContext);
+        const result = await asyncVerifier(context, globalContext);
 
         // Ensure result is boolean
         return Boolean(result);

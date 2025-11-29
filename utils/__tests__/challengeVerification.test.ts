@@ -3,10 +3,10 @@
  * These tests simulate how the verification scripts execute in the real environment
  */
 
-import { createClient } from '../supabase/server';
+import { createClient } from '../../utils/supabase/server';
 
 // Mock Supabase client
-jest.mock('../supabase/server', () => ({
+jest.mock('../../utils/supabase/server', () => ({
   createClient: jest.fn()
 }));
 
@@ -16,7 +16,11 @@ describe('Challenge Verification Scripts', () => {
       type: 'script',
       function: `async ({ userId, supabase, challengeData }) => {
         try {
-          const { count, error } = await supabase
+          const adminSupabase = supabase.constructor({
+            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+            supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY
+          });
+          const { count, error } = await adminSupabase
             .from('user_wishes')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', userId);
