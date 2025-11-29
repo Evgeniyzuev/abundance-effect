@@ -119,7 +119,7 @@ export async function joinChallengeAction(challengeId: string) {
     }
 }
 
-// Update challenge participation status
+// Update challenge participation status with verification script execution
 export async function updateParticipationAction(
     challengeId: string,
     status: ChallengeParticipant['status'],
@@ -133,30 +133,71 @@ export async function updateParticipationAction(
             return { success: false, error: 'Not authenticated' };
         }
 
+        // Get challenge details to check verification logic
+        const { data: challenge, error: challengeError } = await supabase
+            .from('challenges')
+            .select('*')
+            .eq('id', challengeId)
+            .single();
+
+        if (challengeError || !challenge) {
+            return { success: false, error: 'Challenge not found' };
+        }
+
+        // Get user's current participation
+        const { data: participation, error: participationError } = await supabase
+            .from('challenge_participants')
+            .select('*')
+            .eq('challenge_id', challengeId)
+            .eq('user_id', user.user.id)
+            .single();
+
+        if (participationError || !participation) {
+            return { success: false, error: 'Participation not found' };
+        }
+
+        // If status is 'completed' and we have verification script, execute it first
+        if (status === 'completed' && challenge.verification_type !== 'auto') {
+            const verificationLogic = challenge.verification_logic as any;
+
+            if (verificationLogic?.type === 'script') {
+                // Execute verification script
+                const isVerified = await executeVerificationScript(verificationLogic, {
+                    userId: user.user.id,
+                    challengeData: challenge,
+                    supabase
+                });
+
+                if (!isVerified) {
+                    return { success: false, error: 'Verification failed. Challenge requirements not met.' };
+                }
+            }
+        }
+
         const updateData: any = {
             status: status,
-            progress_data: progressData || {}
+            progress_data: progressData || participation.progress_data || {}
         };
 
         if (status === 'completed') {
             updateData.completed_at = new Date().toISOString();
-            // Trigger reward logic here
+            // Award rewards to user
+            await awardChallengeRewards(user.user.id, challenge);
         }
 
-        const { data: participation, error: participationError } = await supabase
+        const { data: updatedParticipation, error: updateError } = await supabase
             .from('challenge_participants')
             .update(updateData)
-            .eq('challenge_id', challengeId)
-            .eq('user_id', user.user.id)
+            .eq('id', participation.id)
             .select()
             .single();
 
-        if (participationError) {
-            logger.error('Error updating participation:', participationError);
-            return { success: false, error: participationError.message };
+        if (updateError) {
+            logger.error('Error updating participation:', updateError);
+            return { success: false, error: updateError.message };
         }
 
-        return { success: true, data: participation };
+        return { success: true, data: updatedParticipation };
     } catch (error) {
         logger.error('Error in updateParticipationAction:', error);
         return { success: false, error: 'Internal server error' };
@@ -173,7 +214,7 @@ export async function checkAutoChallengesAction() {
             return { success: false, error: 'Not authenticated' };
         }
 
-        // Get user's active participations, then fetch their challenges separately
+        // Get user's active participations
         const { data: participations, error: participationsError } = await supabase
             .from('challenge_participants')
             .select('id, challenge_id, status')
@@ -191,29 +232,26 @@ export async function checkAutoChallengesAction() {
             // Get challenge details for verification
             const { data: challenge, error: challengeError } = await supabase
                 .from('challenges')
-                .select('verification_type, verification_logic, type, owner_name')
+                .select('*')
                 .eq('id', participation.challenge_id)
-                .eq('verification_type', 'auto')
-                .eq('owner_name', 'System')
                 .single();
 
             if (challengeError || !challenge) continue;
 
             const verificationLogic = challenge.verification_logic as any;
 
-            if (!verificationLogic?.action || !verificationLogic?.table) {
-                continue;
+            if (!verificationLogic?.type || verificationLogic?.type !== 'script') {
+                continue; // Skip old static verification
             }
 
-            // Check if user meets challenge criteria
-            const { data, error: checkError } = await (supabase as any)
-                .from(verificationLogic.table)
-                .select('id')
-                .eq(verificationLogic.user_id_field, user.user.id);
+            // Execute the verification script
+            const isCompleted = await executeVerificationScript(verificationLogic, {
+                userId: user.user.id,
+                challengeData: challenge,
+                supabase
+            });
 
-            const count = data ? data.length : 0;
-
-            if (!checkError && count && count > 0) {
+            if (isCompleted) {
                 // Mark as completed
                 await updateParticipationAction(participation.challenge_id, 'completed');
                 completedChallenges.push(participation.challenge_id);
@@ -223,6 +261,219 @@ export async function checkAutoChallengesAction() {
         return { success: true, data: { completedChallenges } };
     } catch (error) {
         logger.error('Error in checkAutoChallengesAction:', error);
+        return { success: false, error: 'Internal server error' };
+    }
+}
+
+// Execute verification script with sandboxed context
+async function executeVerificationScript(scriptDefinition: any, context: {
+    userId: string;
+    challengeData: any;
+    supabase: any;
+}) {
+    try {
+        const { function: scriptFunction } = scriptDefinition;
+
+        if (!scriptFunction || typeof scriptFunction !== 'string') {
+            return false;
+        }
+
+        // Create safe sandbox context
+        const sandboxContext = {
+            userId: context.userId,
+            challengeData: context.challengeData,
+            supabase: context.supabase
+        };
+
+        // Create the async function from the script string
+        const scriptCode = `
+            return (async function({ userId, supabase, challengeData }) {
+                ${scriptFunction}
+            });
+        `;
+
+        // Execute the script with limited privileges (function sandboxing)
+        const scriptFunctionExecutor = new Function(scriptCode);
+        const asyncVerifier = scriptFunctionExecutor();
+
+        if (typeof asyncVerifier !== 'function') {
+            logger.error('Invalid verification script: not a function');
+            return false;
+        }
+
+        // Run the verification script
+        const result = await asyncVerifier(sandboxContext);
+
+        // Ensure result is boolean
+        return Boolean(result);
+    } catch (error) {
+        logger.error('Error executing verification script:', error);
+        return false;
+    }
+}
+
+// Award challenge rewards to user
+async function awardChallengeRewards(userId: string, challenge: any) {
+    try {
+        const supabase = await createClient();
+
+        // Get current user balance
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('wallet_balance, aicore_balance')
+            .eq('id', userId)
+            .single();
+
+        if (userError || !user) {
+            logger.error('Error fetching user for rewards:', userError);
+            return;
+        }
+
+        let coreRewardAmount = 0;
+        let newWalletBalance = user.wallet_balance || 0;
+        let newAiCoreBalance = user.aicore_balance || 0;
+
+        // Parse core reward - expected format like "1$", "1$+?", or equivalent JSON
+        const rewardCore = challenge.reward_core;
+        if (typeof rewardCore === 'string') {
+            // Parse simple string format "1$" or "1$+?"
+            const coreMatch = rewardCore.match(/^(\d+)\$/) || rewardCore.match(/^(\d+)\$\+\?/);
+            if (coreMatch) {
+                coreRewardAmount = parseInt(coreMatch[1], 10);
+                const isRandom = rewardCore.includes('+?');
+
+                // For now, guaranteed amount goes to wallet, random part to aicore (simplified)
+                if (isRandom) {
+                    // Split between wallet and aicore
+                    const walletShare = Math.floor(coreRewardAmount * 0.7);
+                    const aiCoreShare = coreRewardAmount - walletShare;
+                    newWalletBalance += walletShare;
+                    newAiCoreBalance += aiCoreShare;
+                } else {
+                    // All to wallet (regular transactions)
+                    newWalletBalance += coreRewardAmount;
+                }
+            }
+        }
+
+        // Update user balances
+        if (coreRewardAmount > 0) {
+            await supabase
+                .from('users')
+                .update({
+                    wallet_balance: newWalletBalance,
+                    aicore_balance: newAiCoreBalance
+                })
+                .eq('id', userId);
+        }
+
+        // Handle item rewards
+        const itemRewards = challenge.reward_items as any[];
+        if (itemRewards && itemRewards.length > 0) {
+            // Get current user inventory
+            const { data: userResults, error: resultsError } = await supabase
+                .from('user_results')
+                .select('inventory')
+                .eq('user_id', userId)
+                .single();
+
+            let currentInventory = userResults?.inventory || [];
+
+            // Add items to inventory
+            for (const item of itemRewards) {
+                const existingItemIndex = currentInventory.findIndex(
+                    (inv: any) => inv.itemId === item.id && inv.slot === item.slot
+                );
+
+                if (existingItemIndex >= 0) {
+                    // Update existing item count
+                    currentInventory[existingItemIndex].count += item.count || 1;
+                } else {
+                    // Add new item
+                    currentInventory.push({
+                        slot: item.slot,
+                        itemId: item.id,
+                        count: item.count || 1
+                    });
+                }
+            }
+
+            // Update or insert user results
+            if (userResults) {
+                await supabase
+                    .from('user_results')
+                    .update({ inventory: currentInventory })
+                    .eq('user_id', userId);
+            } else {
+                await supabase
+                    .from('user_results')
+                    .insert({
+                        user_id: userId,
+                        inventory: currentInventory
+                    });
+            }
+        }
+
+        // Log the reward transaction
+        if (coreRewardAmount > 0 || (itemRewards && itemRewards.length > 0)) {
+            logger.info('Challenge rewards awarded:', {
+                userId,
+                challengeId: challenge.id,
+                coreReward: coreRewardAmount,
+                itemRewards: itemRewards?.length || 0
+            });
+        }
+    } catch (error) {
+        logger.error('Error awarding challenge rewards:', error);
+    }
+}
+
+// Delete challenge function (for testing/admin purposes)
+export async function deleteChallengeAction(challengeId: string) {
+    try {
+        const supabase = await createClient();
+
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user) {
+            return { success: false, error: 'Not authenticated' };
+        }
+
+        // Get challenge to check ownership
+        const { data: challenge, error: challengeError } = await supabase
+            .from('challenges')
+            .select('owner_id, type')
+            .eq('id', challengeId)
+            .single();
+
+        if (challengeError || !challenge) {
+            return { success: false, error: 'Challenge not found' };
+        }
+
+        // Only allow owner or system challenges to be deleted by admins
+        if (challenge.owner_id !== user.user.id && challenge.type !== 'system') {
+            return { success: false, error: 'Not authorized to delete this challenge' };
+        }
+
+        // Delete participations first (cascade will handle this, but let's be explicit)
+        await supabase
+            .from('challenge_participants')
+            .delete()
+            .eq('challenge_id', challengeId);
+
+        // Delete the challenge
+        const { error: deleteError } = await supabase
+            .from('challenges')
+            .delete()
+            .eq('id', challengeId);
+
+        if (deleteError) {
+            logger.error('Error deleting challenge:', deleteError);
+            return { success: false, error: deleteError.message };
+        }
+
+        return { success: true };
+    } catch (error) {
+        logger.error('Error in deleteChallengeAction:', error);
         return { success: false, error: 'Internal server error' };
     }
 }

@@ -1,5 +1,5 @@
 -- ============================================================================
--- MIGRATION: Create Challenges System
+-- MIGRATION: Create Challenges System (v2)
 -- ============================================================================
 
 -- Create challenges table
@@ -10,13 +10,13 @@ CREATE TABLE IF NOT EXISTS public.challenges (
   type text NOT NULL CHECK (type IN ('system', 'user_created', 'event', 'tournament')),
   category text, -- health, education, finance, etc.
   level integer DEFAULT 1, -- Challenge difficulty level
-  reward_core jsonb DEFAULT '"{}"'::jsonb, -- Core reward: {"$": 1, "+$": 0} or similar
+  reward_core jsonb DEFAULT '"{}"'::jsonb, -- Core reward: "1$" or "1$+?"
   reward_items jsonb DEFAULT '[]'::jsonb, -- Array of item references
   max_participants integer DEFAULT 0, -- 0 = unlimited
   current_participants integer DEFAULT 0,
   deadline timestamp with time zone,
   verification_type text NOT NULL DEFAULT 'auto' CHECK (verification_type IN ('auto', 'manual_peer', 'manual_creator')),
-  verification_logic jsonb DEFAULT '{}'::jsonb, -- For auto verification rules
+  verification_logic jsonb DEFAULT '{}'::jsonb, -- JS functions for verification
   owner_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, -- NULL for system challenges
   owner_name text, -- "System" or username for display
   image_url text,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.faction_members (
   faction_id uuid NOT NULL REFERENCES public.factions(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   role text NOT NULL DEFAULT 'member' CHECK (role IN ('leader', 'co_leader', 'member')),
-  joined_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  joined_at timestamp with time zone DEFAULT timezone('utc'::text, now') NOT NULL,
   PRIMARY KEY (id),
   UNIQUE (faction_id, user_id) -- User can only be in one faction
 );
@@ -160,7 +160,7 @@ CREATE POLICY "Leaders can manage members"
              WHERE fm.faction_id = f.id
              AND fm.user_id = auth.uid()
              AND fm.role IN ('leader', 'co_leader')
-           ))
+           )))
     )
   );
 
@@ -176,7 +176,7 @@ CREATE INDEX IF NOT EXISTS idx_challenge_participants_status ON public.challenge
 CREATE INDEX IF NOT EXISTS idx_faction_members_faction ON public.faction_members(faction_id);
 CREATE INDEX IF NOT EXISTS idx_faction_members_user ON public.faction_members(user_id);
 
--- Insert sample system challenge: "Add one wish to wishboard"
+-- Insert sample system challenge: "Add one wish to wishboard" (with new verification_logic)
 INSERT INTO public.challenges (
   title,
   description,
@@ -197,7 +197,20 @@ INSERT INTO public.challenges (
   1,
   '"1$"'::jsonb,
   'auto',
-  '{"action": "add_wish", "table": "user_wishes", "user_id_field": "user_id"}'::jsonb,
+  '{
+    "type": "script",
+    "function": "
+      async ({ userId, supabase, challengeData }) => {
+        const { data, error } = await supabase
+          .from(''user_wishes'')
+          .select(''id'')
+          .eq(''user_id'', userId);
+
+        if (error) return false;
+        return data && data.length > 0;
+      }
+    "
+  }'::jsonb,
   'System',
   'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
   100
@@ -232,3 +245,63 @@ CREATE TRIGGER handle_factions_updated_at
   BEFORE UPDATE ON public.factions
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_factions_updated_at();
+
+-- ============================================================================
+-- N: Auto-complete system challenges (JavaScript scripts)
+-- ============================================================================
+
+-- Function to auto-complete system challenges when user meets criteria
+CREATE OR REPLACE FUNCTION public.auto_complete_system_challenges()
+RETURNS TRIGGER AS $$
+DECLARE
+    challenge_record RECORD;
+    participation_record RECORD;
+BEGIN
+    -- Only process for user_wishes table when inserting new wish
+    IF TG_TABLE_NAME = 'user_wishes' THEN
+        -- Check if this is the user's first wish
+        PERFORM 1 FROM public.user_wishes
+        WHERE user_id = NEW.user_id;
+
+        -- If this is a valid first wish, check for relevant challenges
+        IF FOUND THEN
+            -- Find the "Add Your First Wish" challenge and active participations
+            FOR challenge_record IN
+                SELECT id, verification_logic
+                FROM public.challenges
+                WHERE type = 'system'
+                AND verification_type = 'auto'
+                AND verification_logic::text LIKE '%add_wish%'
+                AND is_active = true
+            LOOP
+                -- Check if user has active participation in this challenge
+                SELECT * INTO participation_record
+                FROM public.challenge_participants
+                WHERE challenge_id = challenge_record.id
+                AND user_id = NEW.user_id
+                AND status = 'active';
+
+                -- If user is participating and hasn't completed yet, auto-complete
+                IF participation_record.id IS NOT NULL THEN
+                    -- Update participation to completed
+                    UPDATE public.challenge_participants
+                    SET
+                        status = 'completed',
+                        completed_at = now(),
+                        progress_data = jsonb_set(progress_data, '{completed}', 'true')
+                    WHERE id = participation_record.id;
+                END IF;
+            END LOOP;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create trigger on user_wishes table
+DROP TRIGGER IF EXISTS auto_complete_system_challenges ON public.user_wishes;
+CREATE TRIGGER auto_complete_system_challenges
+    AFTER INSERT ON public.user_wishes
+    FOR EACH ROW
+    EXECUTE FUNCTION public.auto_complete_system_challenges();

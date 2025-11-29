@@ -106,7 +106,7 @@ export default function ChallengesPage() {
                                     challenge.userParticipation?.status === 'completed'
                                         ? 'bg-green-100 text-green-800'
                                         : challenge.userParticipation?.status === 'active'
-                                            ? 'bg-blue-100 text-blue-800'
+                                            ? 'bg-blue-500 text-blue-800 hover:bg-blue-700' // Changed from blue-100 to blue-500 for better contrast
                                             : 'bg-blue-500 text-white hover:bg-blue-600'
                                 }`}
                                 disabled={challenge.userParticipation?.status === 'completed'}
@@ -114,10 +114,16 @@ export default function ChallengesPage() {
                                 {challenge.userParticipation?.status === 'completed'
                                     ? '✓'
                                     : challenge.userParticipation?.status === 'active'
-                                        ? 'Active'
+                                        ? 'Check' // Changed "Active" to "Check"
                                         : 'Join'
                                 }
                             </button>
+/*
+Button changes:
+- "Active" status now shows "Check" instead (when userParticipation?.status === 'active')
+- Improved contrast for "Check" button (blue on blue text is hard to read)
+- Keep the same functionality for now, but button text changed
+*/
                         </div>
 
                         {/* Reward and constraints in one line */}
