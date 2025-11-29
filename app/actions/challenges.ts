@@ -586,7 +586,7 @@ export async function checkUserWishesAction() {
                 wishesCount: count || 0,
                 wishes: wishes || [],
                 hasError: !!error,
-                errorMessage: error?.message || null
+                errorMessage: error ? (error as any).message || null : null
             }
         };
     } catch (error) {

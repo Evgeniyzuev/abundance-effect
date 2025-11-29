@@ -209,7 +209,11 @@ export default function ChallengesPage() {
                         onClick={async () => {
                             const result = await checkUserWishes();
                             console.log('User wishes check result:', result);
-                            alert(`User has ${result.success ? result.data.wishesCount : 'ERROR'} wishes`);
+                            if (result.success && result.data) {
+                                alert(`User has ${result.data.wishesCount} wishes`);
+                            } else {
+                                alert(`Error: ${result.error}`);
+                            }
                         }}
                         className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
                     >
@@ -222,7 +226,11 @@ export default function ChallengesPage() {
                                 const firstChallenge = availableChallenges[0];
                                 const result = await testVerificationScript(firstChallenge.id);
                                 console.log('Verification script test result:', result);
-                                alert(`Verification result: ${result.success ? result.data.verificationResult : 'ERROR'}`);
+                                if (result.success && result.data) {
+                                    alert(`Verification result: ${result.data.verificationResult}`);
+                                } else {
+                                    alert(`Error: ${result.error}`);
+                                }
                             }}
                             className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
                         >
