@@ -75,6 +75,38 @@ ALTER TABLE public.challenge_participants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.factions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.faction_members ENABLE ROW LEVEL SECURITY;
 
+-- Add RLS policies for user_wishes if table exists
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_wishes') THEN
+        ALTER TABLE public.user_wishes ENABLE ROW LEVEL SECURITY;
+        
+        -- Users can view their own wishes
+        DROP POLICY IF EXISTS "Users can view their own wishes" ON public.user_wishes;
+        CREATE POLICY "Users can view their own wishes"
+          ON public.user_wishes FOR SELECT
+          USING (auth.uid() = user_id);
+        
+        -- Users can insert their own wishes
+        DROP POLICY IF EXISTS "Users can insert their own wishes" ON public.user_wishes;
+        CREATE POLICY "Users can insert their own wishes"
+          ON public.user_wishes FOR INSERT
+          WITH CHECK (auth.uid() = user_id);
+        
+        -- Users can update their own wishes
+        DROP POLICY IF EXISTS "Users can update their own wishes" ON public.user_wishes;
+        CREATE POLICY "Users can update their own wishes"
+          ON public.user_wishes FOR UPDATE
+          USING (auth.uid() = user_id);
+        
+        -- Users can delete their own wishes
+        DROP POLICY IF EXISTS "Users can delete their own wishes" ON public.user_wishes;
+        CREATE POLICY "Users can delete their own wishes"
+          ON public.user_wishes FOR DELETE
+          USING (auth.uid() = user_id);
+    END IF;
+END $$;
+
 -- RLS Policies for challenges (public viewing, owner editing)
 DROP POLICY IF EXISTS "Everyone can view active challenges" ON public.challenges;
 CREATE POLICY "Everyone can view active challenges"
@@ -175,6 +207,14 @@ CREATE INDEX IF NOT EXISTS idx_challenge_participants_status ON public.challenge
 CREATE INDEX IF NOT EXISTS idx_faction_members_faction ON public.faction_members(faction_id);
 CREATE INDEX IF NOT EXISTS idx_faction_members_user ON public.faction_members(user_id);
 
+-- Add index for user_wishes table if it exists
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_wishes') THEN
+        CREATE INDEX IF NOT EXISTS idx_user_wishes_user_id ON public.user_wishes(user_id);
+    END IF;
+END $$;
+
 -- Insert sample system challenge: "Add one wish to wishboard" (with new verification_logic)
 INSERT INTO public.challenges (
   title,
@@ -198,7 +238,7 @@ INSERT INTO public.challenges (
   'auto',
   '{
     "type": "script",
-    "function": "async ({ userId, supabase, challengeData }) => { try { const adminSupabase = globalThis.createClient({ supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY }); const { count, error } = await adminSupabase.from(''user_wishes'').select(''*'', { count: ''exact'', head: true }).eq(''user_id'', userId); return !error && count > 0; } catch (e) { console.error(''Challenge verification error:'', e); return false; } }"
+    "function": "async ({ userId, supabase, challengeData }) => { try { const { count, error } = await supabase.from(''user_wishes'').select(''*'', { count: ''exact'', head: true }).eq(''user_id'', userId); return !error && count > 0; } catch (e) { console.error(''Challenge verification error:'', e); return false; } }"
   }'::jsonb,
   'System',
   'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',

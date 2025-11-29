@@ -9,7 +9,9 @@ import {
     joinChallengeAction,
     updateParticipationAction,
     checkAutoChallengesAction,
-    createChallengeAction
+    createChallengeAction,
+    checkUserWishesAction,
+    testVerificationScriptAction
 } from '@/app/actions/challenges';
 
 interface ChallengesCache {
@@ -235,6 +237,20 @@ export function useChallenges() {
         });
     }, [challenges, userParticipations, user?.id]);
 
+    // Check user's wishes directly
+    const checkUserWishes = useCallback(async () => {
+        if (!user) return { success: false, error: 'Not authenticated' };
+        
+        return await checkUserWishesAction();
+    }, [user]);
+
+    // Test verification script for a challenge
+    const testVerificationScript = useCallback(async (challengeId: string) => {
+        if (!user) return { success: false, error: 'Not authenticated' };
+        
+        return await testVerificationScriptAction(challengeId);
+    }, [user]);
+
     // Initialize on mount and user change
     useEffect(() => {
         if (!user) return;
@@ -261,6 +277,8 @@ export function useChallenges() {
         joinChallenge,
         updateParticipation,
         createChallenge,
-        checkAutoChallenges
+        checkAutoChallenges,
+        checkUserWishes,
+        testVerificationScript
     };
 }
