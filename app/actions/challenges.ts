@@ -126,6 +126,8 @@ export async function updateParticipationAction(
     progressData?: any
 ) {
     try {
+        logger.info('updateParticipationAction called:', { challengeId, status });
+        
         const supabase = await createClient();
 
         const { data: user } = await supabase.auth.getUser();
@@ -159,12 +161,16 @@ export async function updateParticipationAction(
         // Always execute verification script if available, regardless of verification_type
         const verificationLogic = challenge.verification_logic as any;
         if (status === 'completed' && verificationLogic?.type === 'script') {
+            logger.info('Executing verification script for challenge:', challenge.id);
+            
             // Execute verification script
             const isVerified = await executeVerificationScript(verificationLogic, {
                 userId: user.user.id,
                 challengeData: challenge,
                 supabase
             });
+
+            logger.info('Verification script result:', isVerified);
 
             if (!isVerified) {
                 return { success: false, error: 'Verification failed. Challenge requirements not met.' };
@@ -269,59 +275,52 @@ async function executeVerificationScript(scriptDefinition: any, context: {
     supabase: any;
 }) {
     try {
+        logger.info('executeVerificationScript called with context:', {
+            userId: context.userId,
+            challengeId: context.challengeData?.id,
+            hasSupabase: !!context.supabase
+        });
+
         const { function: scriptFunction } = scriptDefinition;
 
         if (!scriptFunction || typeof scriptFunction !== 'string') {
+            logger.error('Invalid verification script: no function string');
             return false;
         }
 
-        // Import createClient dynamically to avoid circular imports
-        const { createClient } = await import('@supabase/supabase-js');
+        logger.info('Script function length:', scriptFunction.length);
 
-        // Create safe sandbox context with global createClient
-        const globalContext = {
-            createClient,
-            // Environment variables
-            SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-            SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
-        };
-
-        // Create the async function from the script string with global context
+        // Create the async function from the script string
+        // The script expects parameters: { userId, supabase, challengeData }
         const scriptCode = `
             return (async function({ userId, supabase, challengeData }) {
-                // Make createClient available globally in script context
-                globalThis.createClient = function(options) {
-                    return createClient(options.supabaseUrl, options.supabaseKey);
-                };
-
-                // Access environment variables
-                process = {
-                    env: {
-                        NEXT_PUBLIC_SUPABASE_URL: arguments[3].SUPABASE_URL,
-                        SUPABASE_SERVICE_ROLE_KEY: arguments[3].SERVICE_ROLE_KEY
-                    }
-                };
-
                 ${scriptFunction}
             });
         `;
 
-        // Execute the script with limited privileges (function sandboxing)
-        const scriptFunctionExecutor = new Function('createClient', scriptCode);
-        const asyncVerifier = scriptFunctionExecutor(createClient);
+        // Execute the script to get the async function
+        const scriptFunctionExecutor = new Function(scriptCode);
+        const asyncVerifier = scriptFunctionExecutor();
 
         if (typeof asyncVerifier !== 'function') {
             logger.error('Invalid verification script: not a function');
             return false;
         }
 
-        // Run the verification script
-        const result = await asyncVerifier(context, globalContext);
+        logger.info('Running verification script...');
+
+        // Run the verification script with the provided context
+        const result = await asyncVerifier(context);
+
+        logger.info('Raw verification script result:', result);
 
         // Ensure result is boolean
-        return Boolean(result);
+        const isValid = Boolean(result);
+        logger.info('Final verification result:', isValid);
+        return isValid;
     } catch (error) {
         logger.error('Error executing verification script:', error);
+        logger.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
         return false;
     }
 }
@@ -548,6 +547,69 @@ export async function createChallengeAction(challengeData: {
         return { success: true, data: challenge };
     } catch (error) {
         logger.error('Error in createChallengeAction:', error);
+        return { success: false, error: 'Internal server error' };
+    }
+}
+
+// Test verification script function
+export async function testVerificationScriptAction(challengeId: string) {
+    try {
+        const supabase = await createClient();
+
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user) {
+            return { success: false, error: 'Not authenticated' };
+        }
+
+        logger.info('Testing verification script for challenge:', challengeId);
+
+        // Get challenge details
+        const { data: challenge, error: challengeError } = await supabase
+            .from('challenges')
+            .select('*')
+            .eq('id', challengeId)
+            .single();
+
+        if (challengeError || !challenge) {
+            return { success: false, error: 'Challenge not found' };
+        }
+
+        const verificationLogic = challenge.verification_logic as any;
+        if (!verificationLogic?.type || verificationLogic?.type !== 'script') {
+            return { success: false, error: 'Challenge does not have verification script' };
+        }
+
+        // Test the verification script
+        const isVerified = await executeVerificationScript(verificationLogic, {
+            userId: user.user.id,
+            challengeData: challenge,
+            supabase
+        });
+
+        // Also test direct database query for comparison
+        const { count, error } = await supabase
+            .from('user_wishes')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.user.id);
+
+        return {
+            success: true,
+            data: {
+                verificationResult: isVerified,
+                directQuery: {
+                    count,
+                    hasError: !!error,
+                    errorMessage: error?.message || null
+                },
+                challengeInfo: {
+                    id: challenge.id,
+                    title: challenge.title,
+                    verificationType: challenge.verification_type
+                }
+            }
+        };
+    } catch (error) {
+        logger.error('Error in testVerificationScriptAction:', error);
         return { success: false, error: 'Internal server error' };
     }
 }
