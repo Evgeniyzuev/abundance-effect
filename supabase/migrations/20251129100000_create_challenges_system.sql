@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.faction_members (
   faction_id uuid NOT NULL REFERENCES public.factions(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   role text NOT NULL DEFAULT 'member' CHECK (role IN ('leader', 'co_leader', 'member')),
-  joined_at timestamp with time zone DEFAULT timezone('utc'::text, now') NOT NULL,
+  joined_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE (faction_id, user_id) -- User can only be in one faction
 );
@@ -161,7 +161,6 @@ CREATE POLICY "Leaders can manage members"
              AND fm.user_id = auth.uid()
              AND fm.role IN ('leader', 'co_leader')
            )))
-    )
   );
 
 -- Create indexes for performance
@@ -199,17 +198,7 @@ INSERT INTO public.challenges (
   'auto',
   '{
     "type": "script",
-    "function": "
-      async ({ userId, supabase, challengeData }) => {
-        const { data, error } = await supabase
-          .from(''user_wishes'')
-          .select(''id'')
-          .eq(''user_id'', userId);
-
-        if (error) return false;
-        return data && data.length > 0;
-      }
-    "
+    "function": "async ({ userId, supabase, challengeData }) => { const { data, error } = await supabase.from(''user_wishes'').select(''id'').eq(''user_id'', userId); if (error) return false; return data && data.length > 0; }"
   }'::jsonb,
   'System',
   'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
