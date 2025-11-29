@@ -551,6 +551,50 @@ export async function createChallengeAction(challengeData: {
     }
 }
 
+// Check user's wishes directly
+export async function checkUserWishesAction() {
+    try {
+        const supabase = await createClient();
+
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user) {
+            return { success: false, error: 'Not authenticated' };
+        }
+
+        // Check user's wishes directly
+        const { count, data: wishes, error } = await supabase
+            .from('user_wishes')
+            .select('*')
+            .eq('user_id', user.user.id);
+
+        if (error) {
+            logger.error('Error checking user wishes:', error);
+            return { success: false, error: error.message };
+        }
+
+        logger.info('User wishes check:', {
+            userId: user.user.id,
+            count,
+            wishes: wishes?.length || 0,
+            hasError: !!error
+        });
+
+        return {
+            success: true,
+            data: {
+                userId: user.user.id,
+                wishesCount: count || 0,
+                wishes: wishes || [],
+                hasError: !!error,
+                errorMessage: error ? (error as any).message || null : null
+            }
+        };
+    } catch (error) {
+        logger.error('Error in checkUserWishesAction:', error);
+        return { success: false, error: 'Internal server error' };
+    }
+}
+
 // Test verification script function
 export async function testVerificationScriptAction(challengeId: string) {
     try {
