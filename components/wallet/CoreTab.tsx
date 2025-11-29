@@ -51,29 +51,29 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
 
     // Calculate level and progress
     const calculateLevelProgress = (balance: number) => {
-        let currentLevel = 0
+        let currentLevelIndex = -1
         let nextLevelThreshold = levelThresholds[0].core
 
+        // Find the highest level the user has achieved
         for (let i = levelThresholds.length - 1; i >= 0; i--) {
             if (balance >= levelThresholds[i].core) {
-                currentLevel = levelThresholds[i].level
+                currentLevelIndex = i
                 nextLevelThreshold = levelThresholds[i + 1]?.core || levelThresholds[i].core * 2
                 break
             }
         }
 
-        const currentLevelThreshold = currentLevel > 0
-            ? levelThresholds.find(t => t.level === currentLevel)?.core || 0
-            : 0
+        const currentLevel = currentLevelIndex >= 0 ? levelThresholds[currentLevelIndex].level : 0
+        const currentLevelThreshold = currentLevelIndex >= 0 ? levelThresholds[currentLevelIndex].core : 0
+        const previousLevelThreshold = currentLevelIndex > 0 ? levelThresholds[currentLevelIndex - 1].core : 0
 
-        const progressToNext = balance - currentLevelThreshold
-        const totalNeeded = nextLevelThreshold - currentLevelThreshold
-        const progressPercentage = (progressToNext / totalNeeded) * 100
+        // Show progress to next level from 0
+        const progressPercentage = nextLevelThreshold > 0 ? (balance / nextLevelThreshold) * 100 : 100
 
         return {
             currentLevel,
             nextLevelThreshold,
-            progressPercentage: Math.min(progressPercentage, 100)
+            progressPercentage: Math.min(Math.max(progressPercentage, 0), 100)
         }
     }
 
