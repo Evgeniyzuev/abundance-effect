@@ -8,10 +8,7 @@ import {
     fetchChallengesAction,
     joinChallengeAction,
     updateParticipationAction,
-    checkAutoChallengesAction,
-    createChallengeAction,
-    checkUserWishesAction,
-    testVerificationScriptAction
+    createChallengeAction
 } from '@/app/actions/challenges';
 
 interface ChallengesCache {
@@ -71,28 +68,7 @@ export function useChallenges() {
         }
     }, [user, saveToCache]);
 
-    // Check for auto-completable challenges
-    const checkAutoChallenges = useCallback(async () => {
-        if (!user) return;
 
-        const result = await checkAutoChallengesAction();
-
-        if (result.success && result.data) {
-            const { completedChallenges } = result.data;
-
-            if (completedChallenges.length > 0) {
-                // Refresh challenges to get updated status
-                await fetchChallenges();
-
-                // Show notification for completed challenges
-                completedChallenges.forEach(challengeId => {
-                    logger.info('Auto-completed challenge:', challengeId);
-                });
-            }
-        } else {
-            logger.error('Error checking auto challenges:', result.error);
-        }
-    }, [user, fetchChallenges]);
 
     // Join a challenge
     const joinChallenge = async (challengeId: string) => {
@@ -237,20 +213,6 @@ export function useChallenges() {
         });
     }, [challenges, userParticipations, user?.id]);
 
-    // Check user's wishes directly
-    const checkUserWishes = useCallback(async () => {
-        if (!user) return { success: false, error: 'Not authenticated' };
-        
-        return await checkUserWishesAction();
-    }, [user]);
-
-    // Test verification script for a challenge
-    const testVerificationScript = useCallback(async (challengeId: string) => {
-        if (!user) return { success: false, error: 'Not authenticated' };
-        
-        return await testVerificationScriptAction(challengeId);
-    }, [user]);
-
     // Initialize on mount and user change
     useEffect(() => {
         if (!user) return;
@@ -260,12 +222,7 @@ export function useChallenges() {
 
         // Then fetch fresh data
         fetchChallenges();
-
-        // Check for auto-completable challenges every 5 minutes
-        const autoCheckInterval = setInterval(checkAutoChallenges, 5 * 60 * 1000);
-
-        return () => clearInterval(autoCheckInterval);
-    }, [user, loadFromCache, fetchChallenges, checkAutoChallenges]);
+    }, [user, loadFromCache, fetchChallenges]);
 
     return {
         challenges,
@@ -276,9 +233,6 @@ export function useChallenges() {
         fetchChallenges,
         joinChallenge,
         updateParticipation,
-        createChallenge,
-        checkAutoChallenges,
-        checkUserWishes,
-        testVerificationScript
+        createChallenge
     };
 }
