@@ -13,7 +13,9 @@ export default function ChallengesPage() {
     const {
         challengesWithParticipation,
         joinChallenge,
-        updateParticipation
+        updateParticipation,
+        checkUserWishes,
+        testVerificationScript
     } = useChallenges();
 
     const [expandedSection, setExpandedSection] = useState<ChallengeSection>('available');
@@ -197,6 +199,37 @@ export default function ChallengesPage() {
             <div className="pt-6 pb-4">
                 <h1 className="text-2xl font-bold text-gray-900">Challenges</h1>
                 <p className="text-ios-secondary mt-1">Complete challenges to earn rewards</p>
+            </div>
+
+            {/* Test buttons for debugging */}
+            <div className="mb-4 p-4 bg-gray-100 rounded-lg">
+                <h3 className="font-semibold mb-2">Debug Tools</h3>
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        onClick={async () => {
+                            const result = await checkUserWishes();
+                            console.log('User wishes check result:', result);
+                            alert(`User has ${result.success ? result.data.wishesCount : 'ERROR'} wishes`);
+                        }}
+                        className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                    >
+                        Check User Wishes
+                    </button>
+                    
+                    {availableChallenges.length > 0 && (
+                        <button
+                            onClick={async () => {
+                                const firstChallenge = availableChallenges[0];
+                                const result = await testVerificationScript(firstChallenge.id);
+                                console.log('Verification script test result:', result);
+                                alert(`Verification result: ${result.success ? result.data.verificationResult : 'ERROR'}`);
+                            }}
+                            className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+                        >
+                            Test Verification Script
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Challenge Sections */}
