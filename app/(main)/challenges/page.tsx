@@ -71,7 +71,7 @@ export default function ChallengesPage() {
                         <img
                             src={challenge.image_url}
                             alt={getChallengeTitle(challenge, 'en')}
-                            className="w-16 h-full rounded-lg object-cover bg-gray-100 ml-2"
+                            className="w-16 h-full rounded-lg object-cover bg-gray-100"
                         />
                     ) : (
                         <div className="w-16 h-full rounded-lg bg-gray-200 flex items-center justify-center ml-2">
