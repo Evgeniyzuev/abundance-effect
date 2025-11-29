@@ -1,5 +1,7 @@
 import { Language } from '@/utils/translations';
 import { Challenge } from '@/types/supabase';
+import React from 'react';
+import { Atom } from 'lucide-react';
 
 // Utility function to safely get translated text from challenge
 export function getChallengeText(
@@ -46,23 +48,105 @@ export function getChallengeOwnerName(challenge: Challenge): string {
   return challenge.owner_name || 'System';
 }
 
-// Format reward display
-export function formatChallengeReward(challenge: Challenge): string {
-  const coreReward = challenge.reward_core;
-  const itemRewards = challenge.reward_items as any[];
+// Format reward display as JSX with icons
+export function formatChallengeReward(challenge: Challenge): React.ReactElement {
+  const coreReward = challenge.reward_core || 0;
+  const itemRewards = challenge.reward_items as any[] || [];
 
-  let rewardText = '';
+  const rewardParts: React.ReactElement[] = [];
 
+  // Core rewards: guaranteed + random (simulated for now)
   if (coreReward > 0) {
-    rewardText += `${coreReward} Core`;
+    const guaranteed = Math.floor(coreReward * 0.7);
+    const random = coreReward - guaranteed;
+
+    if (guaranteed > 0) {
+      rewardParts.push(
+        React.createElement('span', {
+          key: 'core-guaranteed',
+          className: 'flex items-center gap-0.5'
+        }, [
+          React.createElement(Atom, { key: 'atom', className: 'w-3 h-3 text-orange-500' }),
+          React.createElement('span', {
+            key: 'amount',
+            className: 'text-sm font-medium text-green-700'
+          }, guaranteed.toString())
+        ])
+      );
+    }
+
+    if (random > 0) {
+      rewardParts.push(
+        React.createElement('span', {
+          key: 'core-random',
+          className: 'flex items-center gap-0.5'
+        }, [
+          React.createElement(Atom, { key: 'atom', className: 'w-3 h-3 text-orange-500' }),
+          React.createElement('span', {
+            key: 'amount',
+            className: 'text-sm font-medium text-green-600'
+          }, `${random}+?`)
+        ])
+      );
+    }
   }
 
-  if (itemRewards && itemRewards.length > 0) {
-    if (rewardText) rewardText += ' + ';
-    rewardText += `${itemRewards.length} item${itemRewards.length > 1 ? 's' : ''}`;
+  // Items: 🎒 for items
+  if (itemRewards.length > 0) {
+    const guaranteedItems = Math.floor(itemRewards.length * 0.5);
+    const randomItems = itemRewards.length - guaranteedItems;
+
+    if (guaranteedItems > 0) {
+      rewardParts.push(
+        React.createElement('span', {
+          key: 'items-guaranteed',
+          className: 'flex items-center gap-0.5'
+        }, [
+          React.createElement('span', { key: 'icon', className: 'text-sm' }, '🎒'),
+          React.createElement('span', {
+            key: 'amount',
+            className: 'text-sm font-medium text-purple-600'
+          }, guaranteedItems.toString())
+        ])
+      );
+    }
+
+    if (randomItems > 0) {
+      rewardParts.push(
+        React.createElement('span', {
+          key: 'items-random',
+          className: 'flex items-center gap-0.5'
+        }, [
+          React.createElement('span', { key: 'icon', className: 'text-sm' }, '🎒'),
+          React.createElement('span', {
+            key: 'amount',
+            className: 'text-sm font-medium text-purple-600'
+          }, `${randomItems}+?`)
+        ])
+      );
+    }
   }
 
-  return rewardText || 'No rewards';
+  // Wallet rewards: if there were wallet-specific rewards (currently simulated)
+  const walletReward = Math.floor(coreReward * 0.3); // Simulate wallet reward
+  if (walletReward > 0) {
+    rewardParts.push(
+      React.createElement('span', {
+        key: 'wallet',
+        className: 'flex items-center gap-0.5'
+      }, [
+        React.createElement('span', { key: 'icon', className: 'text-sm' }, '👛'),
+        React.createElement('span', {
+          key: 'amount',
+          className: 'text-sm font-medium text-blue-600'
+        }, walletReward.toString())
+      ])
+    );
+  }
+
+  return React.createElement('div', {
+    className: 'flex flex-wrap items-center gap-1'
+  }, rewardParts);
 }
 
 // Check if challenge is expired

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useChallenges } from '@/hooks/useChallenges';
-import { getChallengeTitle, getChallengeDescription, getChallengeOwnerName, formatChallengeReward, getChallengeTypeName } from '@/utils/challengeTranslations';
-import { CheckCircle, Users, Trophy } from 'lucide-react';
+import { getChallengeTitle, getChallengeOwnerName, formatChallengeReward, getChallengeTypeName } from '@/utils/challengeTranslations';
+import { CheckCircle, Users, Trophy, Atom } from 'lucide-react';
 
 type ChallengeSection = 'available' | 'accepted' | 'completed';
 
@@ -55,53 +55,100 @@ export default function ChallengesPage() {
         return `${titles[section]} (${count})`;
     };
 
-    const ChallengeCard = ({ challenge }: { challenge: any }) => (
-        <div className="ios-card p-4 mb-3">
-            <div className="flex items-start justify-between">
-                <div className="flex-1">
-                    <h3 className="font-semibold text-base mb-1">
-                        {getChallengeTitle(challenge, 'en')}
-                    </h3>
-                    <p className="text-sm text-ios-secondary mb-2">
-                        {getChallengeDescription(challenge, 'en')}
-                    </p>
-                    <div className="flex items-center text-xs text-ios-secondary mb-3">
-                        <span>By {getChallengeOwnerName(challenge)}</span>
-                        <span className="mx-2">•</span>
-                        <span>{getChallengeTypeName(challenge.type, 'en')}</span>
-                        <span className="mx-2">•</span>
-                        <span>{challenge.current_participants} joined</span>
+    const ChallengeCard = ({ challenge }: { challenge: any }) => {
+        // Calculate challenge level (for now, simple calculation based on reward_core)
+        const getChallengeLevel = (challenge: any) => {
+            const coreReward = challenge.reward_core || 0;
+            if (coreReward === 0) return 0;
+            if (coreReward < 10) return 1;
+            if (coreReward < 50) return 2;
+            if (coreReward < 100) return 3;
+            return 4;
+        };
+
+        return (
+            <div className="ios-card p-3 mb-3">
+                <div className="flex items-start gap-3">
+                    {/* Challenge image thumbnail */}
+                    <div className="flex-shrink-0">
+                        {challenge.image_url ? (
+                            <img
+                                src={challenge.image_url}
+                                alt={getChallengeTitle(challenge, 'en')}
+                                className="w-12 h-12 rounded-lg object-cover bg-gray-100"
+                            />
+                        ) : (
+                            <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                                <Trophy className="w-6 h-6 text-gray-400" />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        {/* Title and level */}
+                        <div className="flex items-center justify-between mb-1">
+                            <h3 className="font-semibold text-sm text-gray-900 truncate">
+                                {getChallengeTitle(challenge, 'en')}
+                            </h3>
+                            <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                                Lvl {getChallengeLevel(challenge)}
+                            </span>
+                        </div>
+
+                        {/* Reward display */}
+                        <div className="flex flex-wrap items-center gap-1 mb-2">
+                            {formatChallengeReward(challenge)}
+                        </div>
+
+                        {/* Deadline and spots */}
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center gap-3">
+                                {challenge.deadline && (
+                                    <span className="flex items-center gap-1">
+                                        <span>⏰</span>
+                                        <span>{new Date(challenge.deadline).toLocaleDateString()}</span>
+                                    </span>
+                                )}
+                                {challenge.max_participants && (
+                                    <span className="flex items-center gap-1">
+                                        <Users className="w-3 h-3" />
+                                        <span>
+                                            {challenge.max_participants - challenge.current_participants || 0}/{challenge.max_participants}
+                                        </span>
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Action button */}
+                    <div className="flex-shrink-0 ml-2">
+                        <button
+                            onClick={() => challenge.userParticipation
+                                ? updateParticipation(challenge.id, 'completed')
+                                : joinChallenge(challenge.id)
+                            }
+                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                                challenge.userParticipation?.status === 'completed'
+                                    ? 'bg-green-100 text-green-800'
+                                    : challenge.userParticipation?.status === 'active'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                            }`}
+                            disabled={challenge.userParticipation?.status === 'completed'}
+                        >
+                            {challenge.userParticipation?.status === 'completed'
+                                ? '✓'
+                                : challenge.userParticipation?.status === 'active'
+                                    ? 'Active'
+                                    : 'Join'
+                            }
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <div className="flex items-center justify-between">
-                <div className="text-sm font-medium text-green-600">
-                    Reward: {formatChallengeReward(challenge)}
-                </div>
-
-                <button
-                    onClick={() => challenge.userParticipation
-                        ? updateParticipation(challenge.id, 'completed')
-                        : joinChallenge(challenge.id)
-                    }
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        challenge.userParticipation?.status === 'completed'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                    }`}
-                    disabled={challenge.userParticipation?.status === 'completed'}
-                >
-                    {challenge.userParticipation?.status === 'completed'
-                        ? 'Completed'
-                        : challenge.userParticipation
-                            ? 'Mark Complete'
-                            : 'Join Challenge'
-                    }
-                </button>
-            </div>
-        </div>
-    );
+        );
+    };
 
     const ChallengeSection = ({ title, count, section, challenges }: {
         title: string;
