@@ -269,6 +269,170 @@ export interface Database {
                     updated_at?: string
                 }
             }
+            challenges: {
+                Row: {
+                    id: string
+                    title: Json
+                    description: Json
+                    type: 'system' | 'user_created' | 'event' | 'tournament'
+                    category: string | null
+                    reward_core: number
+                    reward_items: Json
+                    max_participants: number
+                    current_participants: number
+                    deadline: string | null
+                    verification_type: 'auto' | 'manual_peer' | 'manual_creator'
+                    verification_logic: Json
+                    owner_id: string | null
+                    owner_name: string | null
+                    image_url: string | null
+                    is_active: boolean
+                    priority: number
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    title?: Json
+                    description?: Json
+                    type: 'system' | 'user_created' | 'event' | 'tournament'
+                    category?: string | null
+                    reward_core?: number
+                    reward_items?: Json
+                    max_participants?: number
+                    current_participants?: number
+                    deadline?: string | null
+                    verification_type?: 'auto' | 'manual_peer' | 'manual_creator'
+                    verification_logic?: Json
+                    owner_id?: string | null
+                    owner_name?: string | null
+                    image_url?: string | null
+                    is_active?: boolean
+                    priority?: number
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    title?: Json
+                    description?: Json
+                    type?: 'system' | 'user_created' | 'event' | 'tournament'
+                    category?: string | null
+                    reward_core?: number
+                    reward_items?: Json
+                    max_participants?: number
+                    current_participants?: number
+                    deadline?: string | null
+                    verification_type?: 'auto' | 'manual_peer' | 'manual_creator'
+                    verification_logic?: Json
+                    owner_id?: string | null
+                    owner_name?: string | null
+                    image_url?: string | null
+                    is_active?: boolean
+                    priority?: number
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
+            challenge_participants: {
+                Row: {
+                    id: string
+                    challenge_id: string
+                    user_id: string
+                    joined_at: string
+                    status: 'active' | 'completed' | 'failed' | 'abandoned'
+                    progress_data: Json
+                    completed_at: string | null
+                    rewards_claimed: Json
+                    verification_data: Json
+                }
+                Insert: {
+                    id?: string
+                    challenge_id: string
+                    user_id: string
+                    joined_at?: string
+                    status?: 'active' | 'completed' | 'failed' | 'abandoned'
+                    progress_data?: Json
+                    completed_at?: string | null
+                    rewards_claimed?: Json
+                    verification_data?: Json
+                }
+                Update: {
+                    id?: string
+                    challenge_id?: string
+                    user_id?: string
+                    joined_at?: string
+                    status?: 'active' | 'completed' | 'failed' | 'abandoned'
+                    progress_data?: Json
+                    completed_at?: string | null
+                    rewards_claimed?: Json
+                    verification_data?: Json
+                }
+            }
+            factions: {
+                Row: {
+                    id: string
+                    name: Json
+                    description: Json
+                    mission: Json
+                    goals: Json
+                    values: Json
+                    plan: Json
+                    image_url: string | null
+                    created_by: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    name?: Json
+                    description?: Json
+                    mission?: Json
+                    goals?: Json
+                    values?: Json
+                    plan?: Json
+                    image_url?: string | null
+                    created_by: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    name?: Json
+                    description?: Json
+                    mission?: Json
+                    goals?: Json
+                    values?: Json
+                    plan?: Json
+                    image_url?: string | null
+                    created_by?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+            }
+            faction_members: {
+                Row: {
+                    id: string
+                    faction_id: string
+                    user_id: string
+                    role: 'leader' | 'co_leader' | 'member'
+                    joined_at: string
+                }
+                Insert: {
+                    id?: string
+                    faction_id: string
+                    user_id: string
+                    role?: 'leader' | 'co_leader' | 'member'
+                    joined_at?: string
+                }
+                Update: {
+                    id?: string
+                    faction_id?: string
+                    user_id?: string
+                    role?: 'leader' | 'co_leader' | 'member'
+                    joined_at?: string
+                }
+            }
         }
     }
 }
@@ -280,3 +444,7 @@ export type UserNote = Database['public']['Tables']['user_notes']['Row']
 export type PersonalTask = Database['public']['Tables']['personal_tasks']['Row']
 export type UserResults = Database['public']['Tables']['user_results']['Row']
 export type GameItem = Database['public']['Tables']['game_items']['Row']
+export type Challenge = Database['public']['Tables']['challenges']['Row']
+export type ChallengeParticipant = Database['public']['Tables']['challenge_participants']['Row']
+export type Faction = Database['public']['Tables']['factions']['Row']
+export type FactionMember = Database['public']['Tables']['faction_members']['Row']
