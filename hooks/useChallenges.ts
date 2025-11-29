@@ -29,6 +29,7 @@ export function useChallenges() {
     const [isLoading, setIsLoading] = useState(false);
     const [completedChallenge, setCompletedChallenge] = useState<Challenge | null>(null);
     const [showCompletionModal, setShowCompletionModal] = useState(false);
+    const [checkingChallenges, setCheckingChallenges] = useState<Set<string>>(new Set());
 
     // Load from cache
     const loadFromCache = useCallback(() => {
@@ -134,17 +135,8 @@ export function useChallenges() {
         const previousParticipations = [...userParticipations];
         const challenge = challenges.find(c => c.id === challengeId);
 
-        // Optimistic update
-        setUserParticipations(prev => prev.map(p =>
-            p.challenge_id === challengeId && p.user_id === user.id
-                ? {
-                    ...p,
-                    status,
-                    completed_at: status === 'completed' ? new Date().toISOString() : p.completed_at,
-                    progress_data: progressData || p.progress_data
-                }
-                : p
-        ));
+        // Add to checking challenges set for loading state
+        setCheckingChallenges(prev => new Set(prev).add(challengeId));
 
         try {
             const result = await updateParticipationAction(challengeId, status, progressData);
@@ -161,17 +153,20 @@ export function useChallenges() {
 
                 return true;
             } else {
-                // Revert
-                setUserParticipations(previousParticipations);
                 logger.error('Error updating participation:', result.error);
                 alert('Failed to update participation: ' + result.error);
                 return false;
             }
         } catch (error) {
-            // Revert
-            setUserParticipations(previousParticipations);
             logger.error('Error updating participation:', error);
             return false;
+        } finally {
+            // Remove from checking challenges set
+            setCheckingChallenges(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(challengeId);
+                return newSet;
+            });
         }
     };
 
@@ -246,6 +241,7 @@ export function useChallenges() {
         createChallenge,
         completedChallenge,
         showCompletionModal,
-        setShowCompletionModal
+        setShowCompletionModal,
+        checkingChallenges
     };
 }

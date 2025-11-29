@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useChallenges } from '@/hooks/useChallenges';
 import { getChallengeTitle, getChallengeOwnerName, formatChallengeReward, getChallengeTypeName } from '@/utils/challengeTranslations';
-import { CheckCircle, Users, Trophy, Atom } from 'lucide-react';
+import { CheckCircle, Users, Trophy, Atom, Loader2 } from 'lucide-react';
 import { ChallengeCompletionModal } from '@/components/ChallengesCompletionModal';
 
 type ChallengeSection = 'available' | 'accepted' | 'completed';
@@ -17,7 +17,8 @@ export default function ChallengesPage() {
         updateParticipation,
         completedChallenge,
         showCompletionModal,
-        setShowCompletionModal
+        setShowCompletionModal,
+        checkingChallenges
     } = useChallenges();
 
     const [expandedSection, setExpandedSection] = useState<ChallengeSection>('available');
@@ -112,20 +113,25 @@ export default function ChallengesPage() {
                                         await joinChallenge(challenge.id);
                                     }
                                 }}
-                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 ${
+                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 flex items-center gap-1 ${
                                     challenge.userParticipation?.status === 'completed'
                                         ? 'bg-green-100 text-green-800'
                                         : challenge.userParticipation?.status === 'active'
                                             ? 'bg-blue-500 text-blue-800 hover:bg-blue-700' // Changed from blue-100 to blue-500 for better contrast
                                             : 'bg-blue-500 text-white hover:bg-blue-600'
                                 }`}
-                                disabled={challenge.userParticipation?.status === 'completed'}
+                                disabled={challenge.userParticipation?.status === 'completed' || checkingChallenges.has(challenge.id)}
                             >
-                                {challenge.userParticipation?.status === 'completed'
-                                    ? '✓'
-                                    : challenge.userParticipation?.status === 'active'
-                                        ? 'Check' // Changed "Active" to "Check"
-                                        : 'Join'
+                                {checkingChallenges.has(challenge.id) ? (
+                                    <>
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        Checking...
+                                    </>
+                                ) : challenge.userParticipation?.status === 'completed'
+                                ? '✓'
+                                : challenge.userParticipation?.status === 'active'
+                                    ? 'Check' // Changed "Active" to "Check"
+                                    : 'Join'
                                 }
                             </button>
                         </div>
