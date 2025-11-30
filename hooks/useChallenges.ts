@@ -229,6 +229,21 @@ export function useChallenges() {
         fetchChallenges();
     }, [user, loadFromCache, fetchChallenges]);
 
+    // Refresh challenges when user comes back to this tab/page
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && user) {
+                fetchChallenges();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [user, fetchChallenges]);
+
     return {
         challenges,
         userParticipations,

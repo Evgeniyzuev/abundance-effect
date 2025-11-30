@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useChallenges } from '@/hooks/useChallenges';
 import { getChallengeTitle, getChallengeOwnerName, formatChallengeReward, getChallengeTypeName } from '@/utils/challengeTranslations';
-import { CheckCircle, Users, Trophy, Atom, Loader2 } from 'lucide-react';
+import { CheckCircle, Users, Trophy, Atom, Loader2, RotateCcw } from 'lucide-react';
 import { ChallengeCompletionModal } from '@/components/ChallengesCompletionModal';
 
 type ChallengeSection = 'available' | 'accepted' | 'completed';
@@ -18,7 +18,8 @@ export default function ChallengesPage() {
         completedChallenge,
         showCompletionModal,
         setShowCompletionModal,
-        checkingChallenges
+        checkingChallenges,
+        fetchChallenges
     } = useChallenges();
 
     const [expandedSection, setExpandedSection] = useState<ChallengeSection>('available');
@@ -204,9 +205,15 @@ export default function ChallengesPage() {
     return (
         <div className="pb-20 px-4">
             {/* Page Header */}
-            <div className="pt-6 pb-4">
+            <div className="pt-6 pb-4 flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">Challenges</h1>
-                <p className="text-ios-secondary mt-1">Complete challenges to earn rewards</p>
+                <button
+                    onClick={() => fetchChallenges()}
+                    className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                    title="Refresh challenges"
+                >
+                    <RotateCcw className="w-5 h-5" />
+                </button>
             </div>
 
             {/* Challenge Sections */}
