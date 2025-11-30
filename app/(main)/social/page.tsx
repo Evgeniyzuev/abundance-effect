@@ -16,14 +16,14 @@ export default function SocialPage() {
 
     // Calculate current level based on aicore_balance
     const calculateCurrentLevel = () => {
-        if (!user?.aicore_balance || levelThresholds.length === 0) return 1;
+        if (!user?.aicore_balance || levelThresholds.length === 0) return 0;
 
         for (let i = levelThresholds.length - 1; i >= 0; i--) {
             if (user.aicore_balance >= levelThresholds[i].core) {
                 return levelThresholds[i].level;
             }
         }
-        return 1;
+        return 0;
     };
 
     const handleLogout = async () => {
