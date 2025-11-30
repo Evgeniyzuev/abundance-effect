@@ -1,5 +1,7 @@
 import React from 'react';
 import { CheckCircle, Trophy } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { getChallengeTitle } from '@/utils/challengeTranslations';
 import { formatChallengeReward } from '@/utils/challengeTranslations';
 
 interface ChallengeCompletionModalProps {
@@ -13,6 +15,8 @@ export const ChallengeCompletionModal: React.FC<ChallengeCompletionModalProps> =
   onClose,
   challenge
 }) => {
+  const { t, language } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
@@ -27,17 +31,17 @@ export const ChallengeCompletionModal: React.FC<ChallengeCompletionModalProps> =
 
         {/* Title */}
         <h2 className="text-xl font-bold text-gray-900 mb-2">
-          Challenge Completed!
+          {t('challenges.completed_title')}
         </h2>
 
         {/* Challenge Name */}
         <p className="text-gray-600 mb-4">
-          {challenge?.title?.en || 'Challenge'}
+          {getChallengeTitle(challenge, language)}
         </p>
 
         {/* Reward Info */}
         <div className="bg-gray-50 rounded-lg p-3 mb-6">
-          <div className="text-sm text-gray-600 mb-1">Your reward:</div>
+          <div className="text-sm text-gray-600 mb-1">{t('challenges.your_reward')}</div>
           <div className="font-semibold text-gray-900">
             {formatChallengeReward(challenge)}
           </div>
@@ -48,7 +52,7 @@ export const ChallengeCompletionModal: React.FC<ChallengeCompletionModalProps> =
           onClick={onClose}
           className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-600 transition-colors"
         >
-          Great!
+          {t('challenges.great')}
         </button>
       </div>
     </div>

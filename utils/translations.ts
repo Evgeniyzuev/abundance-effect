@@ -30,6 +30,10 @@ export type TranslationKey =
     | 'challenges.checking'
     | 'challenges.completed_icon'
     | 'challenges.no_challenges_yet'
+    // Challenges completion modal
+    | 'challenges.completed_title'
+    | 'challenges.your_reward'
+    | 'challenges.great'
     // Wallet page
     | 'wallet.title'
     | 'wallet.wallet_balance'
@@ -181,6 +185,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'challenges.checking': 'Checking...',
         'challenges.completed_icon': '✓',
         'challenges.no_challenges_yet': 'No challenges yet',
+        'challenges.completed_title': 'Challenge Completed!',
+        'challenges.your_reward': 'Your reward:',
+        'challenges.great': 'Great!',
         // AI
         'ai.title': 'AI Assistant',
         'ai.coming_soon': 'AI Squad coming soon.',
@@ -333,6 +340,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'challenges.checking': '检查中...',
         'challenges.completed_icon': '✓',
         'challenges.no_challenges_yet': '暂无挑战',
+        'challenges.completed_title': '挑战完成！',
+        'challenges.your_reward': '您的奖励：',
+        'challenges.great': '好极了！',
         // AI
         'ai.title': 'AI 助手',
         'ai.coming_soon': 'AI 小队即将推出。',
@@ -485,6 +495,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'challenges.checking': 'Revisando...',
         'challenges.completed_icon': '✓',
         'challenges.no_challenges_yet': 'Aún no hay desafíos',
+        'challenges.completed_title': '¡Desafío Completado!',
+        'challenges.your_reward': 'Tu recompensa:',
+        'challenges.great': '¡Excelente!',
         // AI
         'ai.title': 'Asistente de IA',
         'ai.coming_soon': 'Escuadrón de IA próximamente.',
@@ -637,6 +650,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'challenges.checking': 'जाँच हो रही है...',
         'challenges.completed_icon': '✓',
         'challenges.no_challenges_yet': 'अभी तक कोई चुनौति नहीं',
+        'challenges.completed_title': 'चुनौती पूर्ण!',
+        'challenges.your_reward': 'आपका इनाम:',
+        'challenges.great': 'शानदार!',
         // AI
         'ai.title': 'AI सहायक',
         'ai.coming_soon': 'AI स्क्वाड जल्द ही आ रहा है।',
@@ -789,6 +805,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'challenges.checking': 'جار التحقق...',
         'challenges.completed_icon': '✓',
         'challenges.no_challenges_yet': 'لا توجد تحديات حتى الآن',
+        'challenges.completed_title': 'تم إكمال التحدي!',
+        'challenges.your_reward': 'مكافأتك:',
+        'challenges.great': 'ممتاز!',
         // AI
         'ai.title': 'مساعد الذكاء الاصطناعي',
         'ai.coming_soon': 'فريق الذكاء الاصطناعي قريباً.',
@@ -941,6 +960,9 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'challenges.checking': 'Проверка...',
         'challenges.completed_icon': '✓',
         'challenges.no_challenges_yet': 'Пока нет челленджей',
+        'challenges.completed_title': 'Челлендж выполнен!',
+        'challenges.your_reward': 'Ваша награда:',
+        'challenges.great': 'Отлично!',
         // AI
         'ai.title': 'AI Ассистент',
         'ai.coming_soon': 'AI Команда скоро.',
