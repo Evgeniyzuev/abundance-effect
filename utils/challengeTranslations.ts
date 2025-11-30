@@ -71,7 +71,7 @@ export function formatChallengeReward(challenge: Challenge): React.ReactElement 
           React.createElement('span', {
             key: 'amount',
             className: 'text-sm font-medium text-green-700'
-          }, `${amount}${isRandom ? '+?' : ''}`)
+          }, `+${amount}${isRandom ? '+?' : ''}$`)
         ])
       );
     }
