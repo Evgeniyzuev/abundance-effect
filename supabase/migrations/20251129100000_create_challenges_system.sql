@@ -216,31 +216,40 @@ BEGIN
 END $$;
 
 -- Insert sample system challenge: "Add one wish to wishboard" (with server-side verification)
-INSERT INTO public.challenges (
-  title,
-  description,
-  type,
-  category,
-  level,
-  reward_core,
-  verification_type,
-  verification_logic,
-  owner_name,
-  image_url,
-  priority
-) VALUES (
-  '{"en": "Add Your First Wish", "ru": "Добавьте свое первое желание", "zh": "添加您的第一个愿望"}'::jsonb,
-  '{"en": "Create your vision board by adding your first wish. What would you like to achieve?", "ru": "Создайте свою доску желаний, добавив первое желание. Чего вы хотите достичь?", "zh": "通过添加第一个愿望来创建您的愿景板。您想要实现什么？"}'::jsonb,
-  'system',
-  'goal_setting',
-  1,
-  '"1$"'::jsonb,
-  'auto',
-  'has_wish',
-  'System',
-  'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
-  100
-);
+-- Only add if challenge with specific title doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM public.challenges
+        WHERE title->>'en' = 'Add Your First Wish'
+    ) THEN
+        INSERT INTO public.challenges (
+          title,
+          description,
+          type,
+          category,
+          level,
+          reward_core,
+          verification_type,
+          verification_logic,
+          owner_name,
+          image_url,
+          priority
+        ) VALUES (
+          '{"en": "Add Your First Wish", "ru": "Добавьте свое первое желание", "zh": "添加您的第一个愿望"}'::jsonb,
+          '{"en": "Create your vision board by adding your first wish. What would you like to achieve?", "ru": "Создайте свою доску желаний, добавив первое желание. Чего вы хотите достичь?", "zh": "通过添加第一个愿望来创建您的愿景板。您想要实现什么？"}'::jsonb,
+          'system',
+          'goal_setting',
+          1,
+          '"1$"'::jsonb,
+          'auto',
+          'has_wish',
+          'System',
+          'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
+          100
+        );
+    END IF;
+END $$;
 
 -- Add updated_at trigger for challenges
 CREATE OR REPLACE FUNCTION public.handle_challenges_updated_at()
