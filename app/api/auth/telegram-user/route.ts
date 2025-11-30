@@ -13,10 +13,6 @@ export async function POST(request: Request) {
         const body = await request.json();
         const { telegramUser, initData, referrerId } = body;
 
-        console.log('🔗 Telegram-user API called');
-        console.log('🔗 referrerId received:', referrerId);
-        console.log('🔗 telegramUser:', telegramUser);
-
         if (!telegramUser?.id) {
             return NextResponse.json({ error: 'Missing Telegram user data' }, { status: 400 });
         }
