@@ -5,12 +5,26 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
+import { useLevelCheck } from '@/hooks/useLevelCheck';
 
 export default function SocialPage() {
     const { user, session, logout } = useUser();
     const router = useRouter();
     const { t } = useLanguage();
+    const { levelThresholds } = useLevelCheck();
     const supabase = createClient();
+
+    // Calculate current level based on aicore_balance
+    const calculateCurrentLevel = () => {
+        if (!user?.aicore_balance || levelThresholds.length === 0) return 1;
+
+        for (let i = levelThresholds.length - 1; i >= 0; i--) {
+            if (user.aicore_balance >= levelThresholds[i].core) {
+                return levelThresholds[i].level;
+            }
+        }
+        return 1;
+    };
 
     const handleLogout = async () => {
         await logout();
@@ -66,7 +80,7 @@ export default function SocialPage() {
                         {user?.first_name || user?.username || 'User'}
                     </h2>
                     <div className="inline-flex items-center px-3 py-1 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-600">
-                        {t('profile.level')} {user?.level ?? 1}
+                        {t('profile.level')} {calculateCurrentLevel()}
                     </div>
                 </div>
             </div>
