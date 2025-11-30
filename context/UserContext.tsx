@@ -165,7 +165,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 const startParam = webApp.initDataUnsafe?.start_param;
 
                 if (tgUser) {
-                    console.log('Telegram user detected:', tgUser, 'start_param:', startParam);
+                    console.log('📱 Telegram user detected:', tgUser);
+                    console.log('📱 Telegram initData:', webApp.initData);
+                    console.log('📱 start_param:', startParam);
+                    console.log('📱 URL:', typeof window !== 'undefined' ? window.location.href : 'server-side');
+                    console.log('📱 initDataUnsafe:', webApp.initDataUnsafe);
 
                         // Save Telegram init data to cache
                         const tgCache: TelegramInitDataCache = {
