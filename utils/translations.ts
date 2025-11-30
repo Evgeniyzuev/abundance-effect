@@ -23,6 +23,13 @@ export type TranslationKey =
     // AI page
     | 'ai.title'
     | 'ai.coming_soon'
+    // Challenges page details
+    | 'challenges.page_title'
+    | 'challenges.join'
+    | 'challenges.check'
+    | 'challenges.checking'
+    | 'challenges.completed_icon'
+    | 'challenges.no_challenges_yet'
     // Wallet page
     | 'wallet.title'
     | 'wallet.wallet_balance'
@@ -164,10 +171,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.add_wish': 'Add Wish',
         // Challenges
         'challenges.title': 'Challenges',
+        'challenges.page_title': 'Challenges',
         'challenges.no_active': 'No active challenges yet.',
         'challenges.available': 'Available Challenges',
         'challenges.accepted': 'Accepted Challenges',
         'challenges.completed': 'Completed Challenges',
+        'challenges.join': 'Join',
+        'challenges.check': 'Check',
+        'challenges.checking': 'Checking...',
+        'challenges.completed_icon': '✓',
+        'challenges.no_challenges_yet': 'No challenges yet',
         // AI
         'ai.title': 'AI Assistant',
         'ai.coming_soon': 'AI Squad coming soon.',
@@ -310,10 +323,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.add_wish': '添加愿望',
         // Challenges
         'challenges.title': '挑战',
+        'challenges.page_title': '挑战',
         'challenges.no_active': '暂无活跃挑战。',
-        'challenges.available': 'Available Challenges',
-        'challenges.accepted': 'Accepted Challenges',
-        'challenges.completed': 'Completed Challenges',
+        'challenges.available': '可用挑战',
+        'challenges.accepted': '已接受挑战',
+        'challenges.completed': '已完成挑战',
+        'challenges.join': '加入',
+        'challenges.check': '检查',
+        'challenges.checking': '检查中...',
+        'challenges.completed_icon': '✓',
+        'challenges.no_challenges_yet': '暂无挑战',
         // AI
         'ai.title': 'AI 助手',
         'ai.coming_soon': 'AI 小队即将推出。',
@@ -456,10 +475,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.add_wish': 'Agregar Deseo',
         // Challenges
         'challenges.title': 'Desafíos',
+        'challenges.page_title': 'Desafíos',
         'challenges.no_active': 'Aún no hay desafíos activos.',
-        'challenges.available': 'Available Challenges',
-        'challenges.accepted': 'Accepted Challenges',
-        'challenges.completed': 'Completed Challenges',
+        'challenges.available': 'Desafíos Disponibles',
+        'challenges.accepted': 'Desafíos Aceptados',
+        'challenges.completed': 'Desafíos Completados',
+        'challenges.join': 'Unirse',
+        'challenges.check': 'Revisar',
+        'challenges.checking': 'Revisando...',
+        'challenges.completed_icon': '✓',
+        'challenges.no_challenges_yet': 'Aún no hay desafíos',
         // AI
         'ai.title': 'Asistente de IA',
         'ai.coming_soon': 'Escuadrón de IA próximamente.',
@@ -602,10 +627,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.add_wish': 'इच्छा जोड़ें',
         // Challenges
         'challenges.title': 'चुनौतियाँ',
+        'challenges.page_title': 'चुनौतियाँ',
         'challenges.no_active': 'अभी तक कोई सक्रिय चुनौती नहीं।',
-        'challenges.available': 'Available Challenges',
-        'challenges.accepted': 'Accepted Challenges',
-        'challenges.completed': 'Completed Challenges',
+        'challenges.available': 'उपलब्ध चुनौतियाँ',
+        'challenges.accepted': 'स्वीकृत चुनौतियाँ',
+        'challenges.completed': 'पूर्ण चुनौतियाँ',
+        'challenges.join': 'जुड़ें',
+        'challenges.check': 'जाँचें',
+        'challenges.checking': 'जाँच हो रही है...',
+        'challenges.completed_icon': '✓',
+        'challenges.no_challenges_yet': 'अभी तक कोई चुनौति नहीं',
         // AI
         'ai.title': 'AI सहायक',
         'ai.coming_soon': 'AI स्क्वाड जल्द ही आ रहा है।',
@@ -748,10 +779,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.add_wish': 'أضف أمنية',
         // Challenges
         'challenges.title': 'التحديات',
+        'challenges.page_title': 'التحديات',
         'challenges.no_active': 'لا توجد تحديات نشطة حتى الآن.',
-        'challenges.available': 'Available Challenges',
-        'challenges.accepted': 'Accepted Challenges',
-        'challenges.completed': 'Completed Challenges',
+        'challenges.available': 'التحديات المتاحة',
+        'challenges.accepted': 'التحديات المقبولة',
+        'challenges.completed': 'التحديات المكتملة',
+        'challenges.join': 'انضم',
+        'challenges.check': 'تحقق',
+        'challenges.checking': 'جار التحقق...',
+        'challenges.completed_icon': '✓',
+        'challenges.no_challenges_yet': 'لا توجد تحديات حتى الآن',
         // AI
         'ai.title': 'مساعد الذكاء الاصطناعي',
         'ai.coming_soon': 'فريق الذكاء الاصطناعي قريباً.',
@@ -894,10 +931,16 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.add_wish': 'Добавить Желание',
         // Challenges
         'challenges.title': 'Челленджи',
+        'challenges.page_title': 'Челленджи',
         'challenges.no_active': 'Пока нет активных челленджей.',
-        'challenges.available': 'Available Challenges',
-        'challenges.accepted': 'Accepted Challenges',
-        'challenges.completed': 'Completed Challenges',
+        'challenges.available': 'Доступные Челленджи',
+        'challenges.accepted': 'Принятые Челленджи',
+        'challenges.completed': 'Завершенные Челленджи',
+        'challenges.join': 'Присоединиться',
+        'challenges.check': 'Проверить',
+        'challenges.checking': 'Проверка...',
+        'challenges.completed_icon': '✓',
+        'challenges.no_challenges_yet': 'Пока нет челленджей',
         // AI
         'ai.title': 'AI Ассистент',
         'ai.coming_soon': 'AI Команда скоро.',

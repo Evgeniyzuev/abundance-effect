@@ -10,7 +10,7 @@ import { ChallengeCompletionModal } from '@/components/ChallengesCompletionModal
 type ChallengeSection = 'available' | 'accepted' | 'completed';
 
 export default function ChallengesPage() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const {
         challengesWithParticipation,
         joinChallenge,
@@ -76,7 +76,7 @@ export default function ChallengesPage() {
                     {challenge.image_url ? (
                         <img
                             src={challenge.image_url}
-                            alt={getChallengeTitle(challenge, 'en')}
+                            alt={getChallengeTitle(challenge, language)}
                             className="w-16 h-full rounded-lg object-cover bg-gray-100"
                         />
                     ) : (
@@ -95,7 +95,7 @@ export default function ChallengesPage() {
                             {/* Title and level */}
                             <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <h3 className="font-semibold text-sm text-gray-900 truncate">
-                                    {getChallengeTitle(challenge, 'en')}
+                                    {getChallengeTitle(challenge, language)}
                                 </h3>
                                 <span className="text-xs font-medium text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded flex-shrink-0">
                                     Lvl {challengeLevel}
@@ -126,13 +126,13 @@ export default function ChallengesPage() {
                                 {checkingChallenges.has(challenge.id) ? (
                                     <>
                                         <Loader2 className="w-3 h-3 animate-spin" />
-                                        Checking...
+                                        {t('challenges.checking')}
                                     </>
                                 ) : challenge.userParticipation?.status === 'completed'
-                                ? '✓'
+                                ? t('challenges.completed_icon')
                                 : challenge.userParticipation?.status === 'active'
-                                    ? 'Check' // Changed "Active" to "Check"
-                                    : 'Join'
+                                    ? t('challenges.check')
+                                    : t('challenges.join')
                                 }
                             </button>
                         </div>
@@ -190,7 +190,7 @@ export default function ChallengesPage() {
                 <div className="mt-2 space-y-2">
                     {challenges.length === 0 ? (
                         <div className="ios-card p-4 text-center text-ios-secondary">
-                            No challenges yet
+                            {t('challenges.no_challenges_yet')}
                         </div>
                     ) : (
                         challenges.map(challenge => (
@@ -206,7 +206,7 @@ export default function ChallengesPage() {
         <div className="pb-20 px-4">
             {/* Page Header */}
             <div className="pt-6 pb-4 flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">Challenges</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t('challenges.page_title')}</h1>
                 <button
                     onClick={() => fetchChallenges()}
                     className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
