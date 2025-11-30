@@ -50,6 +50,22 @@ export async function POST(request: Request) {
             // User exists, update password to allow login
             const password = crypto.randomBytes(16).toString('hex');
 
+            // If referrer_id is provided and user doesn't have one, update it
+            if (referrer_id && !existingUser.referrer_id) {
+                console.log('Setting referrer_id for existing Telegram widget user:', existingUser.telegram_id, 'referrer:', referrer_id);
+                const { error: referrerUpdateError } = await supabaseAdmin
+                    .from('users')
+                    .update({ referrer_id: referrer_id })
+                    .eq('id', existingUser.id);
+
+                if (referrerUpdateError) {
+                    console.error('Error updating referrer_id for existing user:', referrerUpdateError);
+                } else {
+                    // Update the returned user object to reflect the change
+                    existingUser.referrer_id = referrer_id;
+                }
+            }
+
             const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
                 existingUser.id,
                 { password: password }
