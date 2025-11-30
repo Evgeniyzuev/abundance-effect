@@ -3,13 +3,27 @@
 import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 
-export default function Home() {
+function HomeContent() {
   const { user, isLoading, logout } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isTelegramMiniApp, setIsTelegramMiniApp] = useState(false);
+
+  // Handle referral parameters
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Check for 'ref' parameter in URL and save to localStorage
+    const refParam = searchParams.get('ref');
+    if (refParam) {
+      const REFERRAL_STORAGE_KEY = 'abundance_referral_code';
+      localStorage.setItem(REFERRAL_STORAGE_KEY, refParam);
+      console.log('Saved referral code from URL:', refParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // Check if we're in Telegram Mini App
@@ -74,4 +88,12 @@ export default function Home() {
   }
 
   return null; // Or a loading spinner while redirecting
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
 }

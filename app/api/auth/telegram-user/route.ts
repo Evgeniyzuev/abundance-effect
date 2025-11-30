@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { telegramUser, initData } = body;
+        const { telegramUser, initData, referrerId } = body;
 
         if (!telegramUser?.id) {
             return NextResponse.json({ error: 'Missing Telegram user data' }, { status: 400 });
@@ -129,7 +129,8 @@ export async function POST(request: Request) {
                     first_name: telegramUser.first_name,
                     last_name: telegramUser.last_name,
                     avatar_url: telegramUser.photo_url,
-                    email: email
+                    email: email,
+                    referrer_id: referrerId ? referrerId : null
                 })
                 .select()
                 .single();
