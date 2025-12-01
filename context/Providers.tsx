@@ -9,7 +9,7 @@ interface ProvidersProps {
   children: React.ReactNode
 }
 
-const manifestUrl = 'https://your-domain.com/tonconnect-manifest.json' // TODO: Create and host manifest
+const manifestUrl = 'https://blush-keen-constrictor-906.mypinata.cloud/ipfs/bafkreifufkfdkopaitj43r4h2z7zk6d2njigicyrlk3wwdbeeoqk3c5daq'
 
 export function Providers({ children }: ProvidersProps) {
   return (
