@@ -1,9 +1,13 @@
 "use client"
 
-import { Plus, ArrowRight, Send, ArrowDown, Wallet } from "lucide-react"
+import { Plus, ArrowRight, Send, ArrowDown, Wallet, Copy } from "lucide-react"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
-import { TonConnectButton } from '@tonconnect/ui-react'
+import { TonConnectButton, useTonConnectUI } from '@tonconnect/ui-react'
+import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
+import { TonClient, fromNano, Address } from '@ton/ton'
+import { getHttpEndpoint } from "@orbs-network/ton-access"
 
 interface WalletTabProps {
     walletBalance: number
@@ -15,6 +19,53 @@ interface WalletTabProps {
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, userId }: WalletTabProps) {
     const { t } = useLanguage()
+    const [tonConnectUI] = useTonConnectUI()
+    const [walletAddress, setWalletAddress] = useState<string | null>(null)
+    const [tonBalance, setTonBalance] = useState<string | null>(null)
+    const [isLoadingBalance, setIsLoadingBalance] = useState(false)
+
+    useEffect(() => {
+        if (tonConnectUI?.account?.address) {
+            setWalletAddress(tonConnectUI.account.address)
+        } else {
+            setWalletAddress(null)
+            setTonBalance(null)
+        }
+    }, [tonConnectUI?.account?.address])
+
+    // Fetch TON balance when wallet is connected
+    useEffect(() => {
+        const fetchTonBalance = async () => {
+            if (!walletAddress) {
+                setTonBalance(null)
+                return
+            }
+
+            setIsLoadingBalance(true)
+            try {
+                const endpoint = await getHttpEndpoint({ network: "mainnet" })
+                const client = new TonClient({ endpoint })
+
+                const address = Address.parse(walletAddress)
+                const balance = await client.getBalance(address)
+                const balanceInTon = fromNano(balance)
+                setTonBalance(balanceInTon)
+            } catch (error) {
+                console.error('Failed to fetch TON balance:', error)
+                setTonBalance(null)
+            } finally {
+                setIsLoadingBalance(false)
+            }
+        }
+
+        fetchTonBalance()
+    }, [walletAddress])
+
+    const handleCopyAddress = async () => {
+        if (walletAddress) {
+            await navigator.clipboard.writeText(walletAddress)
+        }
+    }
 
     return (
         <div className="w-full bg-white min-h-full">
@@ -27,9 +78,70 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
             </div>
 
             {/* Wallet Connection */}
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="flex justify-center">
-                    <TonConnectButton />
+            <div className="px-6 mb-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                            <Wallet className="h-5 w-5 text-gray-600" />
+                            <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                    {walletAddress ? 'TON Wallet Connected' : 'Connect TON Wallet'}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    {walletAddress
+                                        ? 'Your TON wallet is ready'
+                                        : 'Connect wallet to send/receive TON'
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        {!walletAddress && (
+                            <TonConnectButton />
+                        )}
+                    </div>
+
+                    {/* Wallet Info */}
+                    {walletAddress && (
+                        <div className="space-y-3">
+                            {/* Wallet Address Display */}
+                            <div className="bg-white rounded-lg border p-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs text-gray-500 mb-1">Wallet Address</p>
+                                        <p className="text-sm font-mono text-gray-900 break-all">
+                                            {walletAddress}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleCopyAddress}
+                                        className="ml-2 flex-shrink-0"
+                                    >
+                                        <Copy className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* TON Balance Display */}
+                            <div className="bg-white rounded-lg border p-3">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-gray-500 mb-1">TON Balance</p>
+                                        <p className="text-sm font-semibold text-gray-900">
+                                            {isLoadingBalance ? (
+                                                "Loading..."
+                                            ) : tonBalance ? (
+                                                `${parseFloat(tonBalance).toFixed(4)} TON`
+                                            ) : (
+                                                "Unable to load balance"
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
