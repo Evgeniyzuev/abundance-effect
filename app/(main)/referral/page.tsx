@@ -46,17 +46,38 @@ export default function ReferralPage() {
     };
 
     const shareLink = async (link: string) => {
-        if (navigator.share) {
+        const webApp = (typeof window !== 'undefined' && (window as any).Telegram?.WebApp);
+        const shareText = 'Присоединяйся к Abundance Effect! 🎯 Развивайся вместе со мной в приложении для достижения целей и финансового благополучия.';
+
+        if (webApp) {
+            // В Telegram Mini App используем Telegram share
+            try {
+                // Проверяем новый метод shareUrl (доступен в новых версиях)
+                if (webApp.shareUrl) {
+                    webApp.shareUrl(link, shareText);
+                } else {
+                    // Fallback для старых версий - открываем share URL
+                    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
+                    webApp.openLink(shareUrl);
+                }
+            } catch (err) {
+                console.error('Telegram share failed:', err);
+                copyToClipboard(link, link.includes('t.me') ? 'telegram' : 'web');
+            }
+        } else if (navigator.share) {
+            // На мобильных устройствах используем Web Share API
             try {
                 await navigator.share({
                     title: 'Abundance Effect',
-                    text: 'Присоединяйся к Abundance Effect!',
+                    text: shareText,
                     url: link,
                 });
             } catch (err) {
                 console.error('Share failed:', err);
+                copyToClipboard(link, link.includes('t.me') ? 'telegram' : 'web');
             }
         } else {
+            // Fallback - копирование в буфер
             copyToClipboard(link, link.includes('t.me') ? 'telegram' : 'web');
         }
     };
