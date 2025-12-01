@@ -39,7 +39,7 @@ export function Providers({ children }: ProvidersProps) {
         ]
       }}
       actionsConfiguration={{
-        twaReturnUrl: 'https://t.me/abundanceeffectbot' // Your Telegram bot URL
+        twaReturnUrl: 'https://t.me/abundanceeffectbot'
       }}
     >
       <TonPriceProvider>
