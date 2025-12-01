@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
     USER_SETTINGS: 'app-user-settings',
     USER_AUTH_CACHE: 'app-user-auth-cache',
     TELEGRAM_INIT_DATA: 'app-telegram-init-data',
+    REFERRAL_CODE: 'abundance_referral_code',
     WISHES_CACHE: 'app-wishes-cache',
     NOTES_CACHE: 'app-notes-cache',
     CUSTOM_LISTS_CACHE: 'app-custom-lists-cache',

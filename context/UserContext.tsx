@@ -175,6 +175,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         };
                         storage.set(STORAGE_KEYS.TELEGRAM_INIT_DATA, tgCache);
 
+                        // Get referrer code - try startParam first, then localStorage
+                        let referrerId = startParam;
+                        if (!referrerId) {
+                            const storedReferral = storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
+                            if (storedReferral) {
+                                referrerId = storedReferral;
+                                console.log('Using stored referral code:', referrerId);
+                            }
+                        }
+
+                        console.log('Authenticating Telegram user with referrerId:', referrerId);
+
                         // Try to authenticate via our API
                         const response = await fetch('/api/auth/telegram-user', {
                             method: 'POST',
@@ -182,7 +194,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                             body: JSON.stringify({
                                 telegramUser: tgUser,
                                 initData: webApp.initData,
-                                referrerId: startParam || null,
+                                referrerId: referrerId || null,
                             }),
                         });
 

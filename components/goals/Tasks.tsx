@@ -43,7 +43,8 @@ export default function Tasks() {
 
     const handleMarkDay = async (taskId: string, date: string) => {
         const result = await markDayCompletedAction(taskId, date);
-        if (result.success) {
+        if (result.success && result.data) {
+            setSelectedTask(result.data);
             await fetchTasks();
         }
     };

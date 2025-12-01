@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-
-const REFERRAL_STORAGE_KEY = 'abundance_referral_code';
+import { storage, STORAGE_KEYS } from '@/utils/storage';
 
 export function useReferral() {
     const searchParams = useSearchParams();
@@ -24,11 +23,11 @@ export function useReferral() {
 
         // 3. Save to storage if found
         if (code) {
-            localStorage.setItem(REFERRAL_STORAGE_KEY, code);
+            storage.set(STORAGE_KEYS.REFERRAL_CODE, code);
             setReferralCode(code);
         } else {
             // 4. Retrieve from storage if not in current URL/param
-            const stored = localStorage.getItem(REFERRAL_STORAGE_KEY);
+            const stored = storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
             if (stored) {
                 setReferralCode(stored);
             }

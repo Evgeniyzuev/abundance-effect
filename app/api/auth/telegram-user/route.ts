@@ -81,7 +81,8 @@ export async function POST(request: Request) {
                     username: telegramUser.username,
                     first_name: telegramUser.first_name,
                     last_name: telegramUser.last_name,
-                    avatar_url: telegramUser.photo_url
+                    avatar_url: telegramUser.photo_url,
+                    referrer_id: referrerId || null
                 }
             });
             if (error) throw error;
@@ -110,7 +111,8 @@ export async function POST(request: Request) {
                         username: telegramUser.username,
                         first_name: telegramUser.first_name,
                         last_name: telegramUser.last_name,
-                        avatar_url: telegramUser.photo_url
+                        avatar_url: telegramUser.photo_url,
+                        referrer_id: referrerId || null
                     }
                 });
 
@@ -156,6 +158,20 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'User creation failed' }, { status: 500 });
             }
             newUser = insertedUser;
+        } else if (referrerId && !newUser.referrer_id) {
+            // Trigger fired but didn't set referrer_id (because it wasn't in user_metadata initially)
+            // Update the referrer_id now
+            console.log('Updating referrer_id for user created by trigger:', newUser.telegram_id, 'referrer:', referrerId);
+            const { error: updateError } = await supabaseAdmin
+                .from('users')
+                .update({ referrer_id: referrerId })
+                .eq('id', authUserId);
+
+            if (updateError) {
+                console.error('Error updating referrer_id after trigger:', updateError);
+            } else {
+                newUser.referrer_id = referrerId;
+            }
         }
 
         return NextResponse.json({
