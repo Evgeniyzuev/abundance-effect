@@ -178,15 +178,17 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
             )}
           </div>
 
-          <Button
-            variant="outline"
-            className="flex items-center gap-2 w-full"
-            onClick={handleTonPayment}
-            disabled={!tonConnectUI.connected || isSubmitting}
-          >
-            <span className="text-lg">💎</span>
-            Pay with TON
-          </Button>
+          {tonConnectUI && (
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 w-full"
+              onClick={handleTonPayment}
+              disabled={!tonConnectUI.connected || isSubmitting}
+            >
+              <span className="text-lg">💎</span>
+              Pay with TON
+            </Button>
+          )}
 
           <Button
             variant="outline"

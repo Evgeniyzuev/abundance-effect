@@ -29,35 +29,37 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
             </div>
 
             {/* Wallet Connection */}
-            <div className="px-6 mb-6">
-                <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <Wallet className="h-5 w-5 text-gray-600" />
-                            <div>
-                                <p className="text-sm font-medium text-gray-900">
-                                    {tonConnectUI.connected ? 'Wallet Connected' : 'Connect TON Wallet'}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                    {tonConnectUI.connected
-                                        ? 'Connected to TON Wallet'
-                                        : 'Required for TON payments'
-                                    }
-                                </p>
+            {tonConnectUI && (
+                <div className="px-6 mb-6">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                                <Wallet className="h-5 w-5 text-gray-600" />
+                                <div>
+                                    <p className="text-sm font-medium text-gray-900">
+                                        {tonConnectUI.connected ? 'Wallet Connected' : 'Connect TON Wallet'}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                        {tonConnectUI.connected
+                                            ? 'Connected to TON Wallet'
+                                            : 'Required for TON payments'
+                                        }
+                                    </p>
+                                </div>
                             </div>
+                            {!tonConnectUI.connected && (
+                                <Button
+                                    onClick={() => tonConnectUI.openModal()}
+                                    size="sm"
+                                    variant="outline"
+                                >
+                                    Connect
+                                </Button>
+                            )}
                         </div>
-                        {!tonConnectUI.connected && (
-                            <Button
-                                onClick={() => tonConnectUI.openModal()}
-                                size="sm"
-                                variant="outline"
-                            >
-                                Connect
-                            </Button>
-                        )}
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Action Buttons */}
             <div className="grid grid-cols-4 gap-4 px-6 mb-8">
