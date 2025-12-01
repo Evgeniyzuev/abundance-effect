@@ -95,9 +95,7 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                                 </p>
                             </div>
                         </div>
-                        {!walletAddress && (
-                            <TonConnectButton />
-                        )}
+                        <TonConnectButton />
                     </div>
 
                     {/* Wallet Info */}
