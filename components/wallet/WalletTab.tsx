@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
 import { useTonConnectUI } from '@tonconnect/ui-react'
 import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
 
 interface WalletTabProps {
     walletBalance: number
@@ -17,6 +18,21 @@ interface WalletTabProps {
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, userId }: WalletTabProps) {
     const { t } = useLanguage()
     const [tonConnectUI] = useTonConnectUI()
+    const [isConnected, setIsConnected] = useState(false)
+
+    useEffect(() => {
+        if (tonConnectUI) {
+            // Устанавливаем начальное состояние
+            setIsConnected(tonConnectUI.connected)
+
+            // Слушаем изменения статуса подключения
+            const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+                setIsConnected(!!wallet)
+            })
+
+            return unsubscribe
+        }
+    }, [tonConnectUI])
 
     return (
         <div className="w-full bg-white min-h-full">
@@ -37,17 +53,17 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                                 <Wallet className="h-5 w-5 text-gray-600" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-900">
-                                        {tonConnectUI.connected ? 'Wallet Connected' : 'Connect TON Wallet'}
+                                        {isConnected ? 'Wallet Connected' : 'Connect TON Wallet'}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        {tonConnectUI.connected
+                                        {isConnected
                                             ? 'Connected to TON Wallet'
                                             : 'Required for TON payments'
                                         }
                                     </p>
                                 </div>
                             </div>
-                            {!tonConnectUI.connected && (
+                            {!isConnected && (
                                 <Button
                                     onClick={() => tonConnectUI.openModal()}
                                     size="sm"
