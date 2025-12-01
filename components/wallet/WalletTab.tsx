@@ -1,8 +1,10 @@
 "use client"
 
-import { Plus, ArrowRight, Send, ArrowDown } from "lucide-react"
+import { Plus, ArrowRight, Send, ArrowDown, Wallet } from "lucide-react"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
+import { useTonConnectUI } from '@tonconnect/ui-react'
+import { Button } from "@/components/ui/button"
 
 interface WalletTabProps {
     walletBalance: number
@@ -14,6 +16,7 @@ interface WalletTabProps {
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, userId }: WalletTabProps) {
     const { t } = useLanguage()
+    const [tonConnectUI] = useTonConnectUI()
 
     return (
         <div className="w-full bg-white min-h-full">
@@ -23,6 +26,37 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                 <h1 className="text-5xl font-bold text-gray-900 tracking-tight">
                     ${walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h1>
+            </div>
+
+            {/* Wallet Connection */}
+            <div className="px-6 mb-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <Wallet className="h-5 w-5 text-gray-600" />
+                            <div>
+                                <p className="text-sm font-medium text-gray-900">
+                                    {tonConnectUI.connected ? 'Wallet Connected' : 'Connect TON Wallet'}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    {tonConnectUI.connected
+                                        ? 'Connected to TON Wallet'
+                                        : 'Required for TON payments'
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        {!tonConnectUI.connected && (
+                            <Button
+                                onClick={() => tonConnectUI.openModal()}
+                                size="sm"
+                                variant="outline"
+                            >
+                                Connect
+                            </Button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Action Buttons */}
