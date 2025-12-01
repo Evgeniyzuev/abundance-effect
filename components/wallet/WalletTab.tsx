@@ -3,9 +3,7 @@
 import { Plus, ArrowRight, Send, ArrowDown, Wallet } from "lucide-react"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
-import { useTonConnectUI } from '@tonconnect/ui-react'
-import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+import { TonConnectButton } from '@tonconnect/ui-react'
 
 interface WalletTabProps {
     walletBalance: number
@@ -17,22 +15,6 @@ interface WalletTabProps {
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, userId }: WalletTabProps) {
     const { t } = useLanguage()
-    const [tonConnectUI] = useTonConnectUI()
-    const [isConnected, setIsConnected] = useState(false)
-
-    useEffect(() => {
-        if (tonConnectUI) {
-            // Устанавливаем начальное состояние
-            setIsConnected(tonConnectUI.connected)
-
-            // Слушаем изменения статуса подключения
-            const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
-                setIsConnected(!!wallet)
-            })
-
-            return unsubscribe
-        }
-    }, [tonConnectUI])
 
     return (
         <div className="w-full bg-white min-h-full">
@@ -45,37 +27,11 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
             </div>
 
             {/* Wallet Connection */}
-            {tonConnectUI && (
-                <div className="px-6 mb-6">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                                <Wallet className="h-5 w-5 text-gray-600" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-900">
-                                        {isConnected ? 'Wallet Connected' : 'Connect TON Wallet'}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        {isConnected
-                                            ? 'Connected to TON Wallet'
-                                            : 'Required for TON payments'
-                                        }
-                                    </p>
-                                </div>
-                            </div>
-                            {!isConnected && (
-                                <Button
-                                    onClick={() => tonConnectUI.openModal()}
-                                    size="sm"
-                                    variant="outline"
-                                >
-                                    Connect
-                                </Button>
-                            )}
-                        </div>
-                    </div>
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="flex justify-center">
+                    <TonConnectButton />
                 </div>
-            )}
+            </div>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-4 gap-4 px-6 mb-8">
