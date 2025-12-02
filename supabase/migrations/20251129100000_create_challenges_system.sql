@@ -223,31 +223,38 @@ BEGIN
         SELECT 1 FROM public.challenges
         WHERE title->>'en' = 'Add Your First Wish'
     ) THEN
-        INSERT INTO public.challenges (
-          title,
-          description,
-          type,
-          category,
-          level,
-          reward_core,
-          verification_type,
-          verification_logic,
-          owner_name,
-          image_url,
-          priority
-        ) VALUES (
-          '{"en": "Add Your First Wish", "ru": "Добавьте свое первое желание", "zh": "添加您的第一个愿望"}'::jsonb,
-          '{"en": "Create your vision board by adding your first wish. What would you like to achieve?", "ru": "Создайте свою доску желаний, добавив первое желание. Чего вы хотите достичь?", "zh": "通过添加第一个愿望来创建您的愿景板。您想要实现什么？"}'::jsonb,
-          'system',
-          'goal_setting',
-          1,
-          '"1$"'::jsonb,
-          'auto',
-          'has_wish',
-          'System',
-          'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
-          100
-        );
+      INSERT INTO public.challenges (
+        title,
+        description,
+        type,
+        category,
+        level,
+        reward_core,
+        verification_type,
+        verification_logic,
+        owner_name,
+        image_url,
+        priority
+      ) VALUES (
+        '{"en": "Add Your First Wish", "zh": "添加您的第一个愿望", "es": "Agrega tu primer deseo", "hi": "अपना पहला इच्छा जोड़ें", "ar": "أضف أمنيتك الأولى", "ru": "Добавьте свое первое желание"}'::jsonb,
+        '{"en": "Create your vision board by adding your first wish. What would you like to achieve?", "zh": "通过添加第一个愿望来创建您的愿景板。您想要实现什么？", "es": "Crea tu tablero de visión agregando tu primer deseo. ¿Qué te gustaría lograr?", "hi": "अपनी दृष्टि बोर्ड बनाएं अपने पहले इच्छा को जोड़कर। आप क्या हासिल करना चाहते हैं?", "ar": "أنشئ لوحة رؤيتك بإضافة أول أمنيتك. ما الذي تريد تحقيقه؟", "ru": "Создайте свою доску желаний, добавив первое желание. Чего вы хотите достичь?"}'::jsonb,
+        'system',
+        'goal_setting',
+        1,
+        '"1$"'::jsonb,
+        'auto',
+        'has_wish',
+        'System',
+        'https://i.pinimg.com/736x/a4/07/3e/a4073ec37f5c076eb98316fce297e7ca.jpg',
+        100
+      );
+    ELSE
+      -- Update existing challenge with full translations
+      UPDATE public.challenges
+      SET
+        title = '{"en": "Add Your First Wish", "zh": "添加您的第一个愿望", "es": "Agrega tu primer deseo", "hi": "अपना पहला इच्छा जोड़ें", "ar": "أضف أمنيتك الأولى", "ru": "Добавьте свое первое желание"}'::jsonb,
+        description = '{"en": "Create your vision board by adding your first wish. What would you like to achieve?", "zh": "通过添加第一个愿望来创建您的愿景板。您想要实现什么？", "es": "Crea tu tablero de visión agregando tu primer deseo. ¿Qué te gustaría lograr?", "hi": "अपनी दृष्टि बोर्ड बनाएं अपने पहले इच्छा को जोड़कर। आप क्या हासिल करना चाहते हैं?", "ar": "أنشئ لوحة رؤيتك بإضافة أول أمنيتك. ما الذي تريد تحقيقه؟", "ru": "Создайте свою доску желаний, добавив первое желание. Чего вы хотите достичь?"}'::jsonb
+      WHERE title->>'en' = 'Add Your First Wish';
     END IF;
 END $$;
 
