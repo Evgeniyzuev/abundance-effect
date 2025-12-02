@@ -156,11 +156,11 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
       // Wait for transaction confirmation
       let currentSeqno = seqno
       let attempts = 0
-      const maxAttempts = 5
+      const maxAttempts = 20  // Increased from 5 to 20 for more reliability
 
       while (currentSeqno === seqno && attempts < maxAttempts) {
         setTransactionStatus('Waiting for transaction confirmation...')
-        await sleep(1500)
+        await sleep(3000)  // Increased from 1500ms to 3000ms
         currentSeqno = await walletContract.getSeqno()
         attempts++
       }
