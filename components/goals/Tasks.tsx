@@ -42,10 +42,47 @@ export default function Tasks() {
     };
 
     const handleMarkDay = async (taskId: string, date: string) => {
-        const result = await markDayCompletedAction(taskId, date);
-        if (result.success && result.data) {
-            setSelectedTask(result.data);
-            await fetchTasks();
+        // Find the task in current tasks
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) {
+            alert('Task not found');
+            return;
+        }
+
+        // Check if already marked locally
+        const completions = (task.daily_completions as string[]) || [];
+        if (completions.includes(date)) {
+            alert('Day already marked');
+            return;
+        }
+
+        // Optimistic update: update selectedTask immediately
+        const newCompletions = [...completions, date];
+        const newCurrent = newCompletions.length;
+        const optimisticTask = {
+            ...task,
+            daily_completions: newCompletions,
+            streak_current: newCurrent,
+            last_completed_at: new Date().toISOString()
+        };
+        setSelectedTask(optimisticTask);
+
+        try {
+            const result = await markDayCompletedAction(taskId, date);
+            if (result.success && result.data) {
+                setSelectedTask(result.data);
+                await fetchTasks();
+            } else {
+                // Revert optimistic update on error
+                setSelectedTask(task);
+                if (result.error) {
+                    alert('Failed to mark day: ' + result.error);
+                }
+            }
+        } catch (error) {
+            // Revert optimistic update on error
+            setSelectedTask(task);
+            alert('Network error. Please try again.');
         }
     };
 

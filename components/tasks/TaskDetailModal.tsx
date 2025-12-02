@@ -47,12 +47,17 @@ export default function TaskDetailModal({
     const today = new Date().toISOString().split('T')[0]
     const isTodayMarked = dailyCompletions.includes(today)
 
-    // Generate last 30 days for calendar view
-    const getLast30Days = () => {
+    // Generate current week calendar (Mon-Sun)
+    const getWeeklyCalendar = () => {
         const days = []
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date()
-            date.setDate(date.getDate() - i)
+        const today = new Date()
+        const dayOfWeek = today.getDay() // 0 = Sunday, 1 = Monday, etc.
+        const monday = new Date(today)
+        monday.setDate(today.getDate() - dayOfWeek + 1) // Monday of current week
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(monday)
+            date.setDate(monday.getDate() + i)
             days.push(date.toISOString().split('T')[0])
         }
         return days
@@ -160,17 +165,25 @@ export default function TaskDetailModal({
                             <div className="flex items-center gap-2 mb-3">
                                 <Calendar size={18} className="text-gray-600" />
                                 <h4 className="text-sm font-medium text-gray-700">
-                                    {t('tasks.daily_progress')} (Last 30 days)
+                                    {t('tasks.daily_progress')} (Current Week)
                                 </h4>
                             </div>
-                            <div className="grid grid-cols-10 gap-1.5">
-                                {getLast30Days().map((date) => {
+                            <div className="grid grid-cols-7 gap-1.5 mb-2">
+                                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                                    <div key={day} className="text-xs text-center font-medium text-gray-600">
+                                        {day}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="grid grid-cols-7 gap-1.5">
+                                {getWeeklyCalendar().map((date) => {
                                     const isMarked = dailyCompletions.includes(date)
                                     const isToday = date === today
+                                    const dayNumber = new Date(date).getDate()
                                     return (
                                         <div
                                             key={date}
-                                            className={`aspect-square rounded-md flex items-center justify-center text-xs ${isMarked
+                                            className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
                                                     ? 'bg-green-500 text-white'
                                                     : isToday
                                                         ? 'bg-blue-100 border-2 border-blue-500'
@@ -178,7 +191,10 @@ export default function TaskDetailModal({
                                                 }`}
                                             title={date}
                                         >
-                                            {isMarked && <CheckCircle2 size={14} />}
+                                            <span>{dayNumber}</span>
+                                            {isMarked && (
+                                                <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
+                                            )}
                                         </div>
                                     )
                                 })}
