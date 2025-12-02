@@ -4,6 +4,7 @@ import { Plus, ArrowRight, Send, ArrowDown } from "lucide-react"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
 import { TonConnectButton } from '@tonconnect/ui-react'
+import WalletHistory from "./WalletHistory"
 
 interface WalletTabProps {
     walletBalance: number
@@ -85,19 +86,12 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                 </div>
             </div>
 
-            {/* Divider */}
-            <div className="h-2 bg-gray-50 w-full" />
-
-            {/* Transactions Placeholder (Optional) */}
-            <div className="p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">{t('wallet.core_history')}</h3>
-                <div className="flex flex-col items-center justify-center py-10 text-gray-400 space-y-3">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
-                        <ArrowRight className="h-8 w-8 text-gray-300" />
-                    </div>
-                    <p className="text-sm">{t('wallet.no_operations')}</p>
+            {/* Wallet History */}
+            {userId && (
+                <div className="pt-4 border-t border-gray-100 p-6">
+                    <WalletHistory userId={userId} />
                 </div>
-            </div>
+            )}
         </div>
     )
 }

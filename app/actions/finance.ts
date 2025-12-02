@@ -49,6 +49,21 @@ export async function topUpWalletBalance(amount: number, userId: string): Promis
             return { success: false, error: 'Unauthorized' }
         }
 
+        // Log the topup operation
+        const { error: logError } = await supabase
+            .from('wallet_operations')
+            .insert({
+                user_id: userId,
+                amount: amount,
+                type: 'topup',
+                description: 'TON wallet topup'
+            })
+
+        if (logError) {
+            console.error('Error logging topup operation:', logError)
+            // Don't throw, as the operation succeeded
+        }
+
         const { data, error } = await supabase.rpc('top_up_wallet', {
             p_user_id: userId,
             p_amount: amount
@@ -106,6 +121,14 @@ export async function transferToCore(amount: number, userId: string): Promise<Ac
             type: 'transfer'
         })
 
+        // Log the wallet operation
+        await supabase.from('wallet_operations').insert({
+            user_id: userId,
+            amount: -amount, // Negative for outgoing transfer
+            type: 'transfer',
+            description: 'Transfer to core'
+        })
+
         revalidatePath('/wallet')
         return {
             success: true,
@@ -149,6 +172,20 @@ export async function debitWalletBalance(amount: number, userId: string): Promis
             .single()
 
         if (error) throw error
+
+        // Log the wallet operation
+        const { error: logError } = await supabase
+            .from('wallet_operations')
+            .insert({
+                user_id: userId,
+                amount: -amount, // Negative for outgoing transaction
+                type: 'debit',
+                description: 'Wallet debit'
+            })
+
+        if (logError) {
+            console.error('Error logging debit operation:', logError)
+        }
 
         revalidatePath('/wallet')
         return { success: true, data: { newBalance: data.wallet_balance } }
