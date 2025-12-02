@@ -171,15 +171,37 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
 
       setTransactionStatus('Transaction successfully confirmed!')
 
-      // Log successful send operation
+      // Log successful send operation with unique hash
       const supabase = createClient()
       try {
-        await supabase.from('wallet_operations').insert({
-          user_id: userId,
-          amount: -numericAmount, // Negative for outgoing send
-          type: 'send',
-          description: `Send to ${address.slice(0, 10)}...`
-        })
+        // Generate unique hash for send operation
+        const timestamp = Date.now().toString()
+        const hashInput = userId + numericAmount.toString() + address + timestamp
+        let hash = 0
+        for (let i = 0; i < hashInput.length; i++) {
+          const char = hashInput.charCodeAt(i)
+          hash = ((hash << 5) - hash) + char
+          hash = hash & hash // Convert to 32bit integer
+        }
+        const hashHex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0')
+
+        // Check if this operation already processed
+        const { data: existing } = await supabase
+          .from('wallet_operations')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('transaction_hash', hashHex)
+          .single()
+
+        if (!existing) {
+          await supabase.from('wallet_operations').insert({
+            user_id: userId,
+            amount: -numericAmount, // Negative for outgoing send
+            type: 'send',
+            description: `Send to ${address.slice(0, 10)}...`,
+            transaction_hash: hashHex
+          })
+        }
       } catch (logError) {
         console.error('Failed to log send operation:', logError)
       }

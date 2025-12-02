@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { topUpWalletBalance } from "@/app/actions/finance"
 import { useTonConnectUI } from '@tonconnect/ui-react'
-import { toNano } from '@ton/core'
+import { toNano, Cell } from '@ton/core'
 import { useTransactionStatus } from '../../hooks/useTransactionStatus'
 import { useTonPrice } from "@/context/TonPriceContext"
 import { createClient } from "@/utils/supabase/client"
@@ -28,6 +28,7 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [amount, setAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentBoc, setCurrentBoc] = useState<string | null>(null)
   const [tonConnectUI] = useTonConnectUI()
   const { transactionStatus, startChecking } = useTransactionStatus()
   const { convertUsdToTon, tonPrice } = useTonPrice()
@@ -92,6 +93,8 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
         throw new Error('Transaction was not sent successfully')
       }
 
+      setCurrentBoc(result.boc)
+
       // Start checking transaction status
       startChecking(result.boc)
 
@@ -125,15 +128,34 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
         try {
           const topUpResult = await topUpWalletBalance(numericAmount, userId)
           if (topUpResult.success && topUpResult.data && typeof topUpResult.data.newBalance === 'number') {
-            // Log the successful topup operation
+            // Log the successful topup operation with unique hash
             const supabase = createClient()
             try {
-              await supabase.from('wallet_operations').insert({
-                user_id: userId,
-                amount: numericAmount,
-                type: 'topup',
-                description: 'TON wallet topup'
-              })
+              if (currentBoc) {
+                const cell = Cell.fromBoc(Buffer.from(currentBoc, 'base64'))[0]
+                const hash = cell.hash()
+                const hashHex = Buffer.from(hash).toString('hex').toUpperCase()
+
+                // Check if this transaction hash already processed
+                const { data: existing } = await supabase
+                  .from('wallet_operations')
+                  .select('id')
+                  .eq('user_id', userId)
+                  .eq('transaction_hash', hashHex)
+                  .single()
+
+                if (!existing) {
+                  await supabase.from('wallet_operations').insert({
+                    user_id: userId,
+                    amount: numericAmount,
+                    type: 'topup',
+                    description: 'TON wallet topup',
+                    transaction_hash: hashHex
+                  })
+                }
+              } else {
+                console.warn('No BOC available for logging')
+              }
             } catch (logError) {
               console.error('Failed to log wallet operation:', logError)
             }
