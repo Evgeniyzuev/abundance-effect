@@ -30,21 +30,6 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [tonConnectUI] = useTonConnectUI()
   const { transactionStatus, startChecking } = useTransactionStatus()
   const { convertUsdToTon, tonPrice } = useTonPrice()
-  const [isConnected, setIsConnected] = useState(false)
-
-  useEffect(() => {
-    if (tonConnectUI) {
-      // Устанавливаем начальное состояние
-      setIsConnected(tonConnectUI.connected)
-
-      // Слушаем изменения статуса подключения
-      const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
-        setIsConnected(!!wallet)
-      })
-
-      return unsubscribe
-    }
-  }, [tonConnectUI])
 
   const handleTonPayment = async () => {
     const numericAmount = parseFloat(amount)
@@ -198,7 +183,7 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
               variant="outline"
               className="flex items-center gap-2 w-full"
               onClick={handleTonPayment}
-              disabled={!isConnected || isSubmitting}
+              disabled={!tonConnectUI.connected || isSubmitting}
             >
               <span className="text-lg">💎</span>
               Pay with TON
