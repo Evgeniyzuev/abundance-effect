@@ -8,6 +8,7 @@ import WalletTab from '@/components/wallet/WalletTab';
 import CoreTab from '@/components/wallet/CoreTab';
 import TopUpModal from '@/components/wallet/TopUpModal';
 import TransferModal from '@/components/wallet/TransferModal';
+import SendTonModal from '@/components/wallet/SendTonModal';
 
 export default function WalletPage() {
     const { user, refreshUser } = useUser();
@@ -15,6 +16,7 @@ export default function WalletPage() {
     const [activeTab, setActiveTab] = useState<"wallet" | "core">("wallet");
     const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+    const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
     const handleTopUpSuccess = async (newBalance: number) => {
         await refreshBalances();
@@ -59,7 +61,7 @@ export default function WalletPage() {
                         walletBalance={walletBalance}
                         onTopUp={() => setIsTopUpModalOpen(true)}
                         onTransfer={() => setIsTransferModalOpen(true)}
-                        onSend={() => {/* TODO: Implement send modal */ }}
+                        onSend={() => setIsSendModalOpen(true)}
                         userId={user?.id || null}
                     />
                 ) : (
@@ -89,6 +91,14 @@ export default function WalletPage() {
                         currentWalletBalance={walletBalance}
                         onSuccess={handleTransferSuccess}
                         userId={user.id}
+                    />
+
+                    <SendTonModal
+                        isOpen={isSendModalOpen}
+                        onClose={() => setIsSendModalOpen(false)}
+                        onSuccess={handleTopUpSuccess}
+                        userId={user.id}
+                        currentBalance={walletBalance}
                     />
                 </>
             )}
