@@ -12,6 +12,7 @@ import { useTonConnectUI } from '@tonconnect/ui-react'
 import { toNano } from '@ton/core'
 import { useTransactionStatus } from '../../hooks/useTransactionStatus'
 import { useTonPrice } from "@/context/TonPriceContext"
+import { createClient } from "@/utils/supabase/client"
 
 // Стабильный билд
 // Обновим интерфейс TopUpModalProps
@@ -113,20 +114,43 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   // Handle transaction status changes
   useEffect(() => {
     if (transactionStatus === 'confirmed') {
+      const numericAmount = Number(amount)
+      if (!numericAmount || numericAmount <= 0) {
+        setError("Invalid amount. Please enter a valid amount > 0")
+        return
+      }
+
       // Only update balance after transaction is confirmed
       const updateBalance = async () => {
         try {
-          const topUpResult = await topUpWalletBalance(Number(amount), userId)
+          const topUpResult = await topUpWalletBalance(numericAmount, userId)
           if (topUpResult.success && topUpResult.data && typeof topUpResult.data.newBalance === 'number') {
+            // Log the successful topup operation
+            const supabase = createClient()
+            try {
+              await supabase.from('wallet_operations').insert({
+                user_id: userId,
+                amount: numericAmount,
+                type: 'topup',
+                description: 'TON wallet topup'
+              })
+            } catch (logError) {
+              console.error('Failed to log wallet operation:', logError)
+            }
+
             setAmount("")
             onSuccess(topUpResult.data.newBalance)
             onClose()
           } else {
-            setError(topUpResult.error || "Failed to update balance after TON payment")
+            if (topUpResult.error?.includes('Unauthorized')) {
+              setError("Session expired. Please refresh the page and try again.")
+            } else {
+              setError(`TopUp failed: ${topUpResult.error || "Unknown error"}`)
+            }
           }
         } catch (error) {
-          console.error("Error updating balance:", error)
-          setError("Failed to update balance")
+          console.error("Error updating balance after TON payment:", error)
+          setError(`Error updating balance: ${error instanceof Error ? error.message : "Unknown error"}`)
         }
       }
       updateBalance()

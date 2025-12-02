@@ -49,20 +49,7 @@ export async function topUpWalletBalance(amount: number, userId: string): Promis
             return { success: false, error: 'Unauthorized' }
         }
 
-        // Log the topup operation
-        const { error: logError } = await supabase
-            .from('wallet_operations')
-            .insert({
-                user_id: userId,
-                amount: amount,
-                type: 'topup',
-                description: 'TON wallet topup'
-            })
 
-        if (logError) {
-            console.error('Error logging topup operation:', logError)
-            // Don't throw, as the operation succeeded
-        }
 
         const { data, error } = await supabase.rpc('top_up_wallet', {
             p_user_id: userId,
