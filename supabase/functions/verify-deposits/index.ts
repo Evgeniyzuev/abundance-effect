@@ -1,5 +1,32 @@
+/**
+ * VERIFICATION FUNCTION FOR TON DEPOSITS
+ *
+ * Verifies pending TON deposits by checking TON Center API for matching transactions.
+ * When a match is found, credits the user's wallet balance.
+ *
+ * HOW TO DEPLOY:
+ * 1. cd /path/to/supabase/project
+ * 2. supabase functions deploy verify-deposits
+ *
+ * OR in Supabase Dashboard:
+ * Project Settings → API Settings → Get anon key
+ * Install Supabase CLI: npm i -g supabase
+ * supabase login --project-ref YOUR_PROJECT_REF
+ * supabase functions deploy verify-deposits
+ *
+ * HOW TO TEST:
+ * In Dashboard: Edge Functions → verify-deposits → Run
+ *
+ * REQUIRES ENV VARS:
+ * - SUPABASE_URL
+ * - SUPABASE_SERVICE_ROLE_KEY
+ * - NEXT_PUBLIC_DESTINATION_ADDRESS
+ * - NEXT_PUBLIC_MAINNET_TONCENTER_API_KEY
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { Address } from 'https://esm.sh/@ton/core@0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -69,8 +96,26 @@ serve(async (req) => {
           const txSource = tx.in_msg?.source || ''
           const txValue = parseInt(tx.in_msg?.value || '0')
 
-          const sourceMatches = txSource.toLowerCase() === deposit.sender_address.toLowerCase()
+          // Convert both addresses to friendly format for reliable comparison
+          let txSourceFriendly = txSource
+          let dbSenderFriendly = deposit.sender_address
+
+          try {
+            txSourceFriendly = Address.parse(txSource).toString()
+          } catch (e) {
+            // If parsing fails, use original
+          }
+
+          try {
+            dbSenderFriendly = Address.parse(deposit.sender_address).toString()
+          } catch (e) {
+            // If parsing fails, use original
+          }
+
+          const sourceMatches = txSourceFriendly.toLowerCase() === dbSenderFriendly.toLowerCase()
           const valueMatches = txValue === deposit.expected_ton_value
+
+          console.log(`Checking tx ${tx.transaction_id.hash}: source=${txSourceFriendly} (${sourceMatches}), value=${txValue} (${valueMatches})`)
 
           return sourceMatches && valueMatches
         })

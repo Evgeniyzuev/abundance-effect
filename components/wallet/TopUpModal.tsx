@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { createPendingDeposit, topUpWalletBalance } from "@/app/actions/finance"
 import { useTonConnectUI } from '@tonconnect/ui-react'
-import { toNano, Cell } from '@ton/core'
+import { Address, toNano, Cell } from '@ton/core'
 import { useTransactionStatus } from '../../hooks/useTransactionStatus'
 import { useTonPrice } from "@/context/TonPriceContext"
 import { createClient } from "@/utils/supabase/client"
@@ -81,11 +81,14 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
         throw new Error('TON wallet is not connected')
       }
 
+      // Convert sender address to friendly format for better readability
+      const friendlySenderAddress = Address.parse(tonConnectUI.account.address).toString()
+
       // Create pending deposit first
       const depositResult = await createPendingDeposit({
         userId,
         amountUsd: numericAmount,
-        senderAddress: tonConnectUI.account.address,
+        senderAddress: friendlySenderAddress, // Use friendly format
         expectedTonValue: Number(amountInNanotons),
         sessionId
       })
