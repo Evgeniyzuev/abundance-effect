@@ -182,6 +182,53 @@ export async function debitWalletBalance(amount: number, userId: string): Promis
     }
 }
 
+export async function createPendingDeposit(params: {
+    userId: string
+    amountUsd: number
+    senderAddress: string
+    expectedTonValue: number
+    sessionId: string
+}): Promise<ActionResponse<{ depositId: number }>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        // Check for duplicate session
+        const { data: existing } = await supabase
+            .from('pending_deposits')
+            .select('id')
+            .eq('session_id', params.sessionId)
+            .single()
+
+        if (existing) {
+            return { success: false, error: 'Deposit already initiated' }
+        }
+
+        const { data, error } = await supabase
+            .from('pending_deposits')
+            .insert({
+                user_id: params.userId,
+                session_id: params.sessionId,
+                amount_usd: params.amountUsd,
+                sender_address: params.senderAddress,
+                expected_ton_value: params.expectedTonValue
+            })
+            .select('id')
+            .single()
+
+        if (error) throw error
+
+        return { success: true, data: { depositId: data.id } }
+    } catch (error: any) {
+        console.error('Error creating pending deposit:', error)
+        return { success: false, error: error.message }
+    }
+}
+
 export async function updateUserReinvest(userId: string, reinvestPercentage: number): Promise<ActionResponse<void>> {
     try {
         const supabase = await createClient()

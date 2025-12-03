@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { topUpWalletBalance } from "@/app/actions/finance"
+import { createPendingDeposit, topUpWalletBalance } from "@/app/actions/finance"
 import { useTonConnectUI } from '@tonconnect/ui-react'
 import { toNano, Cell } from '@ton/core'
 import { useTransactionStatus } from '../../hooks/useTransactionStatus'
@@ -28,10 +28,21 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [amount, setAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [currentBoc, setCurrentBoc] = useState<string | null>(null)
+  const [depositStatus, setDepositStatus] = useState<'idle' | 'waiting' | 'confirmed' | 'failed'>('idle')
+  const [sessionId, setSessionId] = useState<string>("")
   const [tonConnectUI] = useTonConnectUI()
-  const { transactionStatus, startChecking } = useTransactionStatus()
+  const { startChecking } = useTransactionStatus() // Remove transactionStatus since we don't need it now
   const { convertUsdToTon, tonPrice } = useTonPrice()
+
+  // Reset status when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setDepositStatus('idle')
+      setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
+      setError(null)
+      setAmount("")
+    }
+  }, [isOpen])
 
   const handleTonPayment = async () => {
     const numericAmount = parseFloat(amount)
@@ -43,63 +54,72 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
     try {
       setIsSubmitting(true)
       setError(null)
+      setDepositStatus('waiting')
 
       const tonAmount = convertUsdToTon(numericAmount)
       if (!tonAmount) {
-        setError("Unable to convert USD to TON. Please try again later.")
-        return
+        throw new Error("Unable to convert USD to TON. Please try again later.")
       }
-
-      console.log('Converting USD to TON:', {
-        usdAmount: numericAmount,
-        tonAmount,
-        tonPrice: tonPrice
-      })
 
       // Round to 9 decimal places to avoid precision issues
       const roundedTonAmount = Number(tonAmount.toFixed(9))
-      const amountInNanotons = toNano(roundedTonAmount.toString()).toString()
+      const amountInNanotons = BigInt(Math.floor(Number(toNano(roundedTonAmount.toString()))))
 
-      console.log('Transaction details:', {
-        amountInNanotons,
-        destinationAddress: process.env.NEXT_PUBLIC_DESTINATION_ADDRESS
+      console.log('Preparing deposit:', {
+        usdAmount: numericAmount,
+        tonAmount: roundedTonAmount,
+        amountInNanotons: amountInNanotons.toString(),
+        destinationAddress: process.env.NEXT_PUBLIC_DESTINATION_ADDRESS,
+        senderAddress: tonConnectUI.account?.address
       })
 
       if (!process.env.NEXT_PUBLIC_DESTINATION_ADDRESS) {
         throw new Error('Destination address is not configured')
       }
 
-      if (!tonConnectUI.connected) {
+      if (!tonConnectUI.connected || !tonConnectUI.account?.address) {
         throw new Error('TON wallet is not connected')
       }
+
+      // Create pending deposit first
+      const depositResult = await createPendingDeposit({
+        userId,
+        amountUsd: numericAmount,
+        senderAddress: tonConnectUI.account.address,
+        expectedTonValue: Number(amountInNanotons),
+        sessionId
+      })
+
+      if (!depositResult.success) {
+        throw new Error(depositResult.error || 'Failed to initiate deposit')
+      }
+
+      console.log('Pending deposit created, now sending TON transaction')
 
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 60, // Valid for 60 seconds
         messages: [
           {
             address: process.env.NEXT_PUBLIC_DESTINATION_ADDRESS,
-            amount: amountInNanotons,
+            amount: amountInNanotons.toString(),
             // No payload needed for simple transfers
           },
         ],
       }
 
-      console.log('Sending transaction:', transaction)
-
       const result = await tonConnectUI.sendTransaction(transaction)
-      console.log("Transaction sent:", result)
+      console.log("TON transaction sent successfully:", result)
 
       if (!result?.boc) {
         throw new Error('Transaction was not sent successfully')
       }
 
-      setCurrentBoc(result.boc)
-
-      // Start checking transaction status
-      startChecking(result.boc)
+      // Transaction sent successfully, pending deposit is waiting for blockchain confirmation
+      console.log('Deposit initiated successfully, awaiting blockchain confirmation')
 
     } catch (error) {
       console.error("TON payment error:", error)
+      setDepositStatus('failed')
       if (error instanceof Error) {
         if (error.message.includes('TON_CONNECT_SDK_ERROR')) {
           setError('Failed to send transaction. Please check your wallet connection and try again.')
@@ -114,72 +134,7 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
     }
   }
 
-  // Handle transaction status changes
-  useEffect(() => {
-    if (transactionStatus === 'confirmed') {
-      const numericAmount = Number(amount)
-      if (!numericAmount || numericAmount <= 0) {
-        setError("Invalid amount. Please enter a valid amount > 0")
-        return
-      }
 
-      // Only update balance after transaction is confirmed
-      const updateBalance = async () => {
-        try {
-          const topUpResult = await topUpWalletBalance(numericAmount, userId)
-          if (topUpResult.success && topUpResult.data && typeof topUpResult.data.newBalance === 'number') {
-            // Log the successful topup operation with unique hash
-            const supabase = createClient()
-            try {
-              if (currentBoc) {
-                const cell = Cell.fromBoc(Buffer.from(currentBoc, 'base64'))[0]
-                const hash = cell.hash()
-                const hashHex = Buffer.from(hash).toString('hex').toUpperCase()
-
-                // Check if this transaction hash already processed
-                const { data: existing } = await supabase
-                  .from('wallet_operations')
-                  .select('id')
-                  .eq('user_id', userId)
-                  .eq('transaction_hash', hashHex)
-                  .single()
-
-                if (!existing) {
-                  await supabase.from('wallet_operations').insert({
-                    user_id: userId,
-                    amount: numericAmount,
-                    type: 'topup',
-                    description: 'TON wallet topup',
-                    transaction_hash: hashHex
-                  })
-                }
-              } else {
-                console.warn('No BOC available for logging')
-              }
-            } catch (logError) {
-              console.error('Failed to log wallet operation:', logError)
-            }
-
-            setAmount("")
-            onSuccess(topUpResult.data.newBalance)
-            onClose()
-          } else {
-            if (topUpResult.error?.includes('Unauthorized')) {
-              setError("Session expired. Please refresh the page and try again.")
-            } else {
-              setError(`TopUp failed: ${topUpResult.error || "Unknown error"}`)
-            }
-          }
-        } catch (error) {
-          console.error("Error updating balance after TON payment:", error)
-          setError(`Error updating balance: ${error instanceof Error ? error.message : "Unknown error"}`)
-        }
-      }
-      updateBalance()
-    } else if (transactionStatus === 'failed') {
-      setError("Transaction failed. Please try again.")
-    }
-  }, [transactionStatus, amount, userId, onSuccess, onClose])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -213,14 +168,14 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
               </p>
             )}
             {error && <p className="text-sm text-red-500">{error}</p>}
-            {transactionStatus === 'checking' && (
-              <p className="text-sm text-blue-500">Checking transaction status...</p>
+            {depositStatus === 'waiting' && (
+              <p className="text-sm text-blue-500">Deposit initiated, awaiting blockchain confirmation...</p>
             )}
-            {transactionStatus === 'confirmed' && (
-              <p className="text-sm text-green-500">Transaction confirmed!</p>
+            {depositStatus === 'confirmed' && (
+              <p className="text-sm text-green-500">Deposit confirmed and processed!</p>
             )}
-            {transactionStatus === 'failed' && (
-              <p className="text-sm text-red-500">Transaction failed. Please try again.</p>
+            {depositStatus === 'failed' && (
+              <p className="text-sm text-red-500">Deposit failed. Please try again.</p>
             )}
           </div>
 
