@@ -34,7 +34,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DO $$
 BEGIN
   -- Remove existing job if it exists
-  PERFORM cron.unschedule('verify-pending-deposits');
+  -- PERFORM cron.unschedule('verify-pending-deposits');
 
   -- Schedule new job to run every minute
   PERFORM cron.schedule(

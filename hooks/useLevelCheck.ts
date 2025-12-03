@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { useUser } from '@/context/UserContext'
 
 export interface LevelThreshold {
     level: number
@@ -26,10 +27,25 @@ interface LevelUpModal {
 }
 
 export function useLevelCheck() {
+    const { user } = useUser()
+    const [previousLevel, setPreviousLevel] = useState<number | null>(null)
     const [levelUpModal, setLevelUpModal] = useState<LevelUpModal | null>(null)
     const [levelThresholds, setLevelThresholds] = useState<LevelThreshold[]>(DEFAULT_LEVEL_THRESHOLDS)
     const [isLoading, setIsLoading] = useState(true)
     const supabase = createClient()
+
+    // Function to calculate level from aicore_balance
+    const calculateLevel = (aicoreBalance: number, thresholds: LevelThreshold[]): number => {
+        if (!thresholds || thresholds.length === 0) return 1
+
+        // Find the highest level the user qualifies for
+        for (let i = thresholds.length - 1; i >= 0; i--) {
+            if (aicoreBalance >= thresholds[i].core) {
+                return thresholds[i].level
+            }
+        }
+        return 1 // Minimum level
+    }
 
     // Load level thresholds from database
     useEffect(() => {
@@ -61,6 +77,25 @@ export function useLevelCheck() {
 
         loadLevelThresholds()
     }, [])
+
+    // Check for level up when user balance changes
+    useEffect(() => {
+        if (!user || !user.aicore_balance) return
+
+        const currentLevel = calculateLevel(user.aicore_balance, levelThresholds)
+
+        // If we have a previous level recorded, check if level increased
+        if (previousLevel !== null && currentLevel > previousLevel) {
+            // Level up detected!
+            setLevelUpModal({
+                isOpen: true,
+                newLevel: currentLevel
+            })
+        }
+
+        // Always update previous level to current
+        setPreviousLevel(currentLevel)
+    }, [user?.aicore_balance, levelThresholds, previousLevel])
 
     const handleLevelUpModalClose = () => {
         setLevelUpModal(null)

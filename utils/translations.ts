@@ -153,6 +153,13 @@ export type TranslationKey =
     | 'common.delete'
     | 'common.save'
     | 'common.cancel'
+    // Levels
+    | 'level.level_up_title'
+    | 'level.congratulations'
+    | 'level.previous'
+    | 'level.new'
+    | 'level.unlock_message'
+    | 'level.continue'
     // Auth
     | 'auth.login'
     | 'auth.logout'
@@ -309,6 +316,13 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'common.delete': 'Delete',
         'common.save': 'Save',
         'common.cancel': 'Cancel',
+        // Levels
+        'level.level_up_title': 'Level Up!',
+        'level.congratulations': 'Congratulations! You have reached a new level!',
+        'level.previous': 'Previous',
+        'level.new': 'New Level',
+        'level.unlock_message': 'New level brings additional features and bonuses!',
+        'level.continue': 'Continue the adventure!',
         // Auth
         'auth.login': 'Login',
         'auth.logout': 'Logout',
@@ -464,6 +478,13 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'common.delete': '删除',
         'common.save': '保存',
         'common.cancel': '取消',
+        // Levels
+        'level.level_up_title': '升级！',
+        'level.congratulations': '恭喜！您达到了新等级！',
+        'level.previous': '上一级',
+        'level.new': '新等级',
+        'level.unlock_message': '新等级带来了额外功能和奖金！',
+        'level.continue': '继续冒险！',
         // Auth
         'auth.login': '登录',
         'auth.logout': '登出',
