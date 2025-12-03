@@ -25,11 +25,12 @@ serve(async (req) => {
       throw new Error('Missing required environment variables')
     }
 
-    // Get pending deposits
+    // Get pending deposits with attempts limit
     const { data: pendingDeposits, error: fetchError } = await supabase
       .from('pending_deposits')
       .select('*')
       .is('processed_transaction_hash', null)
+      .lt('attempts', 50)
       .order('created_at', { ascending: true })
 
     if (fetchError) {
@@ -117,6 +118,19 @@ serve(async (req) => {
           }
 
           console.log(`Successfully processed deposit ${deposit.id} for user ${deposit.user_id}`)
+        } else {
+          // Increment attempts for deposits that weren't found
+          const { error: attemptsError } = await supabase
+            .from('pending_deposits')
+            .update({
+              attempts: (deposit.attempts || 0) + 1,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', deposit.id)
+
+          if (attemptsError) {
+            console.error(`Error incrementing attempts for deposit ${deposit.id}:`, attemptsError)
+          }
         }
       } catch (error) {
         console.error(`Error processing deposit ${deposit.id}:`, error)
