@@ -8,9 +8,10 @@ interface SyncDataOptions<T> {
     initialValue: T;
     onFetchSuccess?: (data: T) => void;
     parse?: (data: any) => T | null;
+    skipCache?: boolean;
 }
 
-export function useSyncData<T>({ key, fetcher, initialValue, onFetchSuccess, parse }: SyncDataOptions<T>) {
+export function useSyncData<T>({ key, fetcher, initialValue, onFetchSuccess, parse, skipCache }: SyncDataOptions<T>) {
     const [data, setData] = useState<T>(initialValue);
     const [isInitialized, setIsInitialized] = useState(false);
     const hasLoadedFromCache = useRef(false);
@@ -65,11 +66,13 @@ export function useSyncData<T>({ key, fetcher, initialValue, onFetchSuccess, par
     // Initial load effect
     useEffect(() => {
         if (!isInitialized) {
-            loadFromCache();
+            if (!skipCache) {
+                loadFromCache();
+            }
             refresh();
             setIsInitialized(true);
         }
-    }, [isInitialized, loadFromCache, refresh]);
+    }, [isInitialized, skipCache, loadFromCache, refresh]);
 
     return {
         data,
