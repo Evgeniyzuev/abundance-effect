@@ -1,5 +1,0 @@
--- ============================================================================
--- DEPRECATED: Trigger approach removed due to net.http_post() limitations
--- ============================================================================
--- Manual verification via Dashboard works perfectly!
--- Use Supabase Dashboard → Edge Functions → verify-deposits → Run
