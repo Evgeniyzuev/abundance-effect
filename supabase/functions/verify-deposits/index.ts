@@ -34,6 +34,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Allow public access for deposit verification (no auth required for blockchain checks)
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
