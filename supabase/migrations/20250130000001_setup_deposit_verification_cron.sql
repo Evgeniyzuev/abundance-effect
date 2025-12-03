@@ -40,7 +40,7 @@ BEGIN
   PERFORM cron.schedule(
     'verify-pending-deposits',
     '* * * * *',  -- every minute
-    $$SELECT call_verify_deposits();$$
+    'SELECT call_verify_deposits();'
   );
 
   RAISE LOG 'Deposit verification cron job scheduled successfully';
