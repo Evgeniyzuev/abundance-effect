@@ -50,16 +50,11 @@ export default function ReferralPage() {
         const shareText = 'Присоединяйся к Abundance Effect! 🎯 Развивайся вместе со мной в приложении для достижения целей и финансового благополучия.';
 
         if (webApp) {
-            // В Telegram Mini App используем Telegram share
+            // В Telegram Mini App используем Telegram share URL
             try {
-                // Проверяем новый метод shareUrl (доступен в новых версиях)
-                if (webApp.shareUrl) {
-                    webApp.shareUrl(link, shareText);
-                } else {
-                    // Fallback для старых версий - открываем share URL
-                    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
-                    webApp.openLink(shareUrl);
-                }
+                // Всегда используемTelegram share URL для consistency
+                const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
+                webApp.openLink(shareUrl);
             } catch (err) {
                 console.error('Telegram share failed:', err);
                 copyToClipboard(link, link.includes('t.me') ? 'telegram' : 'web');
