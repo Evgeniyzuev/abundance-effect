@@ -30,6 +30,7 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [error, setError] = useState<string | null>(null)
   const [depositStatus, setDepositStatus] = useState<'idle' | 'waiting' | 'confirmed' | 'failed'>('idle')
   const [sessionId, setSessionId] = useState<string>("")
+  const [plisioSessionId, setPlisioSessionId] = useState<string | null>(null)
   const [tonConnectUI] = useTonConnectUI()
   const { startChecking } = useTransactionStatus() // Remove transactionStatus since we don't need it now
   const { convertUsdToTon, tonPrice } = useTonPrice()
@@ -43,6 +44,39 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
       setAmount("")
     }
   }, [isOpen])
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | null = null
+    async function pollStatus(session: string) {
+      try {
+        const res = await fetch(`/api/plisio/invoice-status?sessionId=${encodeURIComponent(session)}`)
+        if (!res.ok) return
+        const json = await res.json()
+        const st = json?.data?.status
+        if (st === 'completed') {
+          setDepositStatus('confirmed')
+          if (onSuccess) onSuccess(0)
+          if (timer) clearInterval(timer)
+        } else if (st === 'failed_or_expired') {
+          setDepositStatus('failed')
+          setError('Invoice expired or failed. You can renew the invoice.')
+          if (timer) clearInterval(timer)
+        }
+      } catch (e) {
+        console.error('pollStatus error', e)
+      }
+    }
+
+    if (plisioSessionId) {
+      // start polling every 5 seconds
+      pollStatus(plisioSessionId)
+      timer = setInterval(() => pollStatus(plisioSessionId), 5000)
+    }
+
+    return () => {
+      if (timer) clearInterval(timer)
+    }
+  }, [plisioSessionId])
 
   const handleTonPayment = async () => {
     const numericAmount = parseFloat(amount)
@@ -178,7 +212,44 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
               <p className="text-sm text-green-500">Deposit confirmed and processed!</p>
             )}
             {depositStatus === 'failed' && (
-              <p className="text-sm text-red-500">Deposit failed. Please try again.</p>
+              <div>
+                <p className="text-sm text-red-500">Invoice expired or payment failed. You can renew the invoice or try another method.</p>
+                <div className="mt-2">
+                  <Button
+                    variant="ghost"
+                    onClick={async () => {
+                      // Renew: create a new invoice using the same amount
+                      try {
+                        setIsSubmitting(true)
+                        setError(null)
+                        const numericAmount = parseFloat(amount)
+                        if (isNaN(numericAmount) || numericAmount <= 0) {
+                          setError('Please enter a valid amount to renew')
+                          return
+                        }
+                        const res = await fetch('/api/plisio/create-invoice', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ amountUsd: numericAmount })
+                        })
+                        if (!res.ok) throw new Error('Failed to renew invoice')
+                        const data = await res.json()
+                        const invoiceUrl = data?.data?.invoice_url
+                        const returnedSession = data?.session_id || data?.data?.order_number || null
+                        if (returnedSession) setPlisioSessionId(returnedSession)
+                        if (invoiceUrl) window.open(invoiceUrl, '_blank')
+                        setDepositStatus('waiting')
+                      } catch (e: any) {
+                        setError(e?.message || 'Failed to renew invoice')
+                      } finally {
+                        setIsSubmitting(false)
+                      }
+                    }}
+                  >
+                    Renew invoice
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
 
@@ -193,6 +264,63 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
               Pay with TON
             </Button>
           )}
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-2 w-full"
+            onClick={async () => {
+              // Create a Plisio invoice on the server and open invoice URL
+              try {
+                setIsSubmitting(true)
+                setError(null)
+
+                const numericAmount = parseFloat(amount)
+                if (isNaN(numericAmount) || numericAmount <= 0) {
+                  setError('Please enter a valid amount greater than zero')
+                  return
+                }
+
+                const res = await fetch('/api/plisio/create-invoice', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ amountUsd: numericAmount })
+                })
+
+                if (!res.ok) {
+                  const text = await res.text()
+                  throw new Error(text || 'Failed to create invoice')
+                }
+
+                const data = await res.json()
+
+                // Plisio returns invoice_url in data.data.invoice_url
+                const invoiceUrl = data?.data?.invoice_url
+                const returnedSession = data?.session_id || data?.data?.order_number || null
+                if (!invoiceUrl) throw new Error('No invoice URL returned')
+
+                // Save session id for polling
+                if (returnedSession) setPlisioSessionId(returnedSession)
+
+                // Open Plisio invoice in a new tab so user can pay
+                window.open(invoiceUrl, '_blank')
+                // Set modal to waiting state until webhook confirms
+                setDepositStatus('waiting')
+
+              } catch (e: any) {
+                console.error('Plisio create invoice error', e)
+                setError(e?.message || 'Failed to create Plisio invoice')
+              } finally {
+                setIsSubmitting(false)
+              }
+            }}
+            disabled={isSubmitting}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M3 12h18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 3v18" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Pay with Plisio
+          </Button>
 
           <Button
             variant="outline"
