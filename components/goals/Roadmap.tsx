@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useUser } from '@/context/UserContext';
 import { useLevelCheck } from '@/hooks/useLevelCheck';
+import { createClient } from '@/utils/supabase/client';
 import { translations } from '@/utils/translations';
 import { motion } from 'framer-motion';
 
@@ -9,7 +10,36 @@ export default function Roadmap() {
     const { language } = useLanguage();
     const { user } = useUser();
     const { levelThresholds } = useLevelCheck();
+    const supabase = createClient();
     const t = (key: keyof typeof translations['en']) => translations[language][key] || key;
+    
+    const [mapImage, setMapImage] = useState<string>('/images/roadmap_bg.png');
+
+    // Load map background from game_items
+    useEffect(() => {
+        const loadMapBackground = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('game_items')
+                    .select('image')
+                    .eq('id', 'map_0')
+                    .single();
+
+                if (error) {
+                    console.error('Error loading map background:', error);
+                    return;
+                }
+
+                if (data?.image) {
+                    setMapImage(data.image);
+                }
+            } catch (err) {
+                console.error('Error loading map background:', err);
+            }
+        };
+
+        loadMapBackground();
+    }, [supabase]);
 
     // Calculate current level based on aicore_balance (same as profile page)
     const calculateCurrentLevel = () => {
@@ -31,7 +61,7 @@ export default function Roadmap() {
             {/* Background Map */}
             <div
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-                style={{ backgroundImage: "url('/images/roadmap_bg.png')" }}
+                style={{ backgroundImage: `url('${mapImage}')` }}
             >
                 <div className="absolute inset-0 bg-black/30" /> {/* Overlay for better contrast */}
             </div>
@@ -43,6 +73,15 @@ export default function Roadmap() {
                     d="M 50% 85% L 50% 15%"
                     fill="none"
                     stroke="rgba(255, 215, 0, 0.4)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                />
+
+                {/* Semi-transparent white route line from bottom to top */}
+                <path
+                    d="M 50% 100% L 50% 0%"
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.3)"
                     strokeWidth="6"
                     strokeLinecap="round"
                 />
