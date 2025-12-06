@@ -15,6 +15,8 @@ import { useTonConnectUI } from '@tonconnect/ui-react'
 import { debitWalletBalance, topUpWalletBalance } from "@/app/actions/finance"
 import { createClient } from "@/utils/supabase/client"
 import { QrCode } from "lucide-react"
+import QRScannerModal from "./QRScannerModal"
+import { formatTonAddress, extractTonAddress, isValidTonAddress } from "@/utils/tonAddress"
 
 interface SendTonModalProps {
   isOpen: boolean
@@ -30,6 +32,7 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [transactionStatus, setTransactionStatus] = useState<string>("")
+  const [showQRScanner, setShowQRScanner] = useState(false)
   const { convertUsdToTon, tonPrice } = useTonPrice()
   const [tonConnectUI] = useTonConnectUI()
 
@@ -39,8 +42,17 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
   }
 
   const handleQRScan = () => {
-    // TODO: Implement QR scanner
-    setError("QR scanner not implemented yet")
+    setShowQRScanner(true)
+  }
+
+  const handleQRScanResult = (result: string) => {
+    const tonAddress = extractTonAddress(result)
+    if (tonAddress && isValidTonAddress(tonAddress)) {
+      setAddress(tonAddress)
+      setError(null)
+    } else {
+      setError("Invalid TON address in QR code")
+    }
   }
 
   const handleSendTon = async () => {
@@ -57,6 +69,13 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
 
     if (!address) {
       setError("Please enter a destination address")
+      return
+    }
+
+    // Validate TON address format
+    const cleanAddress = extractTonAddress(address) || address
+    if (!isValidTonAddress(cleanAddress)) {
+      setError("Invalid TON address format. Address should start with UQ...")
       return
     }
 
@@ -87,12 +106,13 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
       const networkFee = 0.005
       const totalTonAmount = tonAmount + networkFee
 
-      // Validate TON address
+      // Validate and parse TON address
+      const cleanDestinationAddress = extractTonAddress(address) || address
       let destinationAddress: Address
       try {
-        destinationAddress = Address.parse(address)
+        destinationAddress = Address.parse(cleanDestinationAddress)
       } catch {
-        setError("Invalid TON address")
+        setError("Invalid TON address format")
         return
       }
 
@@ -176,7 +196,7 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
       try {
         // Generate unique hash for send operation
         const timestamp = Date.now().toString()
-        const hashInput = userId + numericAmount.toString() + address + timestamp
+        const hashInput = userId + numericAmount.toString() + cleanDestinationAddress + timestamp
         let hash = 0
         for (let i = 0; i < hashInput.length; i++) {
           const char = hashInput.charCodeAt(i)
@@ -198,7 +218,7 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
             user_id: userId,
             amount: -numericAmount, // Negative for outgoing send
             type: 'send',
-            description: `Send to ${address.slice(0, 10)}...`,
+            description: `Send to ${formatTonAddress(cleanDestinationAddress)}`,
             transaction_hash: hashHex
           })
         }
@@ -262,13 +282,15 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
                     variant="outline"
                     size="sm"
                     onClick={() => setAddress(tonConnectUI.account?.address || '')}
-                    title="Use my TON address"
+                    title={`Use my TON address (${formatTonAddress(tonConnectUI.account.address)})`}
+                    className="text-xs"
                   >
                     <img
                       src="/ton.png"
                       alt="TON"
-                      className="h-4 w-4"
+                      className="h-4 w-4 mr-1"
                     />
+                    {formatTonAddress(tonConnectUI.account.address)}
                   </Button>
                 )}
                 <Button
@@ -348,6 +370,12 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
             </Button>
           </DialogFooter>
         </form>
+
+        <QRScannerModal
+          isOpen={showQRScanner}
+          onClose={() => setShowQRScanner(false)}
+          onScan={handleQRScanResult}
+        />
       </DialogContent>
     </Dialog>
   )
