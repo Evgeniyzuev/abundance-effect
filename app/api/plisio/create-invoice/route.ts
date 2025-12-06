@@ -20,11 +20,15 @@ export async function POST(req: Request) {
 
     const sessionId = `plisio_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 
-    // Insert pending deposit record so webhook can match it later
-    await supabase.from('pending_deposits').insert({
+    // Insert Plisio invoice record in Supabase so callback handler can match it
+    const order_name = `wallet_topup_${user.id}_${sessionId}`
+    await supabase.from('plisio_invoices').insert({
       user_id: user.id,
-      session_id: sessionId,
+      order_number: sessionId,
+      order_name: order_name,
       amount_usd: amountUsd,
+      status: 'new',
+      raw_data: null
     })
 
     const apiKey = process.env.PLISIO_API_KEY
@@ -37,14 +41,12 @@ export async function POST(req: Request) {
     const successCallback = process.env.PLISIO_SUCCESS_URL || ''
     const failCallback = process.env.PLISIO_FAIL_URL || ''
 
-    const orderName = `wallet_topup_${user.id}_${sessionId}`
-
     const params = new URLSearchParams({
       api_key: apiKey,
       source_currency: 'USD',
       source_amount: String(amountUsd),
       order_number: sessionId,
-      order_name: orderName,
+      order_name: order_name,
       callback_url: `${callbackUrl}?json=true`,
       success_callback_url: successCallback ? `${successCallback}?json=true` : '',
       fail_callback_url: failCallback ? `${failCallback}?json=true` : '',
