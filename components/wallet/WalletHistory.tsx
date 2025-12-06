@@ -161,7 +161,10 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
                                             <div className="text-xs text-gray-400">{getStatusLabel(op.status)}</div>
                                         </div>
                                     </div>
-                                    <div className={`font-bold text-sm ${op.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    <div className={`font-bold text-sm ${
+                                        op.status === 'pending' ? 'text-yellow-600' :
+                                        op.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                                    }`}>
                                         {op.amount >= 0 ? '+' : ''}${op.amount.toFixed(2)}
                                     </div>
                                 </div>
