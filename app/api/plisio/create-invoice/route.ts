@@ -37,11 +37,14 @@ export async function POST(req: Request) {
     const successCallback = process.env.PLISIO_SUCCESS_URL || ''
     const failCallback = process.env.PLISIO_FAIL_URL || ''
 
+    const orderName = `wallet_topup_${user.id}_${sessionId}`
+
     const params = new URLSearchParams({
       api_key: apiKey,
       source_currency: 'USD',
       source_amount: String(amountUsd),
       order_number: sessionId,
+      order_name: orderName,
       callback_url: `${callbackUrl}?json=true`,
       success_callback_url: successCallback ? `${successCallback}?json=true` : '',
       fail_callback_url: failCallback ? `${failCallback}?json=true` : '',
@@ -50,6 +53,12 @@ export async function POST(req: Request) {
 
     const plisioRes = await fetch(`https://api.plisio.net/api/v1/invoices/new?${params.toString()}`)
     const plisioJson = await plisioRes.json()
+
+    // If Plisio returned error, forward detailed message so frontend can show it
+    if (!plisioJson || plisioJson.status !== 'success') {
+      console.error('Plisio create-invoice error response:', JSON.stringify(plisioJson))
+      return NextResponse.json({ status: 'error', data: plisioJson?.data || plisioJson, session_id: sessionId }, { status: 400 })
+    }
 
     // Return Plisio response along with our session id so frontend can poll status
     return NextResponse.json({
