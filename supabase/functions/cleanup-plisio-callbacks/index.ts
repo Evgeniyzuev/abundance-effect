@@ -23,8 +23,17 @@ serve(async (req: Request) => {
     const SUPABASE_SERVICE_ROLE_KEY = envGet('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
     if (!SUPABASE_SERVICE_ROLE_KEY || !SUPABASE_URL) {
-      console.error('Missing Supabase environment variables')
-      return new Response(JSON.stringify({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+      console.error('Missing Supabase environment variables', { 
+        hasUrl: !!SUPABASE_URL, 
+        hasKey: !!SUPABASE_SERVICE_ROLE_KEY 
+      })
+      return new Response(JSON.stringify({ 
+        error: 'Missing SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL',
+        debug: { 
+          hasUrl: !!SUPABASE_URL, 
+          hasKey: !!SUPABASE_SERVICE_ROLE_KEY 
+        }
+      }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 
     // Calculate date 7 days ago
