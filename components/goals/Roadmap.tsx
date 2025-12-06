@@ -38,11 +38,11 @@ export default function Roadmap() {
 
             {/* Route Visualization (SVG) */}
             <svg className="absolute inset-0 w-full h-full z-10 pointer-events-none">
-                {/* Semi-transparent route line from navigator to level marker and up to top */}
+                {/* Semi-transparent yellow route line from triangle to level marker */}
                 <path
                     d="M 50% 85% L 50% 15%"
                     fill="none"
-                    stroke="rgba(255, 255, 255, 0.3)"
+                    stroke="rgba(255, 215, 0, 0.4)"
                     strokeWidth="6"
                     strokeLinecap="round"
                 />
@@ -82,14 +82,10 @@ export default function Roadmap() {
                         transition={{ delay: 0.2 }}
                         className="relative"
                     >
-                        {/* Pulse Effect */}
-                        <div className="absolute -inset-4 bg-blue-500/30 rounded-full blur-xl animate-pulse" />
-
-                        {/* Rounded Triangle Navigator Icon */}
-                        <div className="relative bg-blue-600 text-white p-4 rounded-full shadow-lg shadow-blue-600/50 border-2 border-white/50">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        {/* Yellow Triangle Navigator Icon */}
+                        <div className="relative text-yellow-400 p-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M12 2 L18 16 C18 18 16.5 20 15 20 L9 20 C7.5 20 6 18 6 16 L12 2 Z" fill="currentColor" stroke="currentColor"/>
-                                <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="2"/>
                             </svg>
                         </div>
 
