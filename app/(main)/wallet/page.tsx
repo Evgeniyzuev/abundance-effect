@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Wallet, Atom } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import { useWalletBalances } from '@/hooks/useWalletBalances';
+import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
 import WalletTab from '@/components/wallet/WalletTab';
 import CoreTab from '@/components/wallet/CoreTab';
 import TopUpModal from '@/components/wallet/TopUpModal';
@@ -13,7 +13,7 @@ import WithdrawModal from '@/components/wallet/WithdrawModal';
 
 export default function WalletPage() {
     const { user, refreshUser } = useUser();
-    const { walletBalance, coreBalance, reinvestPercentage, refreshBalances } = useWalletBalances(user?.id || null);
+    const { walletBalance, coreBalance, reinvestPercentage, loading, error, refreshBalances } = useWalletBalancesNoCache(user?.id || null);
     const [activeTab, setActiveTab] = useState<"wallet" | "core">("wallet");
     const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
@@ -66,6 +66,8 @@ export default function WalletPage() {
                         onSend={() => setIsSendModalOpen(true)}
                         onWithdraw={() => setIsWithdrawModalOpen(true)}
                         userId={user?.id || null}
+                        loading={loading}
+                        error={error}
                     />
                 ) : (
                     <CoreTab
@@ -74,6 +76,8 @@ export default function WalletPage() {
                         userId={user?.id || null}
                         onTransfer={() => setIsTransferModalOpen(true)}
                         onReinvestUpdate={handleReinvestUpdate}
+                        loading={loading}
+                        error={error}
                     />
                 )}
             </div>

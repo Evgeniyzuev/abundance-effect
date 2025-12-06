@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowRight, Check, TrendingUp, Calculator, Clock } from "lucide-react"
+import { ArrowRight, Check, TrendingUp, Calculator, Clock, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { updateUserReinvest } from "@/app/actions/finance"
@@ -16,9 +16,11 @@ interface CoreTabProps {
     userId: string | null
     onTransfer: () => void
     onReinvestUpdate: (newPercentage: number) => void
+    loading?: boolean
+    error?: string | null
 }
 
-export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTransfer, onReinvestUpdate }: CoreTabProps) {
+export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTransfer, onReinvestUpdate, loading, error }: CoreTabProps) {
     const { t } = useLanguage()
     const { levelThresholds } = useLevelCheck()
     const [reinvestInputValue, setReinvestInputValue] = useState(reinvestPercentage.toString())
@@ -196,17 +198,32 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
             {/* Core Balance Section */}
             <div className="flex flex-col items-center justify-center py-8 space-y-2 bg-gray-50 border-b border-gray-100">
                 <p className="text-gray-500 text-sm font-medium">{t('wallet.core_balance')}</p>
-                <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
-                    ${coreBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </h1>
-
-                <div className="w-full max-w-xs mt-4 space-y-2 px-4">
-                    <div className="flex justify-between text-xs text-gray-500">
-                        <span className="font-medium">{t('wallet.level')} {currentLevel}</span>
-                        <span>${coreBalance.toFixed(0)} / ${nextLevelThreshold}</span>
+                
+                {loading ? (
+                    <div className="flex items-center space-x-2">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        <span className="text-gray-500">Загрузка...</span>
                     </div>
-                    <Progress value={progressPercentage} className="h-2 bg-gray-200" />
-                </div>
+                ) : error ? (
+                    <div className="flex flex-col items-center space-y-2">
+                        <span className="text-red-500 text-sm">Ошибка загрузки</span>
+                        <span className="text-red-400 text-xs">{error}</span>
+                    </div>
+                ) : (
+                    <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+                        ${coreBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </h1>
+                )}
+
+                {!loading && !error && (
+                    <div className="w-full max-w-xs mt-4 space-y-2 px-4">
+                        <div className="flex justify-between text-xs text-gray-500">
+                            <span className="font-medium">{t('wallet.level')} {currentLevel}</span>
+                            <span>${coreBalance.toFixed(0)} / ${nextLevelThreshold}</span>
+                        </div>
+                        <Progress value={progressPercentage} className="h-2 bg-gray-200" />
+                    </div>
+                )}
             </div>
 
             <div className="p-4 space-y-6">
@@ -353,7 +370,7 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
                 <button
                     className="w-full h-12 bg-black text-white rounded-xl font-semibold flex items-center justify-center space-x-2 hover:bg-gray-800 transition-all disabled:opacity-50 shadow-sm"
                     onClick={onTransfer}
-                    disabled={!userId}
+                    disabled={!userId || loading}
                 >
                     <ArrowRight className="h-4 w-4" />
                     <span>{t('wallet.transfer_from_wallet')}</span>
