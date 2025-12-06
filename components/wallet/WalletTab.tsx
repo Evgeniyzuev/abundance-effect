@@ -2,6 +2,7 @@
 
 import { Plus, ArrowRight, Send, ArrowDown, Loader2 } from "lucide-react"
 import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
 import { useLanguage } from "@/context/LanguageContext"
 import { TonConnectButton } from '@tonconnect/ui-react'
 import WalletHistory from "./WalletHistory"
@@ -19,6 +20,24 @@ interface WalletTabProps {
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, onWithdraw, userId, loading, error }: WalletTabProps) {
     const { t } = useLanguage()
+    const [refreshTimer, setRefreshTimer] = useState<NodeJS.Timeout | null>(null)
+
+    // Auto refresh page on unauthorized error
+    useEffect(() => {
+        if (error === 'Unauthorized' && !refreshTimer) {
+            const timer = setTimeout(() => {
+                window.location.reload()
+            }, 2000)
+            setRefreshTimer(timer)
+        }
+
+        return () => {
+            if (refreshTimer) {
+                clearTimeout(refreshTimer)
+                setRefreshTimer(null)
+            }
+        }
+    }, [error, refreshTimer])
 
     return (
         <div className="w-full bg-white min-h-full">
@@ -36,7 +55,7 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                         <span className="text-red-500 text-sm">Ошибка загрузки</span>
                         <span className="text-red-400 text-xs">
                             {error === 'Unauthorized'
-                                ? 'Пытаемся автоматически войти повторно...'
+                                ? 'обновите страницу'
                                 : error
                             }
                         </span>
