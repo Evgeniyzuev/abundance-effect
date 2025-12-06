@@ -75,7 +75,7 @@ export default function Roadmap() {
                 </div>
 
                 {/* Bottom Section: User Arrow */}
-                <div className="mb-4 flex flex-col items-center">
+                <div className="mb-16 flex flex-col items-center">
                     <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
@@ -85,12 +85,11 @@ export default function Roadmap() {
                         {/* Pulse Effect */}
                         <div className="absolute -inset-4 bg-blue-500/30 rounded-full blur-xl animate-pulse" />
 
-                        {/* Navigator Icon */}
+                        {/* Rounded Triangle Navigator Icon */}
                         <div className="relative bg-blue-600 text-white p-4 rounded-full shadow-lg shadow-blue-600/50 border-2 border-white/50">
                             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polygon points="12,2 18,8 6,8" fill="currentColor"/>
+                                <path d="M12 2 L18 16 C18 18 16.5 20 15 20 L9 20 C7.5 20 6 18 6 16 L12 2 Z" fill="currentColor" stroke="currentColor"/>
                                 <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="2"/>
-                                <path d="M12 16v6" stroke="currentColor" strokeWidth="2"/>
                             </svg>
                         </div>
 
