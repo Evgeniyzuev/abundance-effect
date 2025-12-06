@@ -2,6 +2,8 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { ensureValidSession } from '@/utils/supabase/sessionManager'
+import { storage, STORAGE_KEYS, TelegramInitDataCache } from '@/utils/storage'
 
 export type ActionResponse<T = any> = {
     success: boolean
@@ -9,12 +11,108 @@ export type ActionResponse<T = any> = {
     error?: string
 }
 
+/**
+ * Attempts to re-authenticate using cached Telegram data
+ * Returns true if re-authentication was successful
+ */
+async function tryReAuthenticate(supabase: any): Promise<boolean> {
+    try {
+        // Check if we have cached Telegram init data
+        const cachedTgData = storage.get<TelegramInitDataCache>(STORAGE_KEYS.TELEGRAM_INIT_DATA);
+        if (!cachedTgData) {
+            console.log('No cached Telegram data for re-authentication');
+            return false;
+        }
+
+        // Check cache age (same logic as in UserContext)
+        const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+        if (Date.now() - cachedTgData.cached_at > MAX_CACHE_AGE) {
+            console.log('Telegram cache data expired');
+            return false;
+        }
+
+        const tgUser = cachedTgData.user;
+        const startParam = storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
+
+        console.log('Attempting re-authentication with cached Telegram data for user:', tgUser.id);
+
+        // Try to re-authenticate via the API
+        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/telegram-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                telegramUser: tgUser,
+                initData: cachedTgData.initData,
+                referrerId: startParam || null,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.password) {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: `telegram_${tgUser.id}@abundance-effect.app`,
+                password: result.password,
+            });
+
+            if (error) {
+                console.error('Error re-authenticating:', error);
+                return false;
+            }
+
+            console.log('Successfully re-authenticated user');
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Exception during re-authentication:', error);
+        return false;
+    }
+}
+
+/**
+ * Ensures valid authentication, trying to re-authenticate if needed
+ * Returns the user object if authenticated, null otherwise
+ */
+async function ensureAuthenticatedUser(supabase: any): Promise<any> {
+    // First try to get current user
+    let { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (!userError && user) {
+        return user;
+    }
+
+    // Session might be expired, try to refresh
+    const sessionValid = await ensureValidSession(supabase);
+    if (sessionValid) {
+        const { data: { user: refreshedUser } } = await supabase.auth.getUser();
+        if (refreshedUser) {
+            return refreshedUser;
+        }
+    }
+
+    // If still not authenticated, try telegram re-auth
+    console.log('Attempting re-authentication due to unauthorized access');
+    const reAuthSuccess = await tryReAuthenticate(supabase);
+
+    if (reAuthSuccess) {
+        // After re-auth, check user again
+        const { data: { user: reAuthedUser } } = await supabase.auth.getUser();
+        if (reAuthedUser) {
+            return reAuthedUser;
+        }
+    }
+
+    return null;
+}
+
 export async function getUserBalances(userId: string): Promise<ActionResponse<{ walletBalance: number, coreBalance: number, reinvest: number }>> {
     try {
         const supabase = await createClient()
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        const user = await ensureAuthenticatedUser(supabase)
 
-        if (userError || !user) {
+        if (!user) {
             return { success: false, error: 'Unauthorized' }
         }
 

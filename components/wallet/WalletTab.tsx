@@ -34,7 +34,12 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                 ) : error ? (
                     <div className="flex flex-col items-center space-y-2">
                         <span className="text-red-500 text-sm">Ошибка загрузки</span>
-                        <span className="text-red-400 text-xs">{error}</span>
+                        <span className="text-red-400 text-xs">
+                            {error === 'Unauthorized'
+                                ? 'Пытаемся автоматически войти повторно...'
+                                : error
+                            }
+                        </span>
                     </div>
                 ) : (
                     <h1 className="text-5xl font-bold text-gray-900 tracking-tight">

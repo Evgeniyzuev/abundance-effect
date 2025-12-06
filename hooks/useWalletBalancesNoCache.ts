@@ -25,6 +25,8 @@ export function useWalletBalancesNoCache(userId: string | null) {
         setLoading(true);
         setError(null);
 
+        let isRetrying = false;
+
         try {
             const result = await getUserBalances(userId);
             if (result.success && result.data) {
@@ -34,12 +36,37 @@ export function useWalletBalancesNoCache(userId: string | null) {
                     reinvestPercentage: result.data.reinvest
                 });
             } else {
+                // If unauthorized, trigger a retry after a short delay
+                // This gives time for any automatic re-authentication to complete
+                if (result.error === 'Unauthorized') {
+                    console.log('Unauthorized error received, retrying after re-authentication attempt...');
+                    isRetrying = true;
+                    setTimeout(async () => {
+                        console.log('Retrying balance fetch after potential re-authentication...');
+                        const retryResult = await getUserBalances(userId);
+                        if (retryResult.success && retryResult.data) {
+                            setData({
+                                walletBalance: retryResult.data.walletBalance,
+                                coreBalance: retryResult.data.coreBalance,
+                                reinvestPercentage: retryResult.data.reinvest
+                            });
+                            setError(null);
+                        } else {
+                            setError(retryResult.error || 'Failed to fetch balances');
+                        }
+                        setLoading(false);
+                    }, 2000); // Wait 2 seconds for re-auth to complete
+                    return;
+                }
                 setError(result.error || 'Failed to fetch balances');
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred');
         } finally {
-            setLoading(false);
+            // Only set loading to false if we didn't start a retry
+            if (!isRetrying) {
+                setLoading(false);
+            }
         }
     }, [userId]);
 
