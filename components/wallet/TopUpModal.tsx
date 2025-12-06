@@ -33,6 +33,18 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [plisioSessionId, setPlisioSessionId] = useState<string | null>(null)
   const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null)
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
+
+  // Detect iOS in-app browsers (Telegram/Instagram/FB webview etc.)
+  const shouldUseSameWindowForInvoice = () => {
+    try {
+      const ua = typeof navigator !== 'undefined' ? navigator.userAgent || '' : ''
+      const isIos = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream
+      const isInApp = /(FBAN|FBAV|Instagram|Twitter|Line|Telegram|MicroMessenger|LinkedIn)/i.test(ua)
+      return isIos && isInApp
+    } catch (e) {
+      return false
+    }
+  }
   const [tonConnectUI] = useTonConnectUI()
   const { startChecking } = useTransactionStatus() // Remove transactionStatus since we don't need it now
   const { convertUsdToTon, tonPrice } = useTonPrice()
@@ -252,10 +264,18 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                         const returnedSession = data?.session_id || data?.data?.order_number || null
                         if (returnedSession) setPlisioSessionId(returnedSession)
                         if (!invoiceUrl) throw new Error('No invoice URL returned: ' + JSON.stringify(data))
-                        // Open a blank tab synchronously to avoid iOS popup blockers, then redirect it
-                        const win = window.open('', '_blank')
+                        // Open invoice. Use same-window for iOS in-app browsers, otherwise open a blank tab and redirect it
                         setInvoiceUrl(invoiceUrl)
-                        try { if (win) win.location.href = invoiceUrl } catch (e) { console.warn('Redirect to invoice blocked', e) }
+                        try {
+                          if (shouldUseSameWindowForInvoice()) {
+                            window.location.href = invoiceUrl
+                          } else {
+                            const win = window.open('', '_blank')
+                            if (win) win.location.href = invoiceUrl
+                          }
+                        } catch (e) {
+                          console.warn('Redirect to invoice blocked', e)
+                        }
                         setDepositStatus('waiting')
                       } catch (e: any) {
                         setError(e?.message || 'Failed to renew invoice')
@@ -334,10 +354,18 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                 // Save session id for polling
                 if (returnedSession) setPlisioSessionId(returnedSession)
 
-                // Open a blank tab synchronously to avoid iOS popup blockers, then redirect it
-                const win = window.open('', '_blank')
+                // Open invoice. Use same-window for iOS in-app browsers, otherwise open a blank tab and redirect it
                 setInvoiceUrl(invoiceUrl)
-                try { if (win) win.location.href = invoiceUrl } catch (e) { console.warn('Redirect to invoice blocked', e) }
+                try {
+                  if (shouldUseSameWindowForInvoice()) {
+                    window.location.href = invoiceUrl
+                  } else {
+                    const win = window.open('', '_blank')
+                    if (win) win.location.href = invoiceUrl
+                  }
+                } catch (e) {
+                  console.warn('Redirect to invoice blocked', e)
+                }
                 // Set modal to waiting state until webhook confirms
                 setDepositStatus('waiting')
 
