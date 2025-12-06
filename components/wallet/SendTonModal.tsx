@@ -72,10 +72,11 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
       return
     }
 
-    // Validate TON address format
+      // Validate TON address format
     const cleanAddress = extractTonAddress(address) || address
     if (!isValidTonAddress(cleanAddress)) {
       setError("Invalid TON address format. Address should start with UQ...")
+      setTransactionStatus("")
       return
     }
 
@@ -310,6 +311,11 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Enter TON address"
             />
+            {address && isValidTonAddress(address) && (
+              <p className="text-xs text-gray-500">
+                Address: {formatTonAddress(address)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
