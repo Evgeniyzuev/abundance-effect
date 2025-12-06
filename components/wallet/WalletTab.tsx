@@ -11,10 +11,11 @@ interface WalletTabProps {
     onTopUp: () => void
     onTransfer: () => void
     onSend: () => void
+    onWithdraw: () => void
     userId: string | null
 }
 
-export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, userId }: WalletTabProps) {
+export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, onWithdraw, userId }: WalletTabProps) {
     const { t } = useLanguage()
 
     return (
@@ -76,13 +77,15 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                 </div>
 
                 <div className="flex flex-col items-center space-y-2">
-                    <button
-                        disabled
-                        className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 cursor-not-allowed"
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={onWithdraw}
+                        disabled={!userId}
+                        className="w-14 h-14 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <ArrowDown className="h-6 w-6" />
-                    </button>
-                    <span className="text-xs font-medium text-gray-400">{t('wallet.receive')}</span>
+                    </motion.button>
+                    <span className="text-xs font-medium text-gray-600">Withdraw</span>
                 </div>
             </div>
 

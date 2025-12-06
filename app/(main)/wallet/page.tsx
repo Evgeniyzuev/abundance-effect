@@ -9,6 +9,7 @@ import CoreTab from '@/components/wallet/CoreTab';
 import TopUpModal from '@/components/wallet/TopUpModal';
 import TransferModal from '@/components/wallet/TransferModal';
 import SendTonModal from '@/components/wallet/SendTonModal';
+import WithdrawModal from '@/components/wallet/WithdrawModal';
 
 export default function WalletPage() {
     const { user, refreshUser } = useUser();
@@ -17,6 +18,7 @@ export default function WalletPage() {
     const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+    const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
     const handleTopUpSuccess = async (newBalance: number) => {
         await refreshBalances();
@@ -62,6 +64,7 @@ export default function WalletPage() {
                         onTopUp={() => setIsTopUpModalOpen(true)}
                         onTransfer={() => setIsTransferModalOpen(true)}
                         onSend={() => setIsSendModalOpen(true)}
+                        onWithdraw={() => setIsWithdrawModalOpen(true)}
                         userId={user?.id || null}
                     />
                 ) : (
@@ -96,6 +99,14 @@ export default function WalletPage() {
                     <SendTonModal
                         isOpen={isSendModalOpen}
                         onClose={() => setIsSendModalOpen(false)}
+                        onSuccess={handleTopUpSuccess}
+                        userId={user.id}
+                        currentBalance={walletBalance}
+                    />
+
+                    <WithdrawModal
+                        isOpen={isWithdrawModalOpen}
+                        onClose={() => setIsWithdrawModalOpen(false)}
                         onSuccess={handleTopUpSuccess}
                         userId={user.id}
                         currentBalance={walletBalance}

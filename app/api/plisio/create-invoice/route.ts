@@ -34,12 +34,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ status: 'error', data: { message: 'Plisio not configured on server' } }, { status: 500 })
     }
 
+    const successCallback = process.env.PLISIO_SUCCESS_URL || ''
+    const failCallback = process.env.PLISIO_FAIL_URL || ''
+
     const params = new URLSearchParams({
       api_key: apiKey,
       source_currency: 'USD',
       source_amount: String(amountUsd),
       order_number: sessionId,
       callback_url: `${callbackUrl}?json=true`,
+      success_callback_url: successCallback ? `${successCallback}?json=true` : '',
+      fail_callback_url: failCallback ? `${failCallback}?json=true` : '',
       redirect_to_invoice: '0'
     })
 
