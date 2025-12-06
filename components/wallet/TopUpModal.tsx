@@ -232,12 +232,25 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ amountUsd: numericAmount })
                         })
-                        if (!res.ok) throw new Error('Failed to renew invoice')
+                        if (!res.ok) {
+                          let errBody = null
+                          try { errBody = await res.json() } catch { errBody = await res.text() }
+                          const msg = errBody?.data?.message || errBody?.message || JSON.stringify(errBody)
+                          throw new Error(msg || 'Failed to renew invoice')
+                        }
+
                         const data = await res.json()
+                        if (data?.status === 'error' || !data?.data) {
+                          const errData = data?.data || data
+                          const userMessage = errData?.message || errData?.name || JSON.stringify(errData)
+                          throw new Error(userMessage)
+                        }
+
                         const invoiceUrl = data?.data?.invoice_url
                         const returnedSession = data?.session_id || data?.data?.order_number || null
                         if (returnedSession) setPlisioSessionId(returnedSession)
-                        if (invoiceUrl) window.open(invoiceUrl, '_blank')
+                        if (!invoiceUrl) throw new Error('No invoice URL returned: ' + JSON.stringify(data))
+                        window.open(invoiceUrl, '_blank')
                         setDepositStatus('waiting')
                       } catch (e: any) {
                         setError(e?.message || 'Failed to renew invoice')
@@ -286,17 +299,32 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                   body: JSON.stringify({ amountUsd: numericAmount })
                 })
 
-                if (!res.ok) {
+                let data: any
+                try {
+                  data = await res.json()
+                } catch (e) {
                   const text = await res.text()
                   throw new Error(text || 'Failed to create invoice')
                 }
 
-                const data = await res.json()
+                // Prefer explicit error handling based on returned JSON
+                if (!res.ok || data?.status === 'error' || !data?.data) {
+                  // Try to extract meaningful message from Plisio error model
+                  const errData = data?.data || data
+                  let userMessage = 'Failed to create invoice'
+                  if (errData?.message) userMessage = errData.message
+                  else if (errData?.name) userMessage = `${errData.name}: ${errData.message || ''}`
+                  else userMessage = JSON.stringify(errData)
+                  throw new Error(userMessage)
+                }
 
                 // Plisio returns invoice_url in data.data.invoice_url
                 const invoiceUrl = data?.data?.invoice_url
                 const returnedSession = data?.session_id || data?.data?.order_number || null
-                if (!invoiceUrl) throw new Error('No invoice URL returned')
+                if (!invoiceUrl) {
+                  // If Plisio returned success but no invoice_url, surface full response for debugging
+                  throw new Error('No invoice URL returned: ' + JSON.stringify(data))
+                }
 
                 // Save session id for polling
                 if (returnedSession) setPlisioSessionId(returnedSession)
