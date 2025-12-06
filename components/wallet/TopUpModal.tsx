@@ -60,41 +60,12 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
       setAmount("")
       setShowInvoiceInIframe(false)
       setInvoiceUrl(null)
+      setPlisioSessionId(null)
     }
   }, [isOpen])
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | null = null
-    async function pollStatus(session: string) {
-      try {
-        const res = await fetch(`/api/plisio/invoice-status?sessionId=${encodeURIComponent(session)}`)
-        if (!res.ok) return
-        const json = await res.json()
-        const st = json?.data?.poll_status
-        if (st === 'completed') {
-          setDepositStatus('confirmed')
-          if (onSuccess) onSuccess(0)
-          if (timer) clearInterval(timer)
-        } else if (st === 'failed_or_expired') {
-          setDepositStatus('failed')
-          setError('Invoice expired or failed. You can renew the invoice.')
-          if (timer) clearInterval(timer)
-        }
-      } catch (e) {
-        console.error('pollStatus error', e)
-      }
-    }
-
-    if (plisioSessionId) {
-      // start polling every 5 seconds
-      pollStatus(plisioSessionId)
-      timer = setInterval(() => pollStatus(plisioSessionId), 5000)
-    }
-
-    return () => {
-      if (timer) clearInterval(timer)
-    }
-  }, [plisioSessionId])
+  // Removed polling - webhooks will handle status updates automatically
+  // Users can manually check status by reopening the modal or refreshing the page
 
   const handleTonPayment = async () => {
     const numericAmount = parseFloat(amount)
@@ -274,10 +245,10 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
             )}
             {error && <p className="text-sm text-red-500">{error}</p>}
             {depositStatus === 'waiting' && (
-              <p className="text-sm text-blue-500">Deposit initiated, awaiting blockchain confirmation...</p>
+              <p className="text-sm text-blue-500">Invoice created! Complete payment in the opened window. Status will update automatically when payment is confirmed.</p>
             )}
             {depositStatus === 'confirmed' && (
-              <p className="text-sm text-green-500">Deposit confirmed and processed!</p>
+              <p className="text-sm text-green-500">Payment confirmed and processed! Your wallet has been topped up.</p>
             )}
             {depositStatus === 'failed' && (
               <div>
@@ -315,8 +286,6 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                         }
 
                         const invoiceUrl = data?.data?.invoice_url
-                        const returnedSession = data?.session_id || data?.data?.order_number || null
-                        if (returnedSession) setPlisioSessionId(returnedSession)
                         if (!invoiceUrl) throw new Error('No invoice URL returned: ' + JSON.stringify(data))
                         // Open invoice. Use same-window for iOS in-app browsers, otherwise open a blank tab and redirect it
                         setInvoiceUrl(invoiceUrl)
@@ -399,14 +368,10 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
 
                 // Plisio returns invoice_url in data.data.invoice_url
                 const invoiceUrl = data?.data?.invoice_url
-                const returnedSession = data?.session_id || data?.data?.order_number || null
                 if (!invoiceUrl) {
                   // If Plisio returned success but no invoice_url, surface full response for debugging
                   throw new Error('No invoice URL returned: ' + JSON.stringify(data))
                 }
-
-                // Save session id for polling
-                if (returnedSession) setPlisioSessionId(returnedSession)
 
                 // Open invoice. Use same-window for iOS in-app browsers, otherwise open a blank tab and redirect it
                 setInvoiceUrl(invoiceUrl)
