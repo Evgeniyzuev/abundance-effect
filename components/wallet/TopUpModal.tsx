@@ -33,14 +33,16 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [plisioSessionId, setPlisioSessionId] = useState<string | null>(null)
   const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null)
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
+  const [showInvoiceInIframe, setShowInvoiceInIframe] = useState(false)
 
-  // Detect iOS in-app browsers (Telegram/Instagram/FB webview etc.)
+  // Detect iOS devices and in-app browsers (Telegram/Instagram/FB webview etc.)
   const shouldUseSameWindowForInvoice = () => {
     try {
       const ua = typeof navigator !== 'undefined' ? navigator.userAgent || '' : ''
       const isIos = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream
       const isInApp = /(FBAN|FBAV|Instagram|Twitter|Line|Telegram|MicroMessenger|LinkedIn)/i.test(ua)
-      return isIos && isInApp
+      // Use same window for iOS devices to avoid popup blockers and compatibility issues
+      return isIos
     } catch (e) {
       return false
     }
@@ -56,6 +58,8 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
       setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
       setError(null)
       setAmount("")
+      setShowInvoiceInIframe(false)
+      setInvoiceUrl(null)
     }
   }, [isOpen])
 
@@ -186,6 +190,56 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   }
 
 
+
+  if (showInvoiceInIframe && invoiceUrl) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Complete Your Payment</DialogTitle>
+            <DialogDescription>
+              Please complete the payment in the window below
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 min-h-0">
+            <iframe
+              src={invoiceUrl}
+              className="w-full h-full min-h-[500px] rounded-md border"
+              title="Payment Invoice"
+              onError={() => {
+                setShowInvoiceInIframe(false)
+                setError('Unable to display invoice in iframe. Please use the open invoice button below.')
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowInvoiceInIframe(false)}>
+              Back to options
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const win = window.open(invoiceUrl, '_blank')
+                if (!win) {
+                  navigator.clipboard.writeText(invoiceUrl).then(() => {
+                    setError('Popup was blocked. Link copied to clipboard.')
+                  }).catch(() => {
+                    setError('Popup was blocked. Please copy the URL manually from debug console.')
+                    console.log('Invoice URL:', invoiceUrl)
+                  })
+                }
+              }}
+            >
+              Open in new tab
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -385,27 +439,61 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
             Pay with Plisio
           </Button>
 
+          {/* Show iframe option if invoiceUrl is available */}
+          {invoiceUrl && (
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 w-full"
+              onClick={() => setShowInvoiceInIframe(true)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" strokeWidth="2"/>
+                <line x1="8" y1="21" x2="16" y2="21" strokeWidth="2"/>
+                <line x1="12" y1="17" x2="12" y2="21" strokeWidth="2"/>
+              </svg>
+              Show in popup window
+            </Button>
+          )}
+
           {/* Fallback UI: show open-link button and copy link if invoiceUrl is available */}
           {invoiceUrl && (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">If the invoice didn't open, open it manually:</p>
-              <div className="flex gap-2">
-                <a href={invoiceUrl} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline">Open invoice</Button>
+            <div className="space-y-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-md">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                If the invoice didn't open automatically:
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
+                <a href={invoiceUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
+                  <Button variant="outline" className="w-full">
+                    🖱️ Open invoice
+                  </Button>
                 </a>
-                <Button variant="outline" onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(invoiceUrl)
-                    setCopyMessage('Link copied')
-                    setTimeout(() => setCopyMessage(null), 3000)
-                  } catch (e) {
-                    setCopyMessage('Copy failed')
-                    setTimeout(() => setCopyMessage(null), 3000)
-                  }
-                }}>Copy link</Button>
-                {copyMessage && <span className="text-sm">{copyMessage}</span>}
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(invoiceUrl)
+                      setCopyMessage('Link copied to clipboard')
+                      setTimeout(() => setCopyMessage(null), 2000)
+                    } catch (e) {
+                      setCopyMessage('Copy failed - use Open invoice button')
+                      setTimeout(() => setCopyMessage(null), 3000)
+                    }
+                  }}
+                >
+                  📋 Copy link
+                </Button>
+                {copyMessage && (
+                  <span className="text-xs text-center text-green-600 dark:text-green-400">
+                    {copyMessage}
+                  </span>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground">On some iOS in-app browsers, press 'Open in Safari' if the invoice doesn't load.</p>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• On iPhone: If in an app browser, press 'Open in Safari'</p>
+                <p>• If popup blocked: Use 'Copy link' and paste in browser</p>
+                <p>• Try 'Show in popup window' option above for better compatibility</p>
+              </div>
             </div>
           )}
 
