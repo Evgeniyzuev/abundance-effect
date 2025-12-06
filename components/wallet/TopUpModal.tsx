@@ -31,6 +31,8 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
   const [depositStatus, setDepositStatus] = useState<'idle' | 'waiting' | 'confirmed' | 'failed'>('idle')
   const [sessionId, setSessionId] = useState<string>("")
   const [plisioSessionId, setPlisioSessionId] = useState<string | null>(null)
+  const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null)
+  const [copyMessage, setCopyMessage] = useState<string | null>(null)
   const [tonConnectUI] = useTonConnectUI()
   const { startChecking } = useTransactionStatus() // Remove transactionStatus since we don't need it now
   const { convertUsdToTon, tonPrice } = useTonPrice()
@@ -250,7 +252,10 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                         const returnedSession = data?.session_id || data?.data?.order_number || null
                         if (returnedSession) setPlisioSessionId(returnedSession)
                         if (!invoiceUrl) throw new Error('No invoice URL returned: ' + JSON.stringify(data))
-                        window.open(invoiceUrl, '_blank')
+                        // Open a blank tab synchronously to avoid iOS popup blockers, then redirect it
+                        const win = window.open('', '_blank')
+                        setInvoiceUrl(invoiceUrl)
+                        try { if (win) win.location.href = invoiceUrl } catch (e) { console.warn('Redirect to invoice blocked', e) }
                         setDepositStatus('waiting')
                       } catch (e: any) {
                         setError(e?.message || 'Failed to renew invoice')
@@ -329,8 +334,10 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                 // Save session id for polling
                 if (returnedSession) setPlisioSessionId(returnedSession)
 
-                // Open Plisio invoice in a new tab so user can pay
-                window.open(invoiceUrl, '_blank')
+                // Open a blank tab synchronously to avoid iOS popup blockers, then redirect it
+                const win = window.open('', '_blank')
+                setInvoiceUrl(invoiceUrl)
+                try { if (win) win.location.href = invoiceUrl } catch (e) { console.warn('Redirect to invoice blocked', e) }
                 // Set modal to waiting state until webhook confirms
                 setDepositStatus('waiting')
 
@@ -349,6 +356,30 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
             </svg>
             Pay with Plisio
           </Button>
+
+          {/* Fallback UI: show open-link button and copy link if invoiceUrl is available */}
+          {invoiceUrl && (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">If the invoice didn't open, open it manually:</p>
+              <div className="flex gap-2">
+                <a href={invoiceUrl} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline">Open invoice</Button>
+                </a>
+                <Button variant="outline" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(invoiceUrl)
+                    setCopyMessage('Link copied')
+                    setTimeout(() => setCopyMessage(null), 3000)
+                  } catch (e) {
+                    setCopyMessage('Copy failed')
+                    setTimeout(() => setCopyMessage(null), 3000)
+                  }
+                }}>Copy link</Button>
+                {copyMessage && <span className="text-sm">{copyMessage}</span>}
+              </div>
+              <p className="text-xs text-muted-foreground">On some iOS in-app browsers, press 'Open in Safari' if the invoice doesn't load.</p>
+            </div>
+          )}
 
           <Button
             variant="outline"

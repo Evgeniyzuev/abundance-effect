@@ -10,12 +10,29 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok')
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    const envGet = (k: string) => {
+      try {
+        // Deno
+        if (typeof (globalThis as any).Deno !== 'undefined' && (globalThis as any).Deno?.env?.get) return (globalThis as any).Deno.env.get(k)
+      } catch {}
+      try {
+        // Node-like environments: access via globalThis to avoid TS 'process' name errors
+        const proc = (globalThis as any).process
+        if (proc && proc.env) return proc.env[k]
+      } catch {}
+      return undefined
+    }
 
-    const secretKey = Deno.env.get('PLISIO_API_KEY') ?? ''
+    const SUPABASE_URL = envGet('SUPABASE_URL') ?? ''
+    const SUPABASE_SERVICE_ROLE_KEY = envGet('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    const secretKey = envGet('PLISIO_API_KEY') ?? ''
+
+    if (!SUPABASE_SERVICE_ROLE_KEY || !SUPABASE_URL) {
+      console.error('Missing Supabase environment variables: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+      return new Response(JSON.stringify({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const url = new URL(req.url)
     const jsonFlag = url.searchParams.get('json') === 'true'
 
@@ -32,6 +49,18 @@ serve(async (req) => {
     const headersObj: Record<string,string> = {}
     for (const [k,v] of req.headers.entries()) headersObj[k] = v
 
+    // If GET request - record debug ping and return 200 so Plisio dashboard can ping URL
+    if (req.method === 'GET') {
+      try {
+        const headersObj: Record<string,string> = {}
+        for (const [k,v] of req.headers.entries()) headersObj[k] = v
+        await supabase.from('plisio_callbacks').insert({ invoice_id: null, payload: { query: Object.fromEntries(url.searchParams.entries()), method: 'GET' }, headers: headersObj })
+      } catch (e) {
+        console.warn('Failed to insert debug GET callback:', e)
+      }
+      return new Response('OK', { status: 200 })
+    }
+
     // Try to find related invoice by order_number or txn_id
     const orderNumber = body.order_number || body.order_id || null
     let invoiceId: number | null = null
@@ -44,7 +73,10 @@ serve(async (req) => {
       if (invoice?.id) invoiceId = invoice.id
     }
 
-    await supabase.from('plisio_callbacks').insert({ invoice_id: invoiceId, payload: body, headers: headersObj })
+    // Persist the raw callback and capture its id for later diagnostics
+    const { data: cbData, error: cbError } = await supabase.from('plisio_callbacks').insert({ invoice_id: invoiceId, payload: body, headers: headersObj }).select('id').maybeSingle()
+    const callbackRowId = cbData?.id ?? null
+    if (cbError) console.warn('Failed to insert plisio_callbacks row:', cbError)
 
     // Validate verify_hash
     const verifyHash = body?.verify_hash
@@ -95,7 +127,13 @@ serve(async (req) => {
           return new Response('Invoice not found', { status: 404 })
         }
 
-        // Call RPC top_up_wallet if available
+        // Idempotency: if invoice already processed, return 200 (ignore duplicate webhook)
+        if (invoice.status === 'completed') {
+          console.info('Invoice already processed, skipping:', orderNumber)
+          return new Response('OK', { status: 200 })
+        }
+
+        // Call RPC top_up_wallet if available (should be implemented idempotently server-side if possible)
         try {
           const { error: rpcError } = await supabase.rpc('top_up_wallet', { p_user_id: invoice.user_id, p_amount: invoice.amount_usd })
           if (rpcError) {
@@ -106,11 +144,43 @@ serve(async (req) => {
             await supabase.from('users').update({ wallet_balance: newBalance }).eq('id', invoice.user_id)
           }
 
-          // mark invoice processed
-          await supabase.from('plisio_invoices').update({ txn_id: body.txn_id || null, status: 'completed', raw_data: body, updated_at: new Date().toISOString() }).eq('id', invoice.id)
+          // Try to mark invoice processed only if it's not already completed (conditional update)
+          const { data: updatedInvoice, error: invErr } = await supabase.from('plisio_invoices')
+            .update({ txn_id: body.txn_id || null, status: 'completed', raw_data: body, updated_at: new Date().toISOString() })
+            .eq('id', invoice.id)
+            .neq('status', 'completed')
+            .select('*')
+            .maybeSingle()
 
-          // Log operation
-          await supabase.from('wallet_operations').insert({ user_id: invoice.user_id, amount: invoice.amount_usd, type: 'deposit', description: `Plisio deposit ${body.txn_id || ''}` })
+          if (invErr) {
+            console.error('Failed to update plisio_invoices:', invErr)
+            // Attempt to record processing error
+            try {
+              if (callbackRowId) await supabase.from('plisio_callbacks').update({ headers: { ...headersObj, processing_error: String(invErr?.message ?? invErr) } }).eq('id', callbackRowId)
+            } catch (uErr) {
+              console.warn('Failed to update plisio_callbacks with invErr', uErr)
+            }
+            return new Response('Processing error', { status: 500 })
+          }
+
+          // If the conditional update returned no row, invoice was processed concurrently — stop here
+          if (!updatedInvoice) {
+            console.info('Invoice was processed concurrently, skipping op insert for:', orderNumber)
+            return new Response('OK', { status: 200 })
+          }
+
+          // Log operation and check result so we can surface errors
+          const { data: opData, error: opErr } = await supabase.from('wallet_operations').insert({ user_id: invoice.user_id, amount: invoice.amount_usd, type: 'topup', description: `Plisio topup ${body.txn_id || ''}` }).select('id').maybeSingle()
+          if (opErr) {
+            console.error('Failed to insert wallet_operations:', opErr)
+            // Record processing error back to plisio_callbacks for diagnostics if possible
+            try {
+              if (callbackRowId) await supabase.from('plisio_callbacks').update({ headers: { ...headersObj, processing_error: String(opErr?.message ?? opErr) } }).eq('id', callbackRowId)
+            } catch (uErr) {
+              console.warn('Failed to update plisio_callbacks with processing error', uErr)
+            }
+            return new Response('Processing error', { status: 500 })
+          }
         } catch (e) {
           console.error('Error crediting user via Plisio webhook', e)
           return new Response('Processing error', { status: 500 })
