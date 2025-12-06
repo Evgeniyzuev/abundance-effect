@@ -70,7 +70,7 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
         const res = await fetch(`/api/plisio/invoice-status?sessionId=${encodeURIComponent(session)}`)
         if (!res.ok) return
         const json = await res.json()
-        const st = json?.data?.status
+        const st = json?.data?.poll_status
         if (st === 'completed') {
           setDepositStatus('confirmed')
           if (onSuccess) onSuccess(0)
