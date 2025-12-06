@@ -120,6 +120,21 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
         throw new Error(depositResult.error || 'Failed to initiate deposit')
       }
 
+      // Create pending wallet operation record for user visibility
+      const supabase = createClient()
+      try {
+        await supabase.from('wallet_operations').insert({
+          user_id: userId,
+          amount: numericAmount,
+          type: 'topup',
+          status: 'pending',
+          description: `TON wallet deposit initiated - waiting for confirmation`
+        })
+      } catch (err) {
+        console.error('Error creating pending wallet operation:', err)
+        // Don't fail the whole process if this fails
+      }
+
       console.log('Pending deposit created, now sending TON transaction')
 
       const transaction = {
@@ -220,6 +235,11 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
           <DialogDescription>
             Add funds to your wallet to use for investments and transfers
           </DialogDescription>
+          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Tip:</strong> After completing payment with Plisio, you can close the payment window and return to the app. The balance will update automatically once the payment is confirmed.
+            </p>
+          </div>
         </DialogHeader>
 
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
@@ -245,7 +265,10 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
             )}
             {error && <p className="text-sm text-red-500">{error}</p>}
             {depositStatus === 'waiting' && (
-              <p className="text-sm text-blue-500">Invoice created! Complete payment in the opened window. Status will update automatically when payment is confirmed.</p>
+              <div className="space-y-2">
+                <p className="text-sm text-blue-500">Invoice created! Complete payment in the opened window. Status will update automatically when payment is confirmed.</p>
+                <p className="text-sm text-blue-600">💡 You can close the payment window after completing payment and return to this app. Your balance will update once the payment is confirmed.</p>
+              </div>
             )}
             {depositStatus === 'confirmed' && (
               <p className="text-sm text-green-500">Payment confirmed and processed! Your wallet has been topped up.</p>
@@ -385,6 +408,22 @@ export default function TopUpModal({ isOpen, onClose, onSuccess, userId }: TopUp
                 } catch (e) {
                   console.warn('Redirect to invoice blocked', e)
                 }
+
+                // Create pending wallet operation record for user visibility
+                try {
+                  const supabase = createClient()
+                  await supabase.from('wallet_operations').insert({
+                    user_id: userId,
+                    amount: numericAmount,
+                    type: 'topup',
+                    status: 'pending',
+                    description: `Plisio payment initiated - invoice: ${data?.data?.invoice_id || 'pending'}`
+                  })
+                } catch (err) {
+                  console.error('Error creating pending wallet operation:', err)
+                  // Don't fail the whole process if this fails
+                }
+
                 // Set modal to waiting state until webhook confirms
                 setDepositStatus('waiting')
 

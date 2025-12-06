@@ -9,6 +9,7 @@ interface WalletOperation {
     amount: number
     type: 'topup' | 'transfer' | 'debit' | 'send'
     description: string | null
+    status: 'pending' | 'completed' | 'failed'
     created_at: string
 }
 
@@ -86,6 +87,32 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
         }
     }
 
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return '⏳'
+            case 'completed':
+                return '✅'
+            case 'failed':
+                return '❌'
+            default:
+                return '❓'
+        }
+    }
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return 'Pending'
+            case 'completed':
+                return 'Completed'
+            case 'failed':
+                return 'Failed'
+            default:
+                return 'Unknown'
+        }
+    }
+
     return (
         <div className="space-y-2">
             <button
@@ -111,10 +138,15 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
                             {operations.map((op) => (
                                 <div
                                     key={op.id}
-                                    className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl shadow-sm"
+                                    className={`flex items-center justify-between p-3 bg-white border rounded-xl shadow-sm ${
+                                        op.status === 'pending' ? 'border-blue-200 bg-blue-50' : 'border-gray-100'
+                                    }`}
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <span className="text-xl">{getOperationIcon(op.type)}</span>
+                                        <div className="relative">
+                                            <span className="text-xl">{getOperationIcon(op.type)}</span>
+                                            <span className="absolute -top-1 -right-1 text-xs">{getStatusIcon(op.status)}</span>
+                                        </div>
                                         <div>
                                             <div className="font-semibold text-sm text-gray-900">{getOperationLabel(op.type)}</div>
                                             <div className="text-xs text-gray-500">
@@ -126,6 +158,7 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
                                                     minute: '2-digit'
                                                 })}
                                             </div>
+                                            <div className="text-xs text-gray-400">{getStatusLabel(op.status)}</div>
                                         </div>
                                     </div>
                                     <div className={`font-bold text-sm ${op.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>

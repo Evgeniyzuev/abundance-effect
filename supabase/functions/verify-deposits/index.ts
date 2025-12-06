@@ -135,20 +135,37 @@ serve(async (req) => {
             continue
           }
 
-          // Log the operation
+          // Log the operation (or update existing pending one)
           const { error: logError } = await supabase
             .from('wallet_operations')
-            .insert({
+            .upsert({
               user_id: deposit.user_id,
               amount: deposit.amount_usd,
               type: 'topup',
+              status: 'completed',
               description: 'TON wallet deposit confirmed',
               transaction_hash: matchingTx.transaction_id.hash
+            }, {
+              onConflict: 'user_id,amount,created_at',
+              ignoreDuplicates: true
             })
 
           if (logError) {
             console.error('Error logging operation:', logError)
           }
+
+          // Also try to update any existing pending operations to completed
+          await supabase
+            .from('wallet_operations')
+            .update({ 
+              status: 'completed',
+              description: 'TON wallet deposit confirmed',
+              transaction_hash: matchingTx.transaction_id.hash
+            })
+            .eq('user_id', deposit.user_id)
+            .eq('amount', deposit.amount_usd)
+            .eq('status', 'pending')
+            .eq('type', 'topup')
 
           // Mark as processed
           const { error: updateError } = await supabase

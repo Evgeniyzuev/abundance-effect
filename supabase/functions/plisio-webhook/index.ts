@@ -170,7 +170,7 @@ serve(async (req) => {
           }
 
           // Log operation and check result so we can surface errors
-          const { data: opData, error: opErr } = await supabase.from('wallet_operations').insert({ user_id: invoice.user_id, amount: invoice.amount_usd, type: 'topup', description: `Plisio topup ${body.txn_id || ''}` }).select('id').maybeSingle()
+          const { data: opData, error: opErr } = await supabase.from('wallet_operations').insert({ user_id: invoice.user_id, amount: invoice.amount_usd, type: 'topup', status: 'completed', description: `Plisio topup ${body.txn_id || ''}` }).select('id').maybeSingle()
           if (opErr) {
             console.error('Failed to insert wallet_operations:', opErr)
             // Record processing error back to plisio_callbacks for diagnostics if possible
@@ -181,6 +181,18 @@ serve(async (req) => {
             }
             return new Response('Processing error', { status: 500 })
           }
+
+          // Also update any existing pending operations to completed
+          await supabase
+            .from('wallet_operations')
+            .update({ 
+              status: 'completed',
+              description: `Plisio topup confirmed ${body.txn_id || ''}`
+            })
+            .eq('user_id', invoice.user_id)
+            .eq('amount', invoice.amount_usd)
+            .eq('status', 'pending')
+            .eq('type', 'topup')
         } catch (e) {
           console.error('Error crediting user via Plisio webhook', e)
           return new Response('Processing error', { status: 500 })
