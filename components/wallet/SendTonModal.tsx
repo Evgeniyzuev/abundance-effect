@@ -11,7 +11,7 @@ import { useTonPrice } from "@/context/TonPriceContext"
 import { mnemonicToWalletKey } from "@ton/crypto"
 import { WalletContractV4, TonClient, internal } from "@ton/ton"
 import { getHttpEndpoint } from "@orbs-network/ton-access"
-import { useTonConnectUI, TonConnectButton } from '@tonconnect/ui-react'
+import { useTonConnectUI } from '@tonconnect/ui-react'
 import { debitWalletBalance, topUpWalletBalance } from "@/app/actions/finance"
 import { createClient } from "@/utils/supabase/client"
 import { QrCode } from "lucide-react"
@@ -273,13 +273,48 @@ export default function SendTonModal({ isOpen, onClose, onSuccess, userId, curre
         </DialogHeader>
 
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-          <div className="space-y-4">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm font-medium text-gray-900 mb-3">Connect TON Wallet</p>
-              <div className="flex justify-center">
-                <TonConnectButton />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="address">Destination Address</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleQRScan}
+                  title="Scan QR code"
+                >
+                  <QrCode className="h-4 w-4" />
+                </Button>
+                {tonConnectUI.account?.address && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAddress(tonConnectUI.account?.address || '')}
+                    title={`Insert wallet address: ${formatTonAddress(tonConnectUI.account.address)}`}
+                  >
+                    <img
+                      src="/ton.png"
+                      alt="TON"
+                      className="h-4 w-4 mr-1"
+                    />
+                    UQ...
+                  </Button>
+                )}
               </div>
             </div>
+            <Input
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter TON address"
+            />
+            {address && isValidTonAddress(address) && (
+              <p className="text-xs text-gray-500">
+                Address: {formatTonAddress(address)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
