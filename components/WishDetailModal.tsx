@@ -93,6 +93,11 @@ export default function WishDetailModal({
                                 <Plus size={20} />
                                 Add to My Wishes
                             </button>
+                        ) : wish.id.startsWith('temp-') ? (
+                            <div className="flex-1 py-3 bg-gray-50 rounded-xl flex items-center justify-center gap-2 text-gray-500">
+                                <span className="animate-spin text-lg">🔄</span>
+                                <span className="text-sm font-medium">Syncing...</span>
+                            </div>
                         ) : (
                             <>
                                 <button
