@@ -215,7 +215,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                 className="absolute inset-0"
                 onClick={onClose}
             />
-            <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10 max-h-[90vh] overflow-y-auto">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">
@@ -330,34 +330,36 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Cost</label>
-                                <input
-                                    placeholder="e.g. $100"
-                                    value={estimatedCost}
-                                    onChange={(e) => setEstimatedCost(e.target.value)}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Level</label>
-                                <div className="flex gap-2">
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Cost $</label>
+                                    <input
+                                        placeholder="e.g. $100"
+                                        value={estimatedCost}
+                                        onChange={(e) => setEstimatedCost(e.target.value)}
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium text-gray-700">Level</label>
+                                        <button
+                                            type="button"
+                                            onClick={calculateLevelFromCost}
+                                            className="px-3 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                                            title="Calculate level from cost"
+                                        >
+                                            <Calculator size={16} />
+                                        </button>
+                                    </div>
                                     <input
                                         type="number"
                                         placeholder="Auto or manual"
                                         value={difficultyLevel}
                                         onChange={(e) => setDifficultyLevel(e.target.value)}
-                                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={calculateLevelFromCost}
-                                        className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                                        title="Calculate level from cost"
-                                    >
-                                        <Calculator size={20} />
-                                    </button>
                                 </div>
                             </div>
                         </div>
