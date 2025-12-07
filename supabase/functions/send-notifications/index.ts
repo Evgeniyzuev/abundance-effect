@@ -18,7 +18,7 @@ interface PendingNotification {
 }
 
 // Telegram bot configuration
-const BOT_TOKEN = '8435062997:AAF6P0lc5CUdgtS7-NYReTkPoGk-tFyykpU'
+const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
 
 /**
  * Send message via Telegram Bot API
