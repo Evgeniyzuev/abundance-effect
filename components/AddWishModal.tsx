@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
-import { Camera, Upload, Link, X, ExternalLink } from 'lucide-react';
+import { useLevelCheck } from '@/hooks/useLevelCheck';
+import { Camera, Upload, Link, X, ExternalLink, Calculator } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
 import { storage } from '@/utils/storage';
 import { logger } from '@/utils/logger';
@@ -15,11 +16,12 @@ interface AddWishModalProps {
 
 export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, onSave }: AddWishModalProps) {
     const { user } = useUser();
+    const { levelThresholds } = useLevelCheck();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [imageUrl, setImageUrl] = useState<string>("");
     const [estimatedCost, setEstimatedCost] = useState("");
-    const [difficultyLevel, setDifficultyLevel] = useState(1);
+    const [difficultyLevel, setDifficultyLevel] = useState("");
     const [imageMode, setImageMode] = useState<"url" | "upload">("url");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [localImageBase64, setLocalImageBase64] = useState<string>("");
@@ -35,7 +37,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
             setTitle(initialData.title);
             setDescription(initialData.description || "");
             setEstimatedCost(initialData.estimated_cost || "");
-            setDifficultyLevel(initialData.difficulty_level || 1);
+            setDifficultyLevel(initialData.difficulty_level?.toString() || "");
 
             if (initialData.image_url) {
                 // Check if it's a base64 string (upload) or URL or local storage ref
@@ -62,12 +64,38 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
             setLocalImageBase64("");
             setSelectedFile(null);
             setEstimatedCost("");
-            setDifficultyLevel(1);
+            setDifficultyLevel("");
             setImageMode("url");
         }
     }, [isOpen, initialData]);
 
     if (!isOpen) return null;
+
+    // Function to calculate difficulty level from cost
+    const calculateLevelFromCost = () => {
+        if (!estimatedCost || isNaN(Number(estimatedCost))) {
+            alert("Please enter a valid cost first");
+            return;
+        }
+
+        if (!levelThresholds || levelThresholds.length === 0) {
+            alert("Level thresholds not available");
+            return;
+        }
+
+        const costValue = Number(estimatedCost) * 10;
+
+        // Find the highest level the cost qualifies for
+        for (let i = levelThresholds.length - 1; i >= 0; i--) {
+            if (costValue >= levelThresholds[i].core) {
+                setDifficultyLevel(levelThresholds[i].level.toString());
+                return;
+            }
+        }
+
+        // If cost is below all thresholds, set to level 1
+        setDifficultyLevel("1");
+    };
 
     const compressImage = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -313,15 +341,24 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Difficulty (1-5)</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="5"
-                                    value={difficultyLevel}
-                                    onChange={(e) => setDifficultyLevel(Number(e.target.value))}
-                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
+                                <label className="text-sm font-medium text-gray-700">Level</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="number"
+                                        placeholder="Auto or manual"
+                                        value={difficultyLevel}
+                                        onChange={(e) => setDifficultyLevel(e.target.value)}
+                                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={calculateLevelFromCost}
+                                        className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                                        title="Calculate level from cost"
+                                    >
+                                        <Calculator size={20} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
