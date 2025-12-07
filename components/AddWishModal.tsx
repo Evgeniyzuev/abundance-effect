@@ -332,7 +332,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                                <div>
                                     <label className="text-sm font-medium text-gray-700">Cost $</label>
                                     <input
                                         placeholder="e.g. $100"
@@ -347,10 +347,10 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                         <button
                                             type="button"
                                             onClick={calculateLevelFromCost}
-                                            className="px-3 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                                            className="px-2 py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors flex-shrink-0"
                                             title="Calculate level from cost"
                                         >
-                                            <Calculator size={16} />
+                                            <Calculator size={14} />
                                         </button>
                                     </div>
                                     <input
