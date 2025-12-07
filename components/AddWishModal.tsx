@@ -332,8 +332,19 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700">Cost $</label>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium text-gray-700">Cost $</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => {}}
+                                            className="px-2 py-1 rounded-md border border-gray-300 text-gray-400 cursor-not-allowed transition-colors"
+                                            title="Coming soon"
+                                            disabled
+                                        >
+                                            <Calculator size={14} />
+                                        </button>
+                                    </div>
                                     <input
                                         placeholder="e.g. $100"
                                         value={estimatedCost}
