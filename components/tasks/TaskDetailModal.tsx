@@ -1,7 +1,7 @@
 "use client"
 
 import { PersonalTask } from "@/types/supabase"
-import { X, Trash2, CheckCircle2 } from "lucide-react"
+import { X, Trash2, CheckCircle2, Calendar } from "lucide-react"
 import { useLanguage } from '@/context/LanguageContext'
 import { storage } from '@/utils/storage'
 import { useState, useEffect } from 'react'
@@ -141,7 +141,8 @@ export default function TaskDetailModal({
                     {task.type === 'streak' && task.streak_goal && (
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Calendar size={16} className="text-gray-600" />
                                     {t('tasks.daily_progress')}
                                 </span>
                                 <span className="text-sm text-gray-600">
@@ -162,95 +163,78 @@ export default function TaskDetailModal({
                     {/* Daily Completion Calendar for Streak/Daily Tasks */}
                     {(task.type === 'streak' || task.type === 'daily') && (
                         <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">
-                                {t('tasks.daily_progress')}
-                            </h4>
-                            <div className="space-y-3">
-                                {/* Previous Week */}
-                                <div>
-                                    <h5 className="text-xs font-medium text-gray-600 mb-2">Previous Week</h5>
-                                    <div className="grid grid-cols-7 gap-1">
-                                        {getWeeklyCalendar(-1).map((date) => {
-                                            const isMarked = dailyCompletions.includes(date)
-                                            const isToday = date === today
-                                            const dayNumber = new Date(date).getDate()
-                                            return (
-                                                <div
-                                                    key={date}
-                                                    className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
-                                                            ? 'bg-green-500 text-white'
-                                                            : isToday
-                                                                ? 'bg-blue-100 border-2 border-blue-500'
-                                                                : 'bg-gray-100 text-gray-400'
-                                                        }`}
-                                                    title={date}
-                                                >
-                                                    <span>{dayNumber}</span>
-                                                    {isMarked && (
-                                                        <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
+                            <div className="space-y-1">
+                                <div className="grid grid-cols-7 gap-1">
+                                    {getWeeklyCalendar(-1).map((date) => {
+                                        const isMarked = dailyCompletions.includes(date)
+                                        const isToday = date === today
+                                        const dayNumber = new Date(date).getDate()
+                                        return (
+                                            <div
+                                                key={date}
+                                                className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
+                                                        ? 'bg-green-500 text-white'
+                                                        : isToday
+                                                            ? 'bg-blue-100 border-2 border-blue-500'
+                                                            : 'bg-gray-100 text-gray-400'
+                                                    }`}
+                                                title={date}
+                                            >
+                                                <span>{dayNumber}</span>
+                                                {isMarked && (
+                                                    <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
+                                                )}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
-
-                                {/* Current Week */}
-                                <div>
-                                    <h5 className="text-xs font-medium text-gray-600 mb-2">Current Week</h5>
-                                    <div className="grid grid-cols-7 gap-1">
-                                        {getWeeklyCalendar(0).map((date) => {
-                                            const isMarked = dailyCompletions.includes(date)
-                                            const isToday = date === today
-                                            const dayNumber = new Date(date).getDate()
-                                            return (
-                                                <div
-                                                    key={date}
-                                                    className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
-                                                            ? 'bg-green-500 text-white'
-                                                            : isToday
-                                                                ? 'bg-blue-100 border-2 border-blue-500'
-                                                                : 'bg-gray-100 text-gray-400'
-                                                        }`}
-                                                    title={date}
-                                                >
-                                                    <span>{dayNumber}</span>
-                                                    {isMarked && (
-                                                        <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
+                                <div className="grid grid-cols-7 gap-1">
+                                    {getWeeklyCalendar(0).map((date) => {
+                                        const isMarked = dailyCompletions.includes(date)
+                                        const isToday = date === today
+                                        const dayNumber = new Date(date).getDate()
+                                        return (
+                                            <div
+                                                key={date}
+                                                className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
+                                                        ? 'bg-green-500 text-white'
+                                                        : isToday
+                                                            ? 'bg-blue-100 border-2 border-blue-500'
+                                                            : 'bg-gray-100 text-gray-400'
+                                                    }`}
+                                                title={date}
+                                            >
+                                                <span>{dayNumber}</span>
+                                                {isMarked && (
+                                                    <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
+                                                )}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
-
-                                {/* Next Week */}
-                                <div>
-                                    <h5 className="text-xs font-medium text-gray-600 mb-2">Next Week</h5>
-                                    <div className="grid grid-cols-7 gap-1">
-                                        {getWeeklyCalendar(1).map((date) => {
-                                            const isMarked = dailyCompletions.includes(date)
-                                            const isToday = date === today
-                                            const dayNumber = new Date(date).getDate()
-                                            return (
-                                                <div
-                                                    key={date}
-                                                    className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
-                                                            ? 'bg-green-500 text-white'
-                                                            : isToday
-                                                                ? 'bg-blue-100 border-2 border-blue-500'
-                                                                : 'bg-gray-100 text-gray-400'
-                                                        }`}
-                                                    title={date}
-                                                >
-                                                    <span>{dayNumber}</span>
-                                                    {isMarked && (
-                                                        <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
+                                <div className="grid grid-cols-7 gap-1">
+                                    {getWeeklyCalendar(1).map((date) => {
+                                        const isMarked = dailyCompletions.includes(date)
+                                        const isToday = date === today
+                                        const dayNumber = new Date(date).getDate()
+                                        return (
+                                            <div
+                                                key={date}
+                                                className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
+                                                        ? 'bg-green-500 text-white'
+                                                        : isToday
+                                                            ? 'bg-blue-100 border-2 border-blue-500'
+                                                            : 'bg-gray-100 text-gray-400'
+                                                    }`}
+                                                title={date}
+                                            >
+                                                <span>{dayNumber}</span>
+                                                {isMarked && (
+                                                    <CheckCircle2 size={10} className="mt-0.5 opacity-80" />
+                                                )}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>
