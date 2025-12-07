@@ -210,7 +210,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex justify-start pt-12 px-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex justify-start pt-4 px-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
             <div
                 className="absolute inset-0"
                 onClick={onClose}
