@@ -217,8 +217,8 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                 className="absolute inset-0"
                 onClick={onClose}
             />
-            <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10 min-h-[calc(100vh-6rem)]">
-                <div className="p-6">
+            <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10 max-h-[90vh]">
+                <div className="p-6 overflow-y-auto max-h-full">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">
                             {initialData ? "Edit Wish" : "Add New Wish"}

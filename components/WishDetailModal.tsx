@@ -32,7 +32,7 @@ export default function WishDetailModal({
                 className="absolute inset-0"
                 onClick={onClose}
             />
-            <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10">
+            <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200 relative z-10 max-h-[90vh]">
                 <div className="relative h-64">
                     {wish.image_url ? (
                         <img
@@ -55,36 +55,38 @@ export default function WishDetailModal({
                     </button>
                 </div>
 
-                <div className="p-6 space-y-4">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">{wish.title}</h2>
-                        {'category' in wish && wish.category && (
-                            <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                                {wish.category}
-                            </span>
+                <div className="flex flex-col max-h-[calc(90vh-256px)]">
+                    <div className="p-6 space-y-4 overflow-y-auto flex-1">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-900">{wish.title}</h2>
+                            {'category' in wish && wish.category && (
+                                <span className="inline-block mt-1 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                                    {wish.category}
+                                </span>
+                            )}
+                        </div>
+
+                        {wish.description && (
+                            <p className="text-gray-600 leading-relaxed">{wish.description}</p>
                         )}
+
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                            {wish.estimated_cost && (
+                                <div className="flex items-center gap-1">
+                                    <span>💰</span>
+                                    <span>{wish.estimated_cost}</span>
+                                </div>
+                            )}
+                            {wish.difficulty_level && (
+                                <div className="flex items-center gap-1">
+                                    <span>🔥</span>
+                                    <span>Level {wish.difficulty_level}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    {wish.description && (
-                        <p className="text-gray-600 leading-relaxed">{wish.description}</p>
-                    )}
-
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                        {wish.estimated_cost && (
-                            <div className="flex items-center gap-1">
-                                <span>💰</span>
-                                <span>{wish.estimated_cost}</span>
-                            </div>
-                        )}
-                        {wish.difficulty_level && (
-                            <div className="flex items-center gap-1">
-                                <span>🔥</span>
-                                <span>Level {wish.difficulty_level}</span>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="pt-4 flex gap-3">
+                    <div className="p-6 pt-4 flex gap-3 sticky bottom-0 bg-white border-t border-gray-200">
                         {isRecommended ? (
                             <button
                                 onClick={() => onAdd?.(wish as RecommendedWish)}
