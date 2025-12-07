@@ -120,3 +120,30 @@ export async function deleteWishAction(id: string): Promise<ActionResponse<void>
         return { success: false, error: error.message }
     }
 }
+
+export async function completeWishAction(id: string): Promise<ActionResponse<UserWish>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { data, error } = await supabase
+            .from('user_wishes')
+            .update({ is_completed: true, updated_at: new Date().toISOString() })
+            .eq('id', id)
+            .eq('user_id', user.id) // Security check
+            .select()
+            .single()
+
+        if (error) throw error
+
+        revalidatePath('/goals')
+        return { success: true, data: data as UserWish }
+    } catch (error: any) {
+        console.error('Error completing wish:', error)
+        return { success: false, error: error.message }
+    }
+}

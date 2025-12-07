@@ -7,7 +7,8 @@ import {
     fetchWishesAction,
     addWishAction,
     updateWishAction,
-    deleteWishAction
+    deleteWishAction,
+    completeWishAction
 } from '@/app/actions/goals';
 
 interface WishesCache {
@@ -180,6 +181,36 @@ export function useGoals() {
         }
     };
 
+    const completeWish = async (id: string) => {
+        if (!user) return false;
+
+        const previousUserWishes = [...userWishes];
+
+        // Optimistic update
+        setUserWishes(prev => prev.map(w => w.id === id ? { ...w, is_completed: true, updated_at: new Date().toISOString() } : w));
+
+        try {
+            const result = await completeWishAction(id);
+
+            if (result.success) {
+                // Silently sync in background
+                fetchWishes();
+                return true;
+            } else {
+                // Revert
+                setUserWishes(previousUserWishes);
+                logger.error('Error completing wish:', result.error);
+                alert('Failed to complete wish: ' + result.error);
+                return false;
+            }
+        } catch (e) {
+            // Revert
+            setUserWishes(previousUserWishes);
+            logger.error('Error completing wish', e);
+            return false;
+        }
+    };
+
     return {
         userWishes,
         recommendedWishes,
@@ -188,6 +219,7 @@ export function useGoals() {
         fetchWishes,
         addWish,
         updateWish,
-        deleteWish
+        deleteWish,
+        completeWish
     };
 }

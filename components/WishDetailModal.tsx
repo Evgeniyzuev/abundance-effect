@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserWish, RecommendedWish } from '@/types/supabase';
-import { X, Trash2, Edit2, Plus } from 'lucide-react';
+import { X, Trash2, Edit2, Plus, CheckCircle } from 'lucide-react';
 import { storage } from '@/utils/storage';
 
 interface WishDetailModalProps {
@@ -10,6 +10,7 @@ interface WishDetailModalProps {
     onAdd?: (wish: RecommendedWish) => void;
     onDelete?: (wish: UserWish) => void;
     onEdit?: (wish: UserWish) => void;
+    onComplete?: (wish: UserWish) => void;
     isRecommended?: boolean;
 }
 
@@ -20,6 +21,7 @@ export default function WishDetailModal({
     onAdd,
     onDelete,
     onEdit,
+    onComplete,
     isRecommended = false
 }: WishDetailModalProps) {
     if (!isOpen) return null;
@@ -94,17 +96,22 @@ export default function WishDetailModal({
                         ) : (
                             <>
                                 <button
+                                    onClick={() => onDelete?.(wish as UserWish)}
+                                    className="flex-1 bg-red-50 text-red-600 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                                <button
                                     onClick={() => onEdit?.(wish as UserWish)}
                                     className="flex-1 bg-gray-100 text-gray-900 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
                                 >
                                     <Edit2 size={18} />
-                                    Edit
                                 </button>
                                 <button
-                                    onClick={() => onDelete?.(wish as UserWish)}
-                                    className="w-12 bg-red-50 text-red-600 rounded-xl flex items-center justify-center hover:bg-red-100 transition-colors"
+                                    onClick={() => onComplete?.(wish as UserWish)}
+                                    className="flex-1 bg-green-50 text-green-600 py-3 rounded-xl font-medium hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
                                 >
-                                    <Trash2 size={20} />
+                                    <CheckCircle size={18} />
                                 </button>
                             </>
                         )}

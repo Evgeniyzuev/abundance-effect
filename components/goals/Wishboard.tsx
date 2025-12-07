@@ -6,8 +6,9 @@ import { useGoals } from '@/hooks/useGoals';
 import { UserWish, RecommendedWish } from '@/types/supabase';
 import WishCard from '@/components/WishCard';
 import WishDetailModal from '@/components/WishDetailModal';
+import WishCompletionModal from '@/components/WishCompletionModal';
 import AddWishModal from '@/components/AddWishModal';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronUp, ChevronDown } from 'lucide-react';
 import { storage } from '@/utils/storage';
 
 export default function Wishboard() {
@@ -19,7 +20,8 @@ export default function Wishboard() {
         fetchWishes,
         addWish,
         deleteWish,
-        updateWish
+        updateWish,
+        completeWish
     } = useGoals();
 
     const [selectedWish, setSelectedWish] = useState<UserWish | RecommendedWish | null>(null);
@@ -27,6 +29,9 @@ export default function Wishboard() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isRecommendedDetail, setIsRecommendedDetail] = useState(false);
     const [editingWish, setEditingWish] = useState<UserWish | null>(null);
+    const [completingWish, setCompletingWish] = useState<UserWish | null>(null);
+    const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+    const [completedWishesExpanded, setCompletedWishesExpanded] = useState(false);
 
     useEffect(() => {
         if (!user) return;
@@ -101,6 +106,23 @@ export default function Wishboard() {
         return success;
     };
 
+    const handleCompleteWish = async (wish: UserWish) => {
+        setIsDetailOpen(false); // Close detail modal
+        setCompletingWish(wish);
+        setIsCompletionModalOpen(true);
+
+        await completeWish(wish.id);
+    };
+
+    const handleCompletionModalClose = () => {
+        setIsCompletionModalOpen(false);
+        setCompletingWish(null);
+    };
+
+    // Filter wishes by completion status
+    const incompleteWishes = userWishes.filter(wish => !wish.is_completed);
+    const completedWishes = userWishes.filter(wish => wish.is_completed);
+
     return (
         <div className="pb-20 px-0.5">
             {/* User Wishes Section */}
@@ -118,7 +140,7 @@ export default function Wishboard() {
                     </div>
 
                     {/* User Wishes */}
-                    {userWishes.map((wish) => (
+                    {incompleteWishes.map((wish) => (
                         <WishCard
                             key={wish.id}
                             wish={wish}
@@ -156,6 +178,7 @@ export default function Wishboard() {
                     onAdd={handleAddFromRecommended}
                     onDelete={handleDeleteWish}
                     onEdit={handleEditWish}
+                    onComplete={handleCompleteWish}
                 />
             )}
 
@@ -165,6 +188,47 @@ export default function Wishboard() {
                 onSave={handleSaveWish}
                 initialData={editingWish}
             />
+
+            {/* Completed Wishes Section */}
+            {completedWishes.length > 0 && (
+                <div className="fixed bottom-14 left-0 right-0 bg-white/90 backdrop-blur-sm border-t border-gray-200 z-40">
+                    <button
+                        onClick={() => setCompletedWishesExpanded(!completedWishesExpanded)}
+                        className="w-full py-3 px-4 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                        <span className="mr-2 text-sm font-medium">
+                            Completed Wishes ({completedWishes.length})
+                        </span>
+                        {completedWishesExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
+                    </button>
+
+                    {completedWishesExpanded && (
+                        <div className="max-h-64 overflow-y-auto border-t border-gray-100">
+                            <div className="p-4">
+                                <div className="grid grid-cols-3 gap-2">
+                                    {completedWishes.map((wish) => (
+                                        <WishCard
+                                            key={wish.id}
+                                            wish={wish}
+                                            onClick={() => handleWishClick(wish, false)}
+                                            className="aspect-square opacity-75"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Completion Modal */}
+            {completingWish && (
+                <WishCompletionModal
+                    isOpen={isCompletionModalOpen}
+                    onClose={handleCompletionModalClose}
+                    wishTitle={completingWish.title}
+                />
+            )}
         </div>
     );
 }
