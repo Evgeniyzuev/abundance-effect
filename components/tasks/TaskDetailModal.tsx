@@ -240,12 +240,6 @@ export default function TaskDetailModal({
                         </div>
                     )}
 
-                    {/* Last Completed */}
-                    {task.last_completed_at && (
-                        <div className="text-sm text-gray-500">
-                            Last completed: {new Date(task.last_completed_at).toLocaleDateString()}
-                        </div>
-                    )}
                 </div>
 
                 {/* Footer Actions */}
