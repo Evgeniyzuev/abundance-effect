@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useLevelCheck } from '@/hooks/useLevelCheck';
 import { Camera, Upload, Link, X, ExternalLink, Calculator } from 'lucide-react';
 import { UserWish } from '@/types/supabase';
@@ -16,6 +17,7 @@ interface AddWishModalProps {
 
 export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, onSave }: AddWishModalProps) {
     const { user } = useUser();
+    const { t } = useLanguage();
     const { levelThresholds } = useLevelCheck();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");

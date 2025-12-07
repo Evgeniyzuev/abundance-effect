@@ -14,6 +14,33 @@ export type TranslationKey =
     | 'goals.title'
     | 'goals.goal'
     | 'goals.add_wish'
+    | 'goals.edit_wish'
+    | 'goals.wish_image'
+    | 'goals.wish_title'
+    | 'goals.wish_description'
+    | 'goals.cost_label'
+    | 'goals.level_label'
+    | 'goals.cost_enter_valid'
+    | 'goals.level_thresholds_not_available'
+    | 'goals.please_log_in'
+    | 'goals.please_enter_title'
+    | 'goals.image_failed'
+    | 'goals.please_select_image'
+    | 'goals.image_url_tab'
+    | 'goals.image_upload_tab'
+    | 'goals.pinterest_link'
+    | 'goals.enter_image_url'
+    | 'goals.choose_image'
+    | 'goals.title_placeholder'
+    | 'goals.description_placeholder'
+    | 'goals.cost_placeholder'
+    | 'goals.level_placeholder'
+    | 'goals.cost_calculator_title'
+    | 'goals.calculate_level_from_cost'
+    | 'goals.save_wish'
+    | 'goals.update_wish'
+    | 'goals.saving_wish'
+    | 'goals.image_preview'
     // Challenges page
     | 'challenges.title'
     | 'challenges.no_active'
@@ -180,6 +207,33 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.title': 'My Goals',
         'goals.goal': 'Goal',
         'goals.add_wish': 'Add Wish',
+        'goals.edit_wish': 'Edit Wish',
+        'goals.wish_image': 'Wish Image',
+        'goals.wish_title': 'Title',
+        'goals.wish_description': 'Description',
+        'goals.cost_label': 'Cost $',
+        'goals.level_label': 'Level',
+        'goals.cost_enter_valid': 'Please enter a valid cost first',
+        'goals.level_thresholds_not_available': 'Level thresholds not available',
+        'goals.please_log_in': 'Please log in to add a wish',
+        'goals.please_enter_title': 'Please enter a wish title',
+        'goals.image_failed': 'Failed to process image',
+        'goals.please_select_image': 'Please select an image file',
+        'goals.image_url_tab': 'URL',
+        'goals.image_upload_tab': 'Upload',
+        'goals.pinterest_link': 'Pinterest',
+        'goals.enter_image_url': 'Enter image URL',
+        'goals.choose_image': 'Choose Image',
+        'goals.title_placeholder': 'What do you want to achieve?',
+        'goals.description_placeholder': 'Describe your wish...',
+        'goals.cost_placeholder': 'e.g. $100',
+        'goals.level_placeholder': 'Auto or manual',
+        'goals.cost_calculator_title': 'Coming soon',
+        'goals.calculate_level_from_cost': 'Calculate level from cost',
+        'goals.save_wish': 'Save Wish',
+        'goals.update_wish': 'Update Wish',
+        'goals.saving_wish': 'Saving...',
+        'goals.image_preview': 'Image preview',
         // Challenges
         'challenges.title': 'Challenges',
         'challenges.page_title': 'Challenges',
@@ -342,6 +396,33 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.title': '我的目标',
         'goals.goal': '目标',
         'goals.add_wish': '添加愿望',
+        'goals.edit_wish': 'Edit Wish', // TODO: Add Chinese translation
+        'goals.wish_image': 'Wish Image', // TODO: Add Chinese translation
+        'goals.wish_title': 'Title', // TODO: Add Chinese translation
+        'goals.wish_description': 'Description', // TODO: Add Chinese translation
+        'goals.cost_label': 'Cost $', // TODO: Add Chinese translation
+        'goals.level_label': 'Level', // TODO: Add Chinese translation
+        'goals.cost_enter_valid': 'Please enter a valid cost first', // TODO: Add Chinese translation
+        'goals.level_thresholds_not_available': 'Level thresholds not available', // TODO: Add Chinese translation
+        'goals.please_log_in': 'Please log in to add a wish', // TODO: Add Chinese translation
+        'goals.please_enter_title': 'Please enter a wish title', // TODO: Add Chinese translation
+        'goals.image_failed': 'Failed to process image', // TODO: Add Chinese translation
+        'goals.please_select_image': 'Please select an image file', // TODO: Add Chinese translation
+        'goals.image_url_tab': 'URL', // TODO: Add Chinese translation
+        'goals.image_upload_tab': 'Upload', // TODO: Add Chinese translation
+        'goals.pinterest_link': 'Pinterest', // TODO: Add Chinese translation
+        'goals.enter_image_url': 'Enter image URL', // TODO: Add Chinese translation
+        'goals.choose_image': 'Choose Image', // TODO: Add Chinese translation
+        'goals.title_placeholder': 'What do you want to achieve?', // TODO: Add Chinese translation
+        'goals.description_placeholder': 'Describe your wish...', // TODO: Add Chinese translation
+        'goals.cost_placeholder': 'e.g. $100', // TODO: Add Chinese translation
+        'goals.level_placeholder': 'Auto or manual', // TODO: Add Chinese translation
+        'goals.cost_calculator_title': 'Coming soon', // TODO: Add Chinese translation
+        'goals.calculate_level_from_cost': 'Calculate level from cost', // TODO: Add Chinese translation
+        'goals.save_wish': 'Save Wish', // TODO: Add Chinese translation
+        'goals.update_wish': 'Update Wish', // TODO: Add Chinese translation
+        'goals.saving_wish': 'Saving...', // TODO: Add Chinese translation
+        'goals.image_preview': 'Image preview', // TODO: Add Chinese translation
         // Challenges
         'challenges.title': '挑战',
         'challenges.page_title': '挑战',
@@ -504,6 +585,33 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.title': 'Mis Objetivos',
         'goals.goal': 'Objetivo',
         'goals.add_wish': 'Agregar Deseo',
+        'goals.edit_wish': 'Editar Deseo',
+        'goals.wish_image': 'Imagen del Deseo',
+        'goals.wish_title': 'Título',
+        'goals.wish_description': 'Descripción',
+        'goals.cost_label': 'Costo $',
+        'goals.level_label': 'Nivel',
+        'goals.cost_enter_valid': 'Ingresa un costo válido primero',
+        'goals.level_thresholds_not_available': 'Los umbrales de nivel no están disponibles',
+        'goals.please_log_in': 'Inicia sesión para agregar un deseo',
+        'goals.please_enter_title': 'Ingresa un título de deseo',
+        'goals.image_failed': 'Fallo al procesar la imagen',
+        'goals.please_select_image': 'Selecciona un archivo de imagen',
+        'goals.image_url_tab': 'URL',
+        'goals.image_upload_tab': 'Subir',
+        'goals.pinterest_link': 'Pinterest',
+        'goals.enter_image_url': 'Ingresar URL de imagen',
+        'goals.choose_image': 'Elegir Imagen',
+        'goals.title_placeholder': '¿Qué quieres lograr?',
+        'goals.description_placeholder': 'Describe tu deseo...',
+        'goals.cost_placeholder': 'ej. $100',
+        'goals.level_placeholder': 'Automático o manual',
+        'goals.cost_calculator_title': 'Próximamente',
+        'goals.calculate_level_from_cost': 'Calcular nivel desde costo',
+        'goals.save_wish': 'Guardar Deseo',
+        'goals.update_wish': 'Actualizar Deseo',
+        'goals.saving_wish': 'Guardando...',
+        'goals.image_preview': 'Vista previa de imagen',
         // Challenges
         'challenges.title': 'Desafíos',
         'challenges.page_title': 'Desafíos',
@@ -659,6 +767,33 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'goals.title': 'मेरे लक्ष्य',
         'goals.goal': 'लक्ष्य',
         'goals.add_wish': 'इच्छा जोड़ें',
+        'goals.edit_wish': 'इच्छा संपादित करें',
+        'goals.wish_image': 'इच्छा छवि',
+        'goals.wish_title': 'शीर्षक',
+        'goals.wish_description': 'विवरण',
+        'goals.cost_label': 'लागत $',
+        'goals.level_label': 'स्तर',
+        'goals.cost_enter_valid': 'पहले मान्य लागत दर्ज करें',
+        'goals.level_thresholds_not_available': 'स्तर सीमाएँ उपलब्ध नहीं हैं',
+        'goals.please_log_in': 'इच्छा जोड़ने के लिए कृपया लॉग इन करें',
+        'goals.please_enter_title': 'कृपया इच्छा शीर्षक दर्ज करें',
+        'goals.image_failed': 'छवि संसाधित करने में विफल',
+        'goals.please_select_image': 'कृपया एक छवि फ़ाइल चुनें',
+        'goals.image_url_tab': 'URL',
+        'goals.image_upload_tab': 'अपलोड करें',
+        'goals.pinterest_link': 'Pinterest',
+        'goals.enter_image_url': 'छवि URL दर्ज करें',
+        'goals.choose_image': 'छवि चुनें',
+        'goals.title_placeholder': 'आप क्या प्राप्त करना चाहते हैं?',
+        'goals.description_placeholder': 'अपनी इच्छा का वर्णन करें...',
+        'goals.cost_placeholder': 'उदा. $100',
+        'goals.level_placeholder': 'ऑटो या मैनुअल',
+        'goals.cost_calculator_title': 'जल्द आ रहा है',
+        'goals.calculate_level_from_cost': 'लागत से स्तर की गणना करें',
+        'goals.save_wish': 'इच्छा सहेजें',
+        'goals.update_wish': 'इच्छा अपडेट करें',
+        'goals.saving_wish': 'सहेजा जा रहा है...',
+        'goals.image_preview': 'छवि पूर्वावलोकन',
         // Challenges
         'challenges.title': 'चुनौतियाँ',
         'challenges.page_title': 'चुनौतियाँ',
