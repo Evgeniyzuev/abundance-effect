@@ -371,12 +371,12 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'common.save': 'Save',
         'common.cancel': 'Cancel',
         // Levels
-        'level.level_up_title': 'Level Up!',
-        'level.congratulations': 'Congratulations! You have reached a new level!',
-        'level.previous': 'Previous',
-        'level.new': 'New Level',
-        'level.unlock_message': 'New level brings additional features and bonuses!',
-        'level.continue': 'Continue the adventure!',
+        'level.level_up_title': '¡Nuevo Nivel!',
+        'level.congratulations': '¡Felicitaciones! ¡Has alcanzado un nuevo nivel!',
+        'level.previous': 'Anterior',
+        'level.new': 'Nuevo Nivel',
+        'level.unlock_message': '¡El nuevo nivel trae características adicionales y bonos!',
+        'level.continue': '¡Continúa la aventura!',
         // Auth
         'auth.login': 'Login',
         'auth.logout': 'Logout',
@@ -560,7 +560,7 @@ export const translations: { [key in Language]: { [key in TranslationKey]: strin
         'common.save': '保存',
         'common.cancel': '取消',
         // Levels
-        'level.level_up_title': '升级！',
+        'level.level_up_title': '新等级！',
         'level.congratulations': '恭喜！您达到了新等级！',
         'level.previous': '上一级',
         'level.new': '新等级',
