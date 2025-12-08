@@ -9,6 +9,7 @@ import { useLevelCheck } from "@/hooks/useLevelCheck"
 import CoreHistory from "./CoreHistory"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
+import { useUser } from "@/context/UserContext"
 
 interface CoreTabProps {
     coreBalance: number
@@ -23,6 +24,7 @@ interface CoreTabProps {
 export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTransfer, onReinvestUpdate, loading, error }: CoreTabProps) {
     const { t } = useLanguage()
     const { levelThresholds } = useLevelCheck()
+    const { user } = useUser()
     const [reinvestInputValue, setReinvestInputValue] = useState(reinvestPercentage.toString())
     const [isReinvestChanged, setIsReinvestChanged] = useState(false)
     const [startCore, setStartCore] = useState(coreBalance.toString())
@@ -51,29 +53,19 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
         return { total: dailyIncome, toCore, toWallet }
     }
 
-    // Calculate level and progress
-    const calculateLevelProgress = (balance: number) => {
-        let currentLevelIndex = -1
-        let nextLevelThreshold = levelThresholds[0].core
+    // Calculate progress to next level (level is now stored in database)
+    const calculateLevelProgress = (balance: number, userLevel: number) => {
+        // Find current level threshold and next level threshold
+        const currentLevelThreshold = levelThresholds.find(t => t.level === userLevel)?.core || 0
+        const nextLevelThreshold = levelThresholds.find(t => t.level === userLevel + 1)?.core || (currentLevelThreshold * 2)
 
-        // Find the highest level the user has achieved
-        for (let i = levelThresholds.length - 1; i >= 0; i--) {
-            if (balance >= levelThresholds[i].core) {
-                currentLevelIndex = i
-                nextLevelThreshold = levelThresholds[i + 1]?.core || levelThresholds[i].core * 2
-                break
-            }
-        }
-
-        const currentLevel = currentLevelIndex >= 0 ? levelThresholds[currentLevelIndex].level : 0
-        const currentLevelThreshold = currentLevelIndex >= 0 ? levelThresholds[currentLevelIndex].core : 0
-        const previousLevelThreshold = currentLevelIndex > 0 ? levelThresholds[currentLevelIndex - 1].core : 0
-
-        // Show progress to next level from 0
-        const progressPercentage = nextLevelThreshold > 0 ? (balance / nextLevelThreshold) * 100 : 100
+        // Calculate progress from current level threshold to next level threshold
+        const progressRange = nextLevelThreshold - currentLevelThreshold
+        const progressMade = balance - currentLevelThreshold
+        const progressPercentage = progressRange > 0 ? (progressMade / progressRange) * 100 : 100
 
         return {
-            currentLevel,
+            currentLevel: userLevel,
             nextLevelThreshold,
             progressPercentage: Math.min(Math.max(progressPercentage, 0), 100)
         }
@@ -191,7 +183,7 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
         setTimeToTarget(days)
     }
 
-    const { currentLevel, nextLevelThreshold, progressPercentage } = calculateLevelProgress(coreBalance)
+    const { currentLevel, nextLevelThreshold, progressPercentage } = calculateLevelProgress(coreBalance, user?.level || 0)
 
     return (
         <div className="w-full bg-white min-h-full pb-20">

@@ -11,20 +11,7 @@ export default function SocialPage() {
     const { user, session, logout } = useUser();
     const router = useRouter();
     const { t } = useLanguage();
-    const { levelThresholds } = useLevelCheck();
     const supabase = createClient();
-
-    // Calculate current level based on aicore_balance
-    const calculateCurrentLevel = () => {
-        if (!user?.aicore_balance || levelThresholds.length === 0) return 0;
-
-        for (let i = levelThresholds.length - 1; i >= 0; i--) {
-            if (user.aicore_balance >= levelThresholds[i].core) {
-                return levelThresholds[i].level;
-            }
-        }
-        return 0;
-    };
 
     const handleLogout = async () => {
         await logout();
@@ -80,7 +67,7 @@ export default function SocialPage() {
                         {user?.first_name || user?.username || 'User'}
                     </h2>
                     <div className="inline-flex items-center px-3 py-1 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-600">
-                        {t('profile.level')} {calculateCurrentLevel()}
+                        {t('profile.level')} {user?.level || 0}
                     </div>
                 </div>
             </div>

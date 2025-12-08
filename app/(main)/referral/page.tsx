@@ -240,7 +240,7 @@ export default function ReferralPage() {
                                     </div>
                                     <div className="text-right">
                                         <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium text-blue-700">
-                                            Уровень {referral.level}
+                                            Уровень {referral.level || 0}
                                         </div>
                                     </div>
                                 </div>

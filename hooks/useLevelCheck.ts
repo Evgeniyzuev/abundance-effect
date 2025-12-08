@@ -34,20 +34,7 @@ export function useLevelCheck() {
     const [isLoading, setIsLoading] = useState(true)
     const supabase = createClient()
 
-    // Function to calculate level from aicore_balance
-    const calculateLevel = (aicoreBalance: number, thresholds: LevelThreshold[]): number => {
-        if (!thresholds || thresholds.length === 0) return 1
-
-        // Find the highest level the user qualifies for
-        for (let i = thresholds.length - 1; i >= 0; i--) {
-            if (aicoreBalance >= thresholds[i].core) {
-                return thresholds[i].level
-            }
-        }
-        return 1 // Minimum level
-    }
-
-    // Load level thresholds from database
+    // Load level thresholds from database (still needed for UI display)
     useEffect(() => {
         const loadLevelThresholds = async () => {
             try {
@@ -78,11 +65,11 @@ export function useLevelCheck() {
         loadLevelThresholds()
     }, [])
 
-    // Check for level up when user balance changes
+    // Check for level up when user level changes (level is now stored in database)
     useEffect(() => {
-        if (!user || !user.aicore_balance) return
+        if (!user || user.level === undefined) return
 
-        const currentLevel = calculateLevel(user.aicore_balance, levelThresholds)
+        const currentLevel = user.level
 
         // If we have a previous level recorded, check if level increased
         if (previousLevel !== null && currentLevel > previousLevel) {
@@ -95,7 +82,7 @@ export function useLevelCheck() {
 
         // Always update previous level to current
         setPreviousLevel(currentLevel)
-    }, [user?.aicore_balance, levelThresholds, previousLevel])
+    }, [user?.level, previousLevel])
 
     const handleLevelUpModalClose = () => {
         setLevelUpModal(null)
