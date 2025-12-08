@@ -76,12 +76,12 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
     // Function to calculate difficulty level from cost
     const calculateLevelFromCost = () => {
         if (!estimatedCost || isNaN(Number(estimatedCost))) {
-            alert("Please enter a valid cost first");
+            alert(t('goals.cost_enter_valid'));
             return;
         }
 
         if (!levelThresholds || levelThresholds.length === 0) {
-            alert("Level thresholds not available");
+            alert(t('goals.level_thresholds_not_available'));
             return;
         }
 
@@ -133,7 +133,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
         if (!file) return;
 
         if (!file.type.startsWith('image/')) {
-            alert("Please select an image file");
+            alert(t('goals.please_select_image'));
             return;
         }
 
@@ -144,7 +144,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
             setLocalImageBase64(base64);
         } catch (error) {
             console.error("Error compressing image:", error);
-            alert("Failed to process image");
+            alert(t('goals.image_failed'));
         }
     };
 
@@ -152,11 +152,11 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
         e.preventDefault();
         if (!user?.id) {
             logger.error('Submit attempted but no user logged in');
-            alert("Please log in to add a wish");
+            alert(t('goals.please_log_in'));
             return;
         }
         if (!title.trim()) {
-            alert("Please enter a wish title");
+            alert(t('goals.please_enter_title'));
             return;
         }
 
@@ -221,7 +221,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                 <div className="p-6 overflow-y-auto max-h-full">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold text-gray-900">
-                            {initialData ? "Edit Wish" : "Add New Wish"}
+                            {initialData ? t('goals.edit_wish') : t('goals.add_wish')}
                         </h2>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                             <X size={24} />
@@ -230,7 +230,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Wish Image</label>
+                            <label className="text-sm font-medium text-gray-700">{t('goals.wish_image')}</label>
 
                             <div className="flex gap-2 mb-3">
                                 <button
@@ -242,7 +242,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                         }`}
                                 >
                                     <Link size={16} />
-                                    URL
+                                    {t('goals.image_url_tab')}
                                 </button>
                                 <button
                                     type="button"
@@ -253,7 +253,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                         }`}
                                 >
                                     <Upload size={16} />
-                                    Upload
+                                    {t('goals.image_upload_tab')}
                                 </button>
                                 <a
                                     href="https://pinterest.com"
@@ -262,14 +262,14 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                     className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-[#E60023] text-white hover:bg-[#ad081b] transition-colors ml-auto"
                                 >
                                     <ExternalLink size={16} />
-                                    Pinterest
+                                    {t('goals.pinterest_link')}
                                 </a>
                             </div>
 
                             {imageMode === "url" ? (
                                 <input
                                     type="url"
-                                    placeholder="Enter image URL"
+                                    placeholder={t('goals.enter_image_url')}
                                     value={imageUrl}
                                     onChange={(e) => setImageUrl(e.target.value)}
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -289,7 +289,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                         className="w-full px-4 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-2"
                                     >
                                         <Upload size={16} />
-                                        {selectedFile ? selectedFile.name : "Choose Image"}
+                                        {selectedFile ? selectedFile.name : t('goals.choose_image')}
                                     </button>
                                 </div>
                             )}
@@ -305,16 +305,16 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                 ) : (
                                     <div className="text-center text-gray-400">
                                         <Camera className="mx-auto mb-2" size={32} />
-                                        <p className="text-sm">Image preview</p>
+                                        <p className="text-sm">{t('goals.image_preview')}</p>
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Title</label>
+                            <label className="text-sm font-medium text-gray-700">{t('goals.wish_title')}</label>
                             <input
-                                placeholder="What do you want to achieve?"
+                                placeholder={t('goals.title_placeholder')}
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -322,9 +322,9 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Description</label>
+                            <label className="text-sm font-medium text-gray-700">{t('goals.wish_description')}</label>
                             <textarea
-                                placeholder="Describe your wish..."
+                                placeholder={t('goals.description_placeholder')}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={3}
@@ -336,7 +336,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <label className="text-sm font-medium text-gray-700">Cost $</label>
+                                        <label className="text-sm font-medium text-gray-700">{t('goals.cost_label')}</label>
                                         <button
                                             type="button"
                                             onClick={() => {}}
@@ -348,7 +348,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                         </button>
                                     </div>
                                     <input
-                                        placeholder="e.g. $100"
+                                        placeholder={t('goals.cost_placeholder')}
                                         value={estimatedCost}
                                         onChange={(e) => setEstimatedCost(e.target.value)}
                                         className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -356,7 +356,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <label className="text-sm font-medium text-gray-700">Level</label>
+                                        <label className="text-sm font-medium text-gray-700">{t('goals.level_label')}</label>
                                         <button
                                             type="button"
                                             onClick={calculateLevelFromCost}
@@ -368,7 +368,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                                     </div>
                                     <input
                                         type="number"
-                                        placeholder="Auto or manual"
+                                        placeholder={t('goals.level_placeholder')}
                                         value={difficultyLevel}
                                         onChange={(e) => setDifficultyLevel(e.target.value)}
                                         className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -382,7 +382,7 @@ export default function AddWishModal({ isOpen, onClose, onSuccess, initialData, 
                             disabled={isLoading}
                             className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                         >
-                            {isLoading ? "Saving..." : (initialData ? "Update Wish" : "Save Wish")}
+                            {isLoading ? t('goals.saving_wish') : (initialData ? t('goals.update_wish') : t('goals.save_wish'))}
                         </button>
                     </form>
                 </div>

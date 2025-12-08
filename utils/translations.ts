@@ -41,6 +41,9 @@ export type TranslationKey =
     | 'goals.update_wish'
     | 'goals.saving_wish'
     | 'goals.image_preview'
+    | 'goals.add_new'
+    | 'goals.recommended_for_you'
+    | 'goals.completed_wishes'
     // Challenges page
     | 'challenges.title'
     | 'challenges.no_active'
@@ -233,6 +236,9 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'goals.update_wish': 'Update Wish',
         'goals.saving_wish': 'Saving...',
         'goals.image_preview': 'Image preview',
+        'goals.add_new': 'Add New',
+        'goals.recommended_for_you': 'Recommended for You',
+        'goals.completed_wishes': 'Completed Wishes',
         // Challenges
         'challenges.title': 'Challenges',
         'challenges.page_title': 'Challenges',

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { useGoals } from '@/hooks/useGoals';
 import { UserWish, RecommendedWish } from '@/types/supabase';
 import WishCard from '@/components/WishCard';
@@ -13,6 +14,7 @@ import { storage } from '@/utils/storage';
 
 export default function Wishboard() {
     const { user } = useUser();
+    const { t } = useLanguage();
     const {
         userWishes,
         recommendedWishes,
@@ -69,7 +71,7 @@ export default function Wishboard() {
     };
 
     const handleDeleteWish = async (wish: UserWish) => {
-        if (!confirm('Are you sure you want to delete this wish?')) return;
+        if (!confirm(t('common.delete') + ' this wish?')) return;
 
         setIsDetailOpen(false); // Close immediately
 
@@ -136,7 +138,7 @@ export default function Wishboard() {
                         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 mb-1">
                             <Plus size={24} />
                         </div>
-                        <span className="text-xs font-medium text-gray-500">Add New</span>
+                        <span className="text-xs font-medium text-gray-500">{t('goals.add_new')}</span>
                     </div>
 
                     {/* User Wishes */}
@@ -154,7 +156,7 @@ export default function Wishboard() {
             {/* Recommended Wishes Section */}
             {recommendedWishes.length > 0 && (
                 <div className="mt-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 px-4">Recommended for You</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 px-4">{t('goals.recommended_for_you')}</h3>
                     <div className="grid grid-cols-3 gap-0.5">
                         {recommendedWishes.map((wish) => (
                             <WishCard
@@ -197,7 +199,7 @@ export default function Wishboard() {
                         className="w-full py-3 px-4 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
                     >
                         <span className="mr-2 text-sm font-medium">
-                            Completed Wishes ({completedWishes.length})
+                            {t('goals.completed_wishes')} ({completedWishes.length})
                         </span>
                         {completedWishesExpanded ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
                     </button>
