@@ -22,7 +22,7 @@ interface ChallengeWithParticipation extends Challenge {
 }
 
 export function useChallenges() {
-    const { user } = useUser();
+    const { user, refreshUser } = useUser();
     const { language } = useLanguage();
     const [challenges, setChallenges] = useState<Challenge[]>([]);
     const [userParticipations, setUserParticipations] = useState<ChallengeParticipant[]>([]);
@@ -108,7 +108,7 @@ export function useChallenges() {
             const result = await joinChallengeAction(challengeId);
 
             if (result.success) {
-                // Refresh to get real data
+                // Refresh to sync with server
                 await fetchChallenges();
                 return true;
             } else {
@@ -144,6 +144,11 @@ export function useChallenges() {
             if (result.success) {
                 // Refresh to sync with server
                 await fetchChallenges();
+
+                // Refresh user data if challenge was completed (rewards were awarded)
+                if (status === 'completed') {
+                    await refreshUser();
+                }
 
                 // Show completion modal if challenge was completed
                 if (status === 'completed' && challenge) {

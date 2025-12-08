@@ -285,15 +285,24 @@ async function awardChallengeRewards(userId: string, challenge: any) {
             }
         }
 
-        // Update user balances
+        // Update user balances and return updated user data
+        let updatedUser = null;
         if (coreRewardAmount > 0) {
-            await supabase
+            const { data: userUpdateData, error: updateError } = await supabase
                 .from('users')
                 .update({
                     wallet_balance: newWalletBalance,
                     aicore_balance: newAiCoreBalance
                 })
-                .eq('id', userId);
+                .eq('id', userId)
+                .select('wallet_balance, aicore_balance, level')
+                .single();
+
+            if (updateError) {
+                logger.error('Error updating user balances:', updateError);
+            } else {
+                updatedUser = userUpdateData;
+            }
         }
 
         // Handle item rewards

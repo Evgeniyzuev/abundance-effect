@@ -118,7 +118,7 @@ export async function getUserBalances(userId: string): Promise<ActionResponse<{ 
 
         const { data, error } = await supabase
             .from('users')
-            .select('wallet_balance, aicore_balance, reinvest_setup')
+            .select('wallet_balance, aicore_balance, reinvest_setup, level')
             .eq('id', userId)
             .single()
 
@@ -194,7 +194,7 @@ export async function transferToCore(amount: number, userId: string): Promise<Ac
                 aicore_balance: userData.aicore_balance + amount
             })
             .eq('id', userId)
-            .select('wallet_balance, aicore_balance')
+            .select('wallet_balance, aicore_balance, level')
             .single()
 
         if (error) throw error
