@@ -370,12 +370,12 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'common.save': 'Save',
         'common.cancel': 'Cancel',
         // Levels
-        'level.level_up_title': '¡Nuevo Nivel!',
-        'level.congratulations': '¡Felicitaciones! ¡Has alcanzado un nuevo nivel!',
-        'level.previous': 'Anterior',
-        'level.new': 'Nuevo Nivel',
-        'level.unlock_message': '¡El nuevo nivel trae características adicionales y bonos!',
-        'level.continue': '¡Continúa la aventura!',
+        'level.level_up_title': 'Level Up!',
+        'level.congratulations': 'Congratulations! You\'ve reached a new level!',
+        'level.previous': 'Previous',
+        'level.new': 'New Level',
+        'level.unlock_message': 'The new level brings additional features and bonuses!',
+        'level.continue': 'Continue the adventure!',
         // Auth
         'auth.login': 'Login',
         'auth.logout': 'Logout',
@@ -1084,6 +1084,13 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'common.delete': 'حذف',
         'common.save': 'حفظ',
         'common.cancel': 'إلغاء',
+        // Levels
+        'level.level_up_title': 'ترقية المستوى!',
+        'level.congratulations': 'تهانينا! لقد وصلت إلى مستوى جديد!',
+        'level.previous': 'السابق',
+        'level.new': 'مستوى جديد',
+        'level.unlock_message': 'المستوى الجديد يجلب ميزات إضافية ومكافآت!',
+        'level.continue': 'استمر في المغامرة!',
         // Auth
         'auth.login': 'تسجيل الدخول',
         'auth.logout': 'تسجيل الخروج',
@@ -1239,6 +1246,13 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'common.delete': 'Удалить',
         'common.save': 'Сохранить',
         'common.cancel': 'Отмена',
+        // Levels
+        'level.level_up_title': 'Новый уровень!',
+        'level.congratulations': 'Поздравляем! Вы достигли нового уровня!',
+        'level.previous': 'Предыдущий',
+        'level.new': 'Новый уровень',
+        'level.unlock_message': 'Новый уровень приносит дополнительные функции и бонусы!',
+        'level.continue': 'Продолжайте приключение!',
         // Auth
         'auth.login': 'Войти',
         'auth.logout': 'Выйти',
