@@ -427,7 +427,10 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'goals.save_wish': 'Save Wish', // TODO: Add Chinese translation
         'goals.update_wish': 'Update Wish', // TODO: Add Chinese translation
         'goals.saving_wish': 'Saving...', // TODO: Add Chinese translation
-        'goals.image_preview': 'Image preview', // TODO: Add Chinese translation
+        'goals.image_preview': '图片预览',
+        'goals.add_new': '添加新',
+        'goals.recommended_for_you': '为您推荐',
+        'goals.completed_wishes': '已完成愿望',
         // Challenges
         'challenges.title': '挑战',
         'challenges.page_title': '挑战',
