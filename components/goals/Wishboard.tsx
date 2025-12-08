@@ -138,7 +138,7 @@ export default function Wishboard() {
                         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 mb-1">
                             <Plus size={24} />
                         </div>
-                        <span className="text-xs font-medium text-gray-500">{t('goals.add_new')}</span>
+                        <span className="text-xs font-medium text-gray-500">{t('goals.add_wish')}</span>
                     </div>
 
                     {/* User Wishes */}

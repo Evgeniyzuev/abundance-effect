@@ -41,7 +41,6 @@ export type TranslationKey =
     | 'goals.update_wish'
     | 'goals.saving_wish'
     | 'goals.image_preview'
-    | 'goals.add_new'
     | 'goals.recommended_for_you'
     | 'goals.completed_wishes'
     // Challenges page
@@ -236,7 +235,6 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'goals.update_wish': 'Update Wish',
         'goals.saving_wish': 'Saving...',
         'goals.image_preview': 'Image preview',
-        'goals.add_new': 'Add New',
         'goals.recommended_for_you': 'Recommended for You',
         'goals.completed_wishes': 'Completed Wishes',
         // Challenges
@@ -428,7 +426,6 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'goals.update_wish': 'Update Wish', // TODO: Add Chinese translation
         'goals.saving_wish': 'Saving...', // TODO: Add Chinese translation
         'goals.image_preview': '图片预览',
-        'goals.add_new': '添加新',
         'goals.recommended_for_you': '为您推荐',
         'goals.completed_wishes': '已完成愿望',
         // Challenges
@@ -1142,7 +1139,6 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'goals.update_wish': 'Обновить Желание',
         'goals.saving_wish': 'Сохранение...',
         'goals.image_preview': 'Предпросмотр изображения',
-        'goals.add_new': 'Добавить Новое',
         'goals.recommended_for_you': 'Рекомендовано для Вас',
         'goals.completed_wishes': 'Выполненные Желания',
         // Challenges
