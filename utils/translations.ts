@@ -96,7 +96,6 @@ export type TranslationKey =
     | 'profile.level'
     | 'profile.username'
     | 'profile.telegram_id'
-    | 'profile.telegram_id'
     | 'profile.reinvest'
     | 'profile.linked_accounts'
     | 'profile.link_account'
@@ -201,7 +200,7 @@ export type TranslationKey =
     | 'auth.check_email'
     | 'auth.magic_link_sent';
 
-export const translations: { [key in Language]: { [key in TranslationKey]: string } } = {
+export const translations: { [key in Language]: Partial<{ [key in TranslationKey]: string }> } = {
     en: {
         // Goals
         'goals.title': 'My Goals',
