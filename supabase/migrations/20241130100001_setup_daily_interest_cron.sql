@@ -3,7 +3,7 @@
 -- First, check if pg_cron extension is available and create our cron function
 -- Note: pg_cron might need to be enabled in Supabase settings or via support request
 
--- Create the cron function that will be called daily
+-- Modified cron function to use queue instead of direct sending
 CREATE OR REPLACE FUNCTION daily_interest_cron_job()
 RETURNS void
 LANGUAGE plpgsql
@@ -57,8 +57,20 @@ BEGIN
 
     -- Log the cron job execution
     RAISE NOTICE 'Daily interest cron job completed. Processed: %, Total interest: %', processed_count, total_interest::numeric(20,10);
+
+    -- Queue notifications after interest payment (instead of direct sending)
+    PERFORM queue_daily_interest_notifications();
+
+    RAISE NOTICE 'Daily interest notifications queued';
+
+EXCEPTION WHEN OTHERS THEN
+    -- Log any errors but don't fail the entire process
+    RAISE WARNING 'Error in daily cron job: %', SQLERRM;
 END;
 $$;
+
+-- Grant necessary permissions
+GRANT EXECUTE ON FUNCTION queue_daily_interest_notifications() TO service_role;
 
 -- Enable pg_cron extension (contact Supabase support to enable this for your project)
 -- Uncomment the line below once pg_cron is enabled

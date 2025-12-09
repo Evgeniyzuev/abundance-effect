@@ -722,8 +722,21 @@ $$;
 -- Grant necessary permissions
 GRANT EXECUTE ON FUNCTION queue_daily_interest_notifications() TO service_role;
 
--- For manual testing
--- SELECT queue_daily_interest_notifications();
+-- Enable pg_cron extension (contact Supabase support to enable this for your project)
+-- Uncomment the line below once pg_cron is enabled
+-- CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- Schedule the daily interest job
+-- This will run every day at midnight UTC
+SELECT cron.schedule(
+    'daily-interest-cron',
+    '0 0 * * *', -- Daily at midnight UTC
+    'SELECT daily_interest_cron_job();'
+);
+
+-- To unschedule later: SELECT cron.unschedule('daily-interest-cron');
+
+-- Check scheduled jobs: SELECT * FROM cron.job;
 
 -- To check queued notifications
 -- SELECT * FROM pending_notifications WHERE status = 'pending' ORDER BY created_at DESC;
