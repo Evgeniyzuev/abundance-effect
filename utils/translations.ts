@@ -200,7 +200,26 @@ export type TranslationKey =
     | 'auth.send_magic_link'
     | 'auth.or'
     | 'auth.check_email'
-    | 'auth.magic_link_sent';
+    | 'auth.magic_link_sent'
+    // Onboarding
+    | 'onboarding.choose_language'
+    | 'onboarding.hero_title'
+    | 'onboarding.hero_subtitle'
+    | 'onboarding.program_title'
+    | 'onboarding.program_description'
+    | 'onboarding.challenges_title'
+    | 'onboarding.challenges_description'
+    | 'onboarding.wishes_title'
+    | 'onboarding.wishes_description'
+    | 'onboarding.ai_core_title'
+    | 'onboarding.ai_core_description'
+    | 'onboarding.learning_title'
+    | 'onboarding.learning_description'
+    | 'onboarding.business_title'
+    | 'onboarding.business_description'
+    | 'onboarding.cta_title'
+    | 'onboarding.cta_description'
+    | 'onboarding.get_started';
 
 export const translations: { [key in Language]: Partial<{ [key in TranslationKey]: string }> } = {
     en: {
@@ -393,6 +412,25 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'auth.or': 'OR',
         'auth.check_email': 'Check your email for the login link',
         'auth.magic_link_sent': 'Magic link sent!',
+        // Onboarding
+        'onboarding.choose_language': 'Choose Your Language',
+        'onboarding.hero_title': 'Abundance Effect',
+        'onboarding.hero_subtitle': 'Journey to Abundance! From 0 to $1M in 20 levels',
+        'onboarding.program_title': '20-Level Growth Program',
+        'onboarding.program_description': 'Structured progression system with clear milestones. Each level unlocks new features, higher earning potential, and exclusive rewards.',
+        'onboarding.challenges_title': 'Challenges & Rewards',
+        'onboarding.challenges_description': 'Complete exciting challenges to earn rewards and unlock achievements. Turn your goals into fun, trackable experiences.',
+        'onboarding.wishes_title': 'Wish Fulfillment',
+        'onboarding.wishes_description': 'Transform your dreams into achievable goals. Set wishes, track progress, and celebrate every milestone on your journey.',
+        'onboarding.ai_core_title': 'AI Core - Your Lifelong Partner',
+        'onboarding.ai_core_description': 'Non-transferable AI companion that grows with you. Generate lifelong daily income that cannot be taken away from you.',
+        'onboarding.learning_title': 'Learning & Earning More',
+        'onboarding.learning_description': 'Access exclusive educational content, strategies, and insights to maximize your earning potential and personal growth.',
+        'onboarding.business_title': 'Build Your Business',
+        'onboarding.business_description': 'Develop entrepreneurship skills, create multiple income streams, and build sustainable wealth for long-term success.',
+        'onboarding.cta_title': 'Ready to Start Your Journey?',
+        'onboarding.cta_description': 'Join thousands of others on the path to abundance. Your transformation begins now.',
+        'onboarding.get_started': 'Get Started',
     },
     zh: {
         // Goals
@@ -583,6 +621,25 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'auth.or': '或',
         'auth.check_email': '请检查您的电子邮件以获取登录链接',
         'auth.magic_link_sent': '登录链接已发送！',
+        // Onboarding
+        'onboarding.choose_language': '选择您的语言',
+        'onboarding.hero_title': '丰盛效应',
+        'onboarding.hero_subtitle': '通往丰盛的旅程！从0到100万美元20个等级',
+        'onboarding.program_title': '20级成长计划',
+        'onboarding.program_description': '结构化的进阶系统，明确的里程碑。每个等级解锁新功能、更高的收入潜力和独家奖励。',
+        'onboarding.challenges_title': '挑战与奖励',
+        'onboarding.challenges_description': '完成令人兴奋的挑战以获得奖励并解锁成就。将您的目标转化为有趣、可追踪的体验。',
+        'onboarding.wishes_title': '愿望实现',
+        'onboarding.wishes_description': '将您的梦想转化为可实现的目标。设定愿望、跟踪进度，并庆祝旅程中的每一个里程碑。',
+        'onboarding.ai_core_title': 'AI核心 - 您的终身伙伴',
+        'onboarding.ai_core_description': '不可转移的AI伴侣，与您共同成长。产生终身每日收入，无法被夺走。',
+        'onboarding.learning_title': '学习与赚取更多',
+        'onboarding.learning_description': '访问独家教育内容、策略和见解，最大限度地提高您的收入潜力和个人成长。',
+        'onboarding.business_title': '建立您的业务',
+        'onboarding.business_description': '培养创业技能，创造多重收入来源，建立可持续的长期成功财富。',
+        'onboarding.cta_title': '准备好开始您的旅程了吗？',
+        'onboarding.cta_description': '加入数千其他人在通往丰盛的道路上。您的转变从现在开始。',
+        'onboarding.get_started': '开始',
     },
     es: {
         // Goals
@@ -764,6 +821,25 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'auth.or': 'O',
         'auth.check_email': 'Revisa tu correo para el enlace de inicio de sesión',
         'auth.magic_link_sent': '¡Enlace mágico enviado!',
+        // Onboarding
+        'onboarding.choose_language': 'Elige tu idioma',
+        'onboarding.hero_title': 'Efecto Abundancia',
+        'onboarding.hero_subtitle': '¡Viaje hacia la abundancia! De 0 a $1M en 20 niveles',
+        'onboarding.program_title': 'Programa de Crecimiento de 20 Niveles',
+        'onboarding.program_description': 'Sistema de progreso estructurado con hitos claros. Cada nivel desbloquea nuevas funciones, mayor potencial de ganancias y recompensas exclusivas.',
+        'onboarding.challenges_title': 'Desafíos y Recompensas',
+        'onboarding.challenges_description': 'Completa desafíos emocionantes para ganar recompensas y desbloquear logros. Convierte tus objetivos en experiencias divertidas y rastreables.',
+        'onboarding.wishes_title': 'Cumplimiento de Deseos',
+        'onboarding.wishes_description': 'Transforma tus sueños en objetivos alcanzables. Establece deseos, rastrea el progreso y celebra cada hito en tu viaje.',
+        'onboarding.ai_core_title': 'Núcleo IA - Tu Compañero de por Vida',
+        'onboarding.ai_core_description': 'Compañero de IA no transferible que crece contigo. Genera ingresos diarios de por vida que no pueden ser quitados.',
+        'onboarding.learning_title': 'Aprender y Ganar Más',
+        'onboarding.learning_description': 'Accede a contenido educativo exclusivo, estrategias e ideas para maximizar tu potencial de ganancias y crecimiento personal.',
+        'onboarding.business_title': 'Construye tu Negocio',
+        'onboarding.business_description': 'Desarrolla habilidades de emprendimiento, crea múltiples fuentes de ingresos y construye riqueza sostenible para el éxito a largo plazo.',
+        'onboarding.cta_title': '¿Listo para Comenzar tu Viaje?',
+        'onboarding.cta_description': 'Únete a miles de otros en el camino hacia la abundancia. Tu transformación comienza ahora.',
+        'onboarding.get_started': 'Comenzar',
     },
     hi: {
         // Goals
@@ -945,6 +1021,25 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'auth.or': 'या',
         'auth.check_email': 'लॉगिन लिंक के लिए अपना ईमेल चेक करें',
         'auth.magic_link_sent': 'मैजिक लिंक भेजा गया!',
+        // Onboarding
+        'onboarding.choose_language': 'अपनी भाषा चुनें',
+        'onboarding.hero_title': 'अबंडेंस इफेक्ट',
+        'onboarding.hero_subtitle': 'अबंडेंस की यात्रा! 0 से $1M तक 20 स्तरों में',
+        'onboarding.program_title': '20-स्तर विकास कार्यक्रम',
+        'onboarding.program_description': 'स्पष्ट मील के पत्थर के साथ संरचित प्रगति प्रणाली। हर स्तर नई सुविधाओं, उच्च कमाई क्षमता और विशेष पुरस्कारों को अनलॉक करता है।',
+        'onboarding.challenges_title': 'चुनौतियाँ और पुरस्कार',
+        'onboarding.challenges_description': 'पुरस्कार अर्जित करने और उपलब्धियाँ अनलॉक करने के लिए रोमांचक चुनौतियाँ पूरी करें। अपने लक्ष्यों को मज़ेदार, ट्रैक करने योग्य अनुभवों में बदलें।',
+        'onboarding.wishes_title': 'इच्छा पूर्ति',
+        'onboarding.wishes_description': 'अपने सपनों को प्राप्त लक्ष्यों में बदलें। इच्छाएँ निर्धारित करें, प्रगति ट्रैक करें, और अपनी यात्रा के हर मील का जश्न मनाएं।',
+        'onboarding.ai_core_title': 'AI कोर - आपका जीवनभर साथी',
+        'onboarding.ai_core_description': 'अहस्तांतरणीय AI साथी जो आपके साथ बढ़ता है। जीवनभर की दैनिक आय उत्पन्न करता है जो आपसे छीनी नहीं जा सकती।',
+        'onboarding.learning_title': 'सीखना और अधिक कमाना',
+        'onboarding.learning_description': 'अपनी कमाई क्षमता और व्यक्तिगत विकास को अधिकतम करने के लिए विशेष शैक्षणिक सामग्री, रणनीतियाँ और अंतर्दृष्टि तक पहुँचें।',
+        'onboarding.business_title': 'अपना व्यवसाय बनाएं',
+        'onboarding.business_description': 'उद्यमिता कौशल विकसित करें, कई आय स्रोत बनाएं, और दीर्घकालिक सफलता के लिए टिकाऊ संपत्ति का निर्माण करें।',
+        'onboarding.cta_title': 'अपनी यात्रा शुरू करने के लिए तैयार हैं?',
+        'onboarding.cta_description': 'अबंडेंस के रास्ते पर हजारों अन्य लोगों के साथ जुड़ें। आपका रूपांतरण अभी शुरू होता है।',
+        'onboarding.get_started': 'शुरू करें',
     },
     ar: {
         // Goals
@@ -1106,6 +1201,25 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'auth.or': 'أو',
         'auth.check_email': 'تحقق من بريدك الإلكتروني للحصول على رابط تسجيل الدخول',
         'auth.magic_link_sent': 'تم إرسال الرابط السحري!',
+        // Onboarding
+        'onboarding.choose_language': 'اختر لغتك',
+        'onboarding.hero_title': 'تأثير الوفرة',
+        'onboarding.hero_subtitle': 'رحلة نحو الوفرة! من 0 إلى 1 مليون دولار في 20 مستوى',
+        'onboarding.program_title': 'برنامج النمو 20 مستوى',
+        'onboarding.program_description': 'نظام تقدم منظم مع معالم واضحة. كل مستوى يفتح ميزات جديدة وإمكانيات ربح أعلى ومكافآت حصرية.',
+        'onboarding.challenges_title': 'التحديات والمكافآت',
+        'onboarding.challenges_description': 'أكمل تحديات مثيرة لكسب المكافآت وفتح الإنجازات. حول أهدافك إلى تجارب ممتعة وقابلة للتتبع.',
+        'onboarding.wishes_title': 'تحقيق الأمنيات',
+        'onboarding.wishes_description': 'حول أحلامك إلى أهداف قابلة للتحقيق. حدد الأمنيات وتتبع التقدم واحتفل بكل معلم في رحلتك.',
+        'onboarding.ai_core_title': 'النواة الذكية - شريكك مدى الحياة',
+        'onboarding.ai_core_description': 'رفيق ذكي غير قابل للتحويل ينمو معك. يولد دخلاً يومياً مدى الحياة لا يمكن أن يؤخذ منك.',
+        'onboarding.learning_title': 'التعلم وكسب المزيد',
+        'onboarding.learning_description': 'الوصول إلى محتوى تعليمي حصري واستراتيجيات ورؤى لتعظيم إمكانات ربحك ونموك الشخصي.',
+        'onboarding.business_title': 'ابنِ أعمالك',
+        'onboarding.business_description': 'طور مهارات ريادة الأعمال وابني مصادر دخل متعددة وابني ثروة مستدامة للنجاح طويل المدى.',
+        'onboarding.cta_title': 'مستعد لبدء رحلتك؟',
+        'onboarding.cta_description': 'انضم إلى آلاف آخرين في طريق الوفرة. تحويلك يبدأ الآن.',
+        'onboarding.get_started': 'ابدأ',
     },
     ru: {
         // Goals
@@ -1296,5 +1410,24 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'auth.or': 'ИЛИ',
         'auth.check_email': 'Проверьте почту для входа',
         'auth.magic_link_sent': 'Ссылка отправлена!',
+        // Onboarding
+        'onboarding.choose_language': 'Выберите ваш язык',
+        'onboarding.hero_title': 'Эффект Изобилия',
+        'onboarding.hero_subtitle': 'Путь к изобилию! От 0 до $1 млн за 20 уровней',
+        'onboarding.program_title': 'Программа Роста 20 Уровней',
+        'onboarding.program_description': 'Структурированная система прогресса с четкими вехами. Каждый уровень открывает новые функции, более высокий потенциал заработка и эксклюзивные награды.',
+        'onboarding.challenges_title': 'Челленджи и Награды',
+        'onboarding.challenges_description': 'Выполняйте захватывающие челленджи, чтобы заработать награды и открыть достижения. Превратите свои цели в увлекательный, отслеживаемый опыт.',
+        'onboarding.wishes_title': 'Исполнение Желаний',
+        'onboarding.wishes_description': 'Превратите свои мечты в достижимые цели. Устанавливайте желания, отслеживайте прогресс и празднуйте каждую веху на своем пути.',
+        'onboarding.ai_core_title': 'AI Ядро - Ваш Спутник на Всю Жизнь',
+        'onboarding.ai_core_description': 'Непередаваемый AI-компаньон, который растет вместе с вами. Генерирует пожизненный ежедневный доход, который нельзя отнять.',
+        'onboarding.learning_title': 'Обучение и Больше Заработка',
+        'onboarding.learning_description': 'Получите доступ к эксклюзивному образовательному контенту, стратегиям и инсайтам для максимизации вашего потенциала заработка и личностного роста.',
+        'onboarding.business_title': 'Создайте Свой Бизнес',
+        'onboarding.business_description': 'Развивайте предпринимательские навыки, создавайте множественные источники дохода и стройте устойчивое богатство для долгосрочного успеха.',
+        'onboarding.cta_title': 'Готовы Начать Свой Путь?',
+        'onboarding.cta_description': 'Присоединяйтесь к тысячам других на пути к изобилию. Ваша трансформация начинается сейчас.',
+        'onboarding.get_started': 'Начать',
     },
 };
