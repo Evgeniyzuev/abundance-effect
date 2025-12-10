@@ -129,7 +129,7 @@ export default function ChallengesPage() {
                                         {t('challenges.checking')}
                                     </>
                                 ) : challenge.userParticipation?.status === 'completed'
-                                ? t('challenges.completed_icon')
+                                ? <CheckCircle className="w-3 h-3" />
                                 : challenge.userParticipation?.status === 'active'
                                     ? t('challenges.check')
                                     : t('challenges.join')
