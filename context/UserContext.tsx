@@ -131,7 +131,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
             try {
             // Step 2: Check if we're in Telegram WebApp
-            // We use a small polling mechanism to handle potential race conditions where the script might not be fully ready
+            // Only proceed with Telegram detection if we have strong indicators
             const getTelegramWebApp = async () => {
                 if (typeof window === 'undefined') return null;
 
@@ -141,12 +141,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 let webApp = getWebApp();
                 if (webApp) return webApp;
 
-                // If not found immediately, check if we should wait (heuristic: User Agent or hash)
-                const isTelegramEnv = window.navigator.userAgent.includes('Telegram') || 
-                                     window.location.hash.includes('tgWebAppData');
+                // More strict Telegram environment detection
+                // Only poll if we have clear Telegram indicators
+                const hasTelegramWebAppData = window.location.hash.includes('tgWebAppData');
+                const userAgent = window.navigator.userAgent;
+                const isTelegramBot = userAgent.includes('TelegramBot') || userAgent.includes('tg://');
                 
-                if (isTelegramEnv) {
-                    console.log('Telegram environment detected but WebApp object missing. Polling...');
+                // Only check for Telegram if we have specific indicators
+                if (hasTelegramWebAppData || isTelegramBot) {
+                    console.log('Strong Telegram environment detected, polling for WebApp...');
                     for (let i = 0; i < 20; i++) { // Wait up to 2 seconds
                         await new Promise(r => setTimeout(r, 100));
                         webApp = getWebApp();
@@ -187,32 +190,53 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
                         console.log('Authenticating Telegram user with referrerId:', referrerId);
 
-                        // Try to authenticate via our API
-                        const response = await fetch('/api/auth/telegram-user', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                telegramUser: tgUser,
-                                initData: webApp.initData,
-                                referrerId: referrerId || null,
-                            }),
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success && result.password) {
-                            // Sign in to Supabase
-                            const { error } = await supabase.auth.signInWithPassword({
-                                email: `telegram_${tgUser.id}@abundance-effect.app`,
-                                password: result.password,
+                        try {
+                            // Try to authenticate via our API
+                            const response = await fetch('/api/auth/telegram-user', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    telegramUser: tgUser,
+                                    initData: webApp.initData,
+                                    referrerId: referrerId || null,
+                                }),
                             });
 
-                            if (error) {
-                                console.error('Error signing in with Telegram:', error);
-                                // Clear cache on auth error
-                                storage.clearAuthCache();
-                                setUser(null);
+                            // Check if response is valid before parsing JSON
+                            if (!response.ok) {
+                                console.error('Telegram auth API returned error:', response.status, response.statusText);
+                                return;
                             }
+
+                            const result = await response.json();
+
+                            // Check if result is valid before accessing properties
+                            if (!result) {
+                                console.error('Empty response from Telegram auth API');
+                                return;
+                            }
+
+                            if (result.success && result.password) {
+                                // Sign in to Supabase
+                                const { error } = await supabase.auth.signInWithPassword({
+                                    email: `telegram_${tgUser.id}@abundance-effect.app`,
+                                    password: result.password,
+                                });
+
+                                if (error) {
+                                    console.error('Error signing in with Telegram:', error);
+                                    // Clear cache on auth error
+                                    storage.clearAuthCache();
+                                    setUser(null);
+                                }
+                            } else if (result.error) {
+                                console.error('Telegram auth API error:', result.error);
+                            } else {
+                                console.error('Unexpected Telegram auth response:', result);
+                            }
+                        } catch (authError) {
+                            console.error('Error during Telegram authentication:', authError);
+                            // Don't throw - continue with normal auth flow for non-Telegram users
                         }
                     }
                 }
