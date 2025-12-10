@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, ArrowUp } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 import { useLanguage } from "@/context/LanguageContext"
 
@@ -135,40 +135,57 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {operations.map((op) => (
-                                <div
-                                    key={op.id}
-                                    className={`flex items-center justify-between p-3 bg-white border rounded-xl shadow-sm ${
-                                        op.status === 'pending' ? 'border-blue-200 bg-blue-50' : 'border-gray-100'
-                                    }`}
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        <div className="relative">
-                                            <span className="text-xl">{getOperationIcon(op.type)}</span>
-                                            <span className="absolute -top-1 -right-1 text-xs">{getStatusIcon(op.status)}</span>
-                                        </div>
-                                        <div>
-                                            <div className="font-semibold text-sm text-gray-900">{getOperationLabel(op.type)}</div>
-                                            <div className="text-xs text-gray-500">
-                                                {new Date(op.created_at).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
+                            {operations.map((op) => {
+                                const isTransferToCore = op.type === 'transfer' && op.description === 'Transfer to core';
+                                return (
+                                    <div
+                                        key={op.id}
+                                        className={`flex items-center justify-between p-3 bg-white border rounded-xl shadow-sm ${
+                                            op.status === 'pending' ? 'border-blue-200 bg-blue-50' : 'border-gray-100'
+                                        } ${isTransferToCore ? 'operation--transfer-to-core' : ''}`}
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <div className="relative">
+                                                <span className="text-xl">{getOperationIcon(op.type)}</span>
+                                                <span className="absolute -top-1 -right-1 text-xs">{getStatusIcon(op.status)}</span>
                                             </div>
-                                            <div className="text-xs text-gray-400">{getStatusLabel(op.status)}</div>
+                                            <div>
+                                                <div className="font-semibold text-sm text-gray-900">{getOperationLabel(op.type)}</div>
+                                                <div className="text-xs text-gray-500">
+                                                    {new Date(op.created_at).toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        year: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </div>
+                                                <div className="text-xs text-gray-400">{getStatusLabel(op.status)}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-1">
+                                            {isTransferToCore && (
+                                                <ArrowUp 
+                                                    className="h-3 w-3" 
+                                                    style={{ color: '#2563EB' }}
+                                                    aria-label="Transfer to core - increased power"
+                                                />
+                                            )}
+                                            <span 
+                                                className={`font-bold text-sm ${
+                                                    isTransferToCore 
+                                                        ? 'text-[#2563EB]' 
+                                                        : op.status === 'pending' ? 'text-yellow-600' :
+                                                          op.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                                                }`}
+                                                aria-label={`Amount: ${op.amount >= 0 ? '+' : ''}${op.amount.toFixed(2)}${isTransferToCore ? ' (Transfer to core)' : ''}`}
+                                            >
+                                                {op.amount >= 0 ? '+' : ''}${op.amount.toFixed(2)}
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className={`font-bold text-sm ${
-                                        op.status === 'pending' ? 'text-yellow-600' :
-                                        op.amount >= 0 ? 'text-green-600' : 'text-red-600'
-                                    }`}>
-                                        {op.amount >= 0 ? '+' : ''}${op.amount.toFixed(2)}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
