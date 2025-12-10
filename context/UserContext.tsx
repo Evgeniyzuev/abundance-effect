@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
-import { createClient } from '@/utils/supabase/client'
+import { createClient, getClient } from '@/utils/supabase/client'
 import { DbUser } from '@/types'
 import { storage, STORAGE_KEYS, CachedUserAuth, TelegramInitDataCache } from '@/utils/storage'
 
@@ -20,7 +20,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<DbUser | null>(null)
     const [session, setSession] = useState<Session | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-    const supabase = createClient()
+    
+    // Use existing global client to avoid multiple connections
+    const supabase = useMemo(() => {
+        const client = getClient()
+        if (!client) {
+            console.warn('No existing Supabase client found, creating new one')
+            return createClient()
+        }
+        return client
+    }, [])
 
     // Save user to cache
     const saveUserToCache = (dbUser: DbUser) => {
@@ -40,14 +49,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         storage.set(STORAGE_KEYS.USER_AUTH_CACHE, cachedUser);
     };
 
-    // Load user from cache
+    // Load user from cache with improved validation
     const loadUserFromCache = (): DbUser | null => {
         const cached = storage.get<CachedUserAuth>(STORAGE_KEYS.USER_AUTH_CACHE);
         if (!cached) return null;
 
-        // Check if cache is too old (e.g., 7 days)
-        const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+        // Check if cache is too old (e.g., 30 minutes for active sessions)
+        const MAX_CACHE_AGE = 30 * 60 * 1000; // 30 minutes
         if (Date.now() - cached.cached_at > MAX_CACHE_AGE) {
+            storage.clearAuthCache();
+            return null;
+        }
+
+        // Validate cached data integrity
+        if (!cached.id || !cached.telegram_id) {
+            console.warn('Invalid cached user data, clearing cache');
             storage.clearAuthCache();
             return null;
         }
@@ -63,45 +79,64 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             phone_number: null,
             created_at: '',
             updated_at: '',
-            wallet_balance: cached.wallet_balance,
-            aicore_balance: cached.aicore_balance,
-            level: cached.level,
-            reinvest_setup: cached.reinvest_setup,
+            wallet_balance: cached.wallet_balance || 0,
+            aicore_balance: cached.aicore_balance || 0,
+            level: cached.level || 1,
+            reinvest_setup: cached.reinvest_setup || false,
             referrer_id: null,
         } as DbUser;
     };
 
-    const fetchDbUser = async (userId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single()
+    // Debounced fetch to prevent multiple concurrent requests
+    const fetchDbUser = useMemo(() => {
+        let fetchPromise: Promise<DbUser | null> | null = null;
+        let lastUserId: string | null = null;
 
-            if (error || !data) {
-                // If user not found, try to sync
-                console.log('User not found in public table, attempting sync...');
-                try {
-                    const syncResponse = await fetch('/api/auth/sync-user', { method: 'POST' });
-                    const syncResult = await syncResponse.json();
-
-                    if (syncResult.success && syncResult.user) {
-                        return syncResult.user as DbUser;
-                    }
-                } catch (syncError) {
-                    console.error('Error syncing user:', syncError);
-                }
-
-                console.error('Error fetching user after sync attempt:', error);
-                return null
+        return async (userId: string) => {
+            // If we're already fetching this user, return the existing promise
+            if (fetchPromise && lastUserId === userId) {
+                return fetchPromise;
             }
-            return data as DbUser
-        } catch (error) {
-            console.error('Unexpected error fetching user:', error)
-            return null
-        }
-    }
+
+            lastUserId = userId;
+            fetchPromise = (async () => {
+                try {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', userId)
+                        .single()
+
+                    if (error || !data) {
+                        // If user not found, try to sync
+                        console.log('User not found in public table, attempting sync...');
+                        try {
+                            const syncResponse = await fetch('/api/auth/sync-user', { method: 'POST' });
+                            const syncResult = await syncResponse.json();
+
+                            if (syncResult.success && syncResult.user) {
+                                return syncResult.user as DbUser;
+                            }
+                        } catch (syncError) {
+                            console.error('Error syncing user:', syncError);
+                        }
+
+                        console.error('Error fetching user after sync attempt:', error);
+                        return null
+                    }
+                    return data as DbUser
+                } catch (error) {
+                    console.error('Unexpected error fetching user:', error)
+                    return null
+                } finally {
+                    // Clear the fetch promise after completion
+                    fetchPromise = null;
+                }
+            })();
+
+            return fetchPromise;
+        };
+    }, [supabase]);
 
     const refreshUser = async () => {
         if (!session?.user) return

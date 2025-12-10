@@ -17,6 +17,7 @@ export function createClient(): SupabaseClient {
                 autoRefreshToken: true,
                 persistSession: true,
                 detectSessionInUrl: true,
+                flowType: 'pkce' as any,
             }
         }
     )
@@ -27,4 +28,9 @@ export function createClient(): SupabaseClient {
 // Export for direct access if needed
 export function getClient(): SupabaseClient | undefined {
     return client
+}
+
+// Re-export createClient as getOrCreateClient for clarity
+export function getOrCreateClient(): SupabaseClient {
+    return createClient()
 }
