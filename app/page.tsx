@@ -126,6 +126,9 @@ function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isTelegramMiniApp, setIsTelegramMiniApp] = useState(false);
+  const [skipOnboarding, setSkipOnboarding] = useState(false);
+
+  const ONBOARDING_SKIP_KEY = 'abundance_skip_onboarding';
 
   // Handle referral parameters
   useEffect(() => {
@@ -154,20 +157,37 @@ function HomeContent() {
     }
   }, []);
 
+  // Check if user wants to skip onboarding
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const skipOnboardingValue = localStorage.getItem(ONBOARDING_SKIP_KEY);
+      if (skipOnboardingValue === 'true') {
+        setSkipOnboarding(true);
+      }
+    }
+  }, []);
+
+  // Handle skip onboarding for logged-in users
+  useEffect(() => {
+    if (user && !isLoading && skipOnboarding) {
+      router.push('/challenges');
+    }
+  }, [user, isLoading, skipOnboarding, router]);
+
   const handleLogout = async () => {
     await logout();
     router.refresh();
   };
 
-  // User is logged in - redirect to main app
-  useEffect(() => {
-    if (user && !isLoading) {
-      router.push('/goals');
+  const handleSkipOnboardingChange = (checked: boolean) => {
+    setSkipOnboarding(checked);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ONBOARDING_SKIP_KEY, checked.toString());
     }
-  }, [user, isLoading, router]);
+  };
 
+  // Show loading state while UserContext is initializing (including Telegram auth)
   if (isLoading) {
-    // Show loading state while UserContext is initializing (including Telegram auth)
     return (
       <div className="flex h-screen w-full items-center justify-center bg-ios-background">
         <div className="text-center">
@@ -180,416 +200,427 @@ function HomeContent() {
     );
   }
 
-  if (!user) {
-    // Show the beautiful onboarding experience
-    return (
-      <div className="min-h-screen bg-white">
-        <LanguageSelector />
-        
-        {/* Hero Section */}
-        <HeroSection />
-        
-        {/* Emotional Hook - Before/After Section */}
-        <section className="py-16 px-6 bg-white">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-ios-primary mb-4">
-                Your Transformation Starts Here
-              </h2>
-              <p className="text-lg text-ios-secondary">
-                From stress and struggle to freedom and abundance
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-1">
-              {/* Large emotional image */}
-              <div className="col-span-2 relative h-64 lg:h-96">
-                <div className="w-full h-full bg-gradient-to-br from-red-100 to-orange-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-5xl mb-4">😰</div>
-                    <div className="text-xl font-semibold text-gray-800">Struggling with Financial Stress?</div>
-                    <div className="text-gray-600 mt-2">Trapped in routine and fear</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Two smaller images showing the journey */}
-              <div className="relative h-48">
-                <div className="w-full h-full bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">⏰</div>
-                    <div className="text-sm font-semibold text-gray-800">Work Fatigue</div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative h-48">
-                <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">🏖️</div>
-                    <div className="text-sm font-semibold text-gray-800">Freedom & Joy</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Bottom image showing financial freedom */}
-              <div className="col-span-2 relative h-48">
-                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">💎</div>
-                    <div className="text-lg font-semibold text-gray-800">Financial Freedom</div>
-                    <div className="text-gray-600">Living your dream life</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+  // Show the onboarding experience to ALL users (both logged-in and non-logged-in)
+  return (
+    <div className="min-h-screen bg-white">
+      <LanguageSelector />
+      
+      {/* Hero Section */}
+      <HeroSection />
+      
+      {/* Emotional Hook - Before/After Section */}
+      <section className="py-16 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-ios-primary mb-4">
+              Your Transformation Starts Here
+            </h2>
+            <p className="text-lg text-ios-secondary">
+              From stress and struggle to freedom and abundance
+            </p>
           </div>
-        </section>
-        
-        {/* 20-Level Program Section */}
-        <section className="py-16 px-6 bg-gray-50">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-ios-primary mb-4 flex items-center justify-center gap-3">
-                {t('onboarding.program_title')} 💹
-              </h2>
-              <p className="text-lg text-ios-secondary leading-relaxed max-w-4xl mx-auto">
-                {t('onboarding.program_description')}
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-1">
-              {/* Large growth chart image */}
-              <div className="col-span-2 relative h-64">
-                <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-5xl mb-4">📈</div>
-                    <div className="text-xl font-semibold text-gray-800">$1,000,000 Net Worth</div>
-                    <div className="text-gray-600 mt-2">From 0 to Millionaire</div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Two smaller images */}
-              <div className="relative h-48">
-                <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">💰</div>
-                    <div className="text-sm font-semibold text-gray-800">Money Growth</div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative h-48">
-                <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">📊</div>
-                    <div className="text-sm font-semibold text-gray-800">Growth Chart</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Level progression badges */}
-            <div className="flex flex-wrap justify-center gap-4 mt-8">
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-2xl">🎯</span>
-                <span className="text-sm font-medium text-gray-700">Level 1-5</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-2xl">🚀</span>
-                <span className="text-sm font-medium text-gray-700">Level 6-10</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-2xl">⭐</span>
-                <span className="text-sm font-medium text-gray-700">Level 11-15</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-2xl">👑</span>
-                <span className="text-sm font-medium text-gray-700">Level 16-20</span>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Challenges Section */}
-        <OnboardingSection
-          title={t('onboarding.challenges_title')}
-          description={t('onboarding.challenges_description')}
-          imagePosition="left"
-        >
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="bg-gradient-to-br from-orange-100 to-red-100 p-4 rounded-2xl">
-              <div className="text-3xl mb-2">🏆</div>
-              <div className="text-sm font-semibold text-gray-800">Daily Challenges</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-2xl">
-              <div className="text-3xl mb-2">🎖️</div>
-              <div className="text-sm font-semibold text-gray-800">Achievements</div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-100 to-cyan-100 p-4 rounded-2xl">
-              <div className="text-3xl mb-2">💎</div>
-              <div className="text-sm font-semibold text-gray-800">Rare Rewards</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-2xl">
-              <div className="text-3xl mb-2">🔥</div>
-              <div className="text-sm font-semibold text-gray-800">Streaks</div>
-            </div>
-          </div>
-        </OnboardingSection>
-        
-        {/* Wish Fulfillment Section */}
-        <OnboardingSection
-          title={t('onboarding.wishes_title')}
-          description={t('onboarding.wishes_description')}
-          className="bg-gradient-to-br from-pink-50 to-rose-50"
-        >
-          <div className="space-y-4 mt-6">
-            <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-400 rounded-xl flex items-center justify-center">
-                <span className="text-white text-xl">💫</span>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-800">Set Your Dreams</div>
-                <div className="text-sm text-gray-600">Define what you truly want</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-xl flex items-center justify-center">
-                <span className="text-white text-xl">📈</span>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-800">Track Progress</div>
-                <div className="text-sm text-gray-600">Monitor your journey daily</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-400 rounded-xl flex items-center justify-center">
-                <span className="text-white text-xl">🎉</span>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-800">Celebrate Success</div>
-                <div className="text-sm text-gray-600">Mark achievements and milestones</div>
-              </div>
-            </div>
-          </div>
-        </OnboardingSection>
-        
-        {/* AI Core Section */}
-        <OnboardingSection
-          title={t('onboarding.ai_core_title')}
-          description={t('onboarding.ai_core_description')}
-          imagePosition="left"
-        >
-          <div className="bg-gradient-to-br from-indigo-900 to-purple-900 p-6 rounded-2xl text-white mt-6">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                <span className="text-3xl">🤖</span>
-              </div>
-              <div>
-                <div className="text-xl font-bold">AI Core</div>
-                <div className="text-indigo-200">Non-transferable • Lifelong Income</div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/10 p-4 rounded-xl">
-                <div className="text-2xl font-bold">24/7</div>
-                <div className="text-sm text-indigo-200">Always Working</div>
-              </div>
-              <div className="bg-white/10 p-4 rounded-xl">
-                <div className="text-2xl font-bold">∞</div>
-                <div className="text-sm text-indigo-200">Lifelong Income</div>
-              </div>
-            </div>
-          </div>
-        </OnboardingSection>
-        
-        {/* Learning Section */}
-        <OnboardingSection
-          title={t('onboarding.learning_title')}
-          description={t('onboarding.learning_description')}
-          className="bg-gray-50"
-        >
-          <div className="flex flex-wrap gap-4 mt-6">
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-              <div className="text-2xl mb-2">📚</div>
-              <div className="font-semibold text-gray-800">Exclusive Content</div>
-            </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-              <div className="text-2xl mb-2">💡</div>
-              <div className="font-semibold text-gray-800">Proven Strategies</div>
-            </div>
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-              <div className="text-2xl mb-2">🎓</div>
-              <div className="font-semibold text-gray-800">Expert Insights</div>
-            </div>
-          </div>
-        </OnboardingSection>
-        
-        {/* Success Stories Section */}
-        <OnboardingSection
-          title={t('onboarding.success_title')}
-          description={t('onboarding.success_description')}
-          className="bg-gray-50"
-        >
-          <div className="grid grid-cols-2 gap-1 mt-8">
-            <div className="col-span-2 relative h-64">
-              <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center">
+          
+          <div className="grid grid-cols-2 gap-1">
+            {/* Large emotional image */}
+            <div className="col-span-2 relative h-64 lg:h-96">
+              <div className="w-full h-full bg-gradient-to-br from-red-100 to-orange-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-4xl mb-2">📖</div>
-                  <div className="text-lg font-semibold text-gray-800">Success Stories</div>
+                  <div className="text-5xl mb-4">😰</div>
+                  <div className="text-xl font-semibold text-gray-800">Struggling with Financial Stress?</div>
+                  <div className="text-gray-600 mt-2">Trapped in routine and fear</div>
                 </div>
               </div>
             </div>
+            
+            {/* Two smaller images showing the journey */}
             <div className="relative h-48">
-              <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-3xl mb-2">🎯</div>
-                  <div className="text-sm font-semibold text-gray-800">Achievements</div>
-                </div>
-              </div>
-            </div>
-            <div className="relative h-48">
-              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-3xl mb-2">🤖</div>
-                  <div className="text-sm font-semibold text-gray-800">AI Mentor</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </OnboardingSection>
-
-        {/* Pay Yourself First Section */}
-        <OnboardingSection
-          title={t('onboarding.pay_first_title')}
-          description={t('onboarding.pay_first_description')}
-          imagePosition="left"
-        >
-          <div className="grid grid-cols-2 gap-1 mt-8">
-            <div className="col-span-2 relative h-64">
               <div className="w-full h-full bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-4xl mb-2">💰</div>
-                  <div className="text-lg font-semibold text-gray-800">Financial Planning</div>
+                  <div className="text-3xl mb-2">⏰</div>
+                  <div className="text-sm font-semibold text-gray-800">Work Fatigue</div>
                 </div>
               </div>
             </div>
             <div className="relative h-48">
               <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-3xl mb-2">📈</div>
-                  <div className="text-sm font-semibold text-gray-800">Investment</div>
+                  <div className="text-3xl mb-2">🏖️</div>
+                  <div className="text-sm font-semibold text-gray-800">Freedom & Joy</div>
                 </div>
               </div>
             </div>
-            <div className="relative h-48">
-              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
+            
+            {/* Bottom image showing financial freedom */}
+            <div className="col-span-2 relative h-48">
+              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-3xl mb-2">🎯</div>
-                  <div className="text-sm font-semibold text-gray-800">Goals</div>
+                  <div className="text-4xl mb-2">💎</div>
+                  <div className="text-lg font-semibold text-gray-800">Financial Freedom</div>
+                  <div className="text-gray-600">Living your dream life</div>
                 </div>
               </div>
             </div>
           </div>
-        </OnboardingSection>
-
-        {/* Values Section */}
-        <OnboardingSection
-          title={t('onboarding.values_title')}
-          description={t('onboarding.values_description')}
-          className="bg-gray-50"
-        >
-          <div className="grid grid-cols-2 gap-1 mt-8">
+        </div>
+      </section>
+      
+      {/* 20-Level Program Section */}
+      <section className="py-16 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-ios-primary mb-4 flex items-center justify-center gap-3">
+              {t('onboarding.program_title')} 💹
+            </h2>
+            <p className="text-lg text-ios-secondary leading-relaxed max-w-4xl mx-auto">
+              {t('onboarding.program_description')}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-1">
+            {/* Large growth chart image */}
             <div className="col-span-2 relative h-64">
               <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-4xl mb-2">🌱</div>
-                  <div className="text-lg font-semibold text-gray-800">Sustainable Values</div>
+                  <div className="text-5xl mb-4">📈</div>
+                  <div className="text-xl font-semibold text-gray-800">$1,000,000 Net Worth</div>
+                  <div className="text-gray-600 mt-2">From 0 to Millionaire</div>
                 </div>
               </div>
             </div>
+            
+            {/* Two smaller images */}
             <div className="relative h-48">
               <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-3xl mb-2">🔒</div>
-                  <div className="text-sm font-semibold text-gray-800">Security</div>
+                  <div className="text-3xl mb-2">💰</div>
+                  <div className="text-sm font-semibold text-gray-800">Money Growth</div>
                 </div>
               </div>
             </div>
             <div className="relative h-48">
               <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-3xl mb-2">🌍</div>
-                  <div className="text-sm font-semibold text-gray-800">Community</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </OnboardingSection>
-
-        {/* Business Development Section */}
-        <OnboardingSection
-          title={t('onboarding.business_title')}
-          description={t('onboarding.business_description')}
-          imagePosition="left"
-        >
-          <div className="grid grid-cols-2 gap-1 mt-8">
-            <div className="col-span-2 relative h-64">
-              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl mb-2">🚀</div>
-                  <div className="text-lg font-semibold text-gray-800">Business Growth</div>
-                </div>
-              </div>
-            </div>
-            <div className="relative h-48">
-              <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-3xl mb-2">💼</div>
-                  <div className="text-sm font-semibold text-gray-800">Entrepreneurship</div>
-                </div>
-              </div>
-            </div>
-            <div className="relative h-48">
-              <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
                   <div className="text-3xl mb-2">📊</div>
-                  <div className="text-sm font-semibold text-gray-800">Analytics</div>
+                  <div className="text-sm font-semibold text-gray-800">Growth Chart</div>
                 </div>
               </div>
             </div>
           </div>
-        </OnboardingSection>
-        
-        {/* CTA Section */}
-        <section className="py-20 px-6 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
-          <div className="max-w-4xl mx-auto text-center text-white">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-              {t('onboarding.cta_title')}
-            </h2>
-            <p className="text-xl lg:text-2xl mb-10 opacity-90 leading-relaxed">
-              {t('onboarding.cta_description')}
-            </p>
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-2xl"
-            >
-              <span>{t('onboarding.get_started')}</span>
-              <span className="text-xl">🚀</span>
-            </Link>
+          
+          {/* Level progression badges */}
+          <div className="flex flex-wrap justify-center gap-4 mt-8">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+              <span className="text-2xl">🎯</span>
+              <span className="text-sm font-medium text-gray-700">Level 1-5</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+              <span className="text-2xl">🚀</span>
+              <span className="text-sm font-medium text-gray-700">Level 6-10</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+              <span className="text-2xl">⭐</span>
+              <span className="text-sm font-medium text-gray-700">Level 11-15</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
+              <span className="text-2xl">👑</span>
+              <span className="text-sm font-medium text-gray-700">Level 16-20</span>
+            </div>
           </div>
-        </section>
-        
-        {/* Footer */}
-        <footer className="py-8 px-6 bg-gray-900 text-center">
-          <div className="text-gray-400 text-sm">
-            © 2024 Abundance Effect. Transform your life.
+        </div>
+      </section>
+      
+      {/* Challenges Section */}
+      <OnboardingSection
+        title={t('onboarding.challenges_title')}
+        description={t('onboarding.challenges_description')}
+        imagePosition="left"
+      >
+        <div className="grid grid-cols-2 gap-4 mt-6">
+          <div className="bg-gradient-to-br from-orange-100 to-red-100 p-4 rounded-2xl">
+            <div className="text-3xl mb-2">🏆</div>
+            <div className="text-sm font-semibold text-gray-800">Daily Challenges</div>
           </div>
-        </footer>
-      </div>
-    );
-  }
+          <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-2xl">
+            <div className="text-3xl mb-2">🎖️</div>
+            <div className="text-sm font-semibold text-gray-800">Achievements</div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-100 to-cyan-100 p-4 rounded-2xl">
+            <div className="text-3xl mb-2">💎</div>
+            <div className="text-sm font-semibold text-gray-800">Rare Rewards</div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-2xl">
+            <div className="text-3xl mb-2">🔥</div>
+            <div className="text-sm font-semibold text-gray-800">Streaks</div>
+          </div>
+        </div>
+      </OnboardingSection>
+      
+      {/* Wish Fulfillment Section */}
+      <OnboardingSection
+        title={t('onboarding.wishes_title')}
+        description={t('onboarding.wishes_description')}
+        className="bg-gradient-to-br from-pink-50 to-rose-50"
+      >
+        <div className="space-y-4 mt-6">
+          <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-400 rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl">💫</span>
+            </div>
+            <div>
+              <div className="font-semibold text-gray-800">Set Your Dreams</div>
+              <div className="text-sm text-gray-600">Define what you truly want</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl">📈</span>
+            </div>
+            <div>
+              <div className="font-semibold text-gray-800">Track Progress</div>
+              <div className="text-sm text-gray-600">Monitor your journey daily</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-400 rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl">🎉</span>
+            </div>
+            <div>
+              <div className="font-semibold text-gray-800">Celebrate Success</div>
+              <div className="text-sm text-gray-600">Mark achievements and milestones</div>
+            </div>
+          </div>
+        </div>
+      </OnboardingSection>
+      
+      {/* AI Core Section */}
+      <OnboardingSection
+        title={t('onboarding.ai_core_title')}
+        description={t('onboarding.ai_core_description')}
+        imagePosition="left"
+      >
+        <div className="bg-gradient-to-br from-indigo-900 to-purple-900 p-6 rounded-2xl text-white mt-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+              <span className="text-3xl">🤖</span>
+            </div>
+            <div>
+              <div className="text-xl font-bold">AI Core</div>
+              <div className="text-indigo-200">Non-transferable • Lifelong Income</div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/10 p-4 rounded-xl">
+              <div className="text-2xl font-bold">24/7</div>
+              <div className="text-sm text-indigo-200">Always Working</div>
+            </div>
+            <div className="bg-white/10 p-4 rounded-xl">
+              <div className="text-2xl font-bold">∞</div>
+              <div className="text-sm text-indigo-200">Lifelong Income</div>
+            </div>
+          </div>
+        </div>
+      </OnboardingSection>
+      
+      {/* Learning Section */}
+      <OnboardingSection
+        title={t('onboarding.learning_title')}
+        description={t('onboarding.learning_description')}
+        className="bg-gray-50"
+      >
+        <div className="flex flex-wrap gap-4 mt-6">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div className="text-2xl mb-2">📚</div>
+            <div className="font-semibold text-gray-800">Exclusive Content</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div className="text-2xl mb-2">💡</div>
+            <div className="font-semibold text-gray-800">Proven Strategies</div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div className="text-2xl mb-2">🎓</div>
+            <div className="font-semibold text-gray-800">Expert Insights</div>
+          </div>
+        </div>
+      </OnboardingSection>
+      
+      {/* Success Stories Section */}
+      <OnboardingSection
+        title={t('onboarding.success_title')}
+        description={t('onboarding.success_description')}
+        className="bg-gray-50"
+      >
+        <div className="grid grid-cols-2 gap-1 mt-8">
+          <div className="col-span-2 relative h-64">
+            <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-2">📖</div>
+                <div className="text-lg font-semibold text-gray-800">Success Stories</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">🎯</div>
+                <div className="text-sm font-semibold text-gray-800">Achievements</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">🤖</div>
+                <div className="text-sm font-semibold text-gray-800">AI Mentor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </OnboardingSection>
 
-  return null; // Or a loading spinner while redirecting
+      {/* Pay Yourself First Section */}
+      <OnboardingSection
+        title={t('onboarding.pay_first_title')}
+        description={t('onboarding.pay_first_description')}
+        imagePosition="left"
+      >
+        <div className="grid grid-cols-2 gap-1 mt-8">
+          <div className="col-span-2 relative h-64">
+            <div className="w-full h-full bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-2">💰</div>
+                <div className="text-lg font-semibold text-gray-800">Financial Planning</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">📈</div>
+                <div className="text-sm font-semibold text-gray-800">Investment</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">🎯</div>
+                <div className="text-sm font-semibold text-gray-800">Goals</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </OnboardingSection>
+
+      {/* Values Section */}
+      <OnboardingSection
+        title={t('onboarding.values_title')}
+        description={t('onboarding.values_description')}
+        className="bg-gray-50"
+      >
+        <div className="grid grid-cols-2 gap-1 mt-8">
+          <div className="col-span-2 relative h-64">
+            <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-2">🌱</div>
+                <div className="text-lg font-semibold text-gray-800">Sustainable Values</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">🔒</div>
+                <div className="text-sm font-semibold text-gray-800">Security</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl-center">
+               flex items-center justify<div className="text-center">
+                <div className="text-3xl mb-2">🌍</div>
+                <div className="text-sm font-semibold text-gray-800">Community</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </OnboardingSection>
+
+      {/* Business Development Section */}
+      <OnboardingSection
+        title={t('onboarding.business_title')}
+        description={t('onboarding.business_description')}
+        imagePosition="left"
+      >
+        <div className="grid grid-cols-2 gap-1 mt-8">
+          <div className="col-span-2 relative h-64">
+            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-4xl mb-2">🚀</div>
+                <div className="text-lg font-semibold text-gray-800">Business Growth</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">💼</div>
+                <div className="text-sm font-semibold text-gray-800">Entrepreneurship</div>
+              </div>
+            </div>
+          </div>
+          <div className="relative h-48">
+            <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl mb-2">📊</div>
+                <div className="text-sm font-semibold text-gray-800">Analytics</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </OnboardingSection>
+      
+      {/* CTA Section */}
+      <section className="py-20 px-6 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+            {t('onboarding.cta_title')}
+          </h2>
+          <p className="text-xl lg:text-2xl mb-10 opacity-90 leading-relaxed">
+            {t('onboarding.cta_description')}
+          </p>
+          <Link
+            href={user ? "/challenges" : "/login"}
+            className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-2xl"
+          >
+            <span>{user ? 'Continue' : t('onboarding.get_started')}</span>
+            <span className="text-xl">{user ? '🎯' : '🚀'}</span>
+          </Link>
+          
+          {/* Skip onboarding checkbox - only show for logged-in users */}
+          {user && (
+            <div className="mt-6">
+              <label className="inline-flex items-center gap-3 text-white/90 hover:text-white transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={skipOnboarding}
+                  onChange={(e) => handleSkipOnboardingChange(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/30 bg-white/20 text-ios-accent focus:ring-white/50 focus:ring-2"
+                />
+                <span className="text-sm">Don't show this page again</span>
+              </label>
+            </div>
+          )}
+        </div>
+      </section>
+      
+      {/* Footer */}
+      <footer className="py-8 px-6 bg-gray-900 text-center">
+        <div className="text-gray-400 text-sm">
+          © 2024 Abundance Effect. Transform your life.
+        </div>
+      </footer>
+    </div>
+  );
 }
 
 export default function Home() {
