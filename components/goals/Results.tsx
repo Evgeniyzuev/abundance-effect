@@ -136,6 +136,28 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
     };
 
     const openInventoryItemModal = (item: GameItem) => {
+        // Special case for onboarding knowledge item
+        if (item.id === 'onboarding_guide') {
+            setModalTitle(item.title);
+            setModalContent(
+                <div className="space-y-4">
+                    <div className="text-6xl text-center py-4">{item.image}</div>
+                    <p className="text-gray-700 leading-relaxed">{item.description}</p>
+                    <button
+                        onClick={() => {
+                            setModalOpen(false);
+                            window.location.href = '/';
+                        }}
+                        className="w-full bg-blue-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                        Open Onboarding Guide
+                    </button>
+                </div>
+            );
+            setModalOpen(true);
+            return;
+        }
+
         setModalTitle(item.title);
         setModalContent(
             <div className="space-y-4">

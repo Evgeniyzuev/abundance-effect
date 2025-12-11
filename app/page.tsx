@@ -174,6 +174,52 @@ function HomeContent() {
     }
   }, [user, isLoading, skipOnboarding, router]);
 
+  // Grant onboarding knowledge item to logged-in users
+  useEffect(() => {
+    const grantOnboardingKnowledge = async () => {
+      if (!user || !isLoading) return;
+
+      try {
+        // Check if user already has onboarding knowledge
+        const response = await fetch('/api/results');
+        if (response.ok) {
+          const results = await response.json();
+          const knowledge = results?.knowledge || [];
+          
+          // Check if onboarding knowledge item is already in user's knowledge
+          const hasOnboardingKnowledge = knowledge.some((slot: any) =>
+            slot?.itemId === 'onboarding_guide'
+          );
+          
+          if (!hasOnboardingKnowledge) {
+            // Add onboarding knowledge to user's results
+            const newKnowledgeSlot = {
+              slot: knowledge.length > 0 ? Math.max(...knowledge.map((s: any) => s.slot)) + 1 : 0,
+              itemId: 'onboarding_guide',
+              count: 1
+            };
+            
+            const updatedKnowledge = [...knowledge, newKnowledgeSlot];
+            
+            await fetch('/api/results', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ knowledge: updatedKnowledge })
+            });
+            
+            console.log('Onboarding knowledge item granted to user');
+          }
+        }
+      } catch (error) {
+        console.error('Error granting onboarding knowledge:', error);
+      }
+    };
+
+    if (user && !isLoading) {
+      grantOnboardingKnowledge();
+    }
+  }, [user, isLoading]);
+
   const handleLogout = async () => {
     await logout();
     router.refresh();
