@@ -44,10 +44,6 @@ pool_mode = "transaction"
 default_pool_size = 5
 # Maximum number of client connections allowed.
 max_client_conn = 50
-# Connection timeout settings
-pool_timeout = 20
-# Idle timeout before closing unused connections
-idle_timeout = 300
 
 # [db.vault]
 # secret_key = "env(SECRET_VALUE)"
@@ -205,7 +201,7 @@ otp_expiry = 3600
 # content_path = "./supabase/templates/invite.html"
 
 # Uncomment to customize notification email template
-# [auth.email.notification.password_changed]
+# [auth.email.template.password_changed]
 # enabled = true
 # subject = "Your password has been changed"
 # content_path = "./templates/password_changed_notification.html"
@@ -213,7 +209,7 @@ otp_expiry = 3600
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
 enable_signup = false
-# If enabled, users need to confirm their phone number before signing in.
+# If enabled, a user will need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
 template = "Your code is {{ .Code }}"
