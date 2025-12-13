@@ -1520,5 +1520,41 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.cta_title': 'Присоединяйся Сегодня',
         'onboarding.cta_description': 'Создай доску желаний и начни путь к изобилию!',
         'onboarding.get_started': 'Начать',
+        'onboarding.level_1': 'Уровень 1', // MISSING: all languages
+        'onboarding.level_20': 'Уровень 20', // MISSING: all languages
+        'onboarding.first_step': 'Первый шаг', // MISSING: all languages
+        'onboarding.financial_stress': 'Финансовый стресс', // MISSING: all languages
+        'onboarding.freedom_joy': 'Свобода и радость', // MISSING: all languages
+        'onboarding.challenges_subtitle': 'Доход всегда под рукой', // MISSING: all languages
+        'onboarding.daily_challenges': 'Ежедневные челленджи', // MISSING: all languages
+        'onboarding.achievements': 'Достижения', // MISSING: all languages
+        'onboarding.rare_rewards': 'Ценные награды', // MISSING: all languages
+        'onboarding.streaks': 'Прогресс серий', // MISSING: all languages
+        'onboarding.ai_core_subtitle': 'Ежедневный % доход', // MISSING: all languages
+        'onboarding.lifelong_income': 'Пожизненный доход', // MISSING: all languages
+        'onboarding.always_working': 'Капитал работает всегда', // MISSING: all languages
+        'onboarding.annual_growth': 'Гарантированный годовой прирост', // MISSING: all languages
+        'onboarding.success_subtitle': 'Следуй за теми кто уже сделал', // MISSING: all languages
+        'onboarding.success_stories': 'Истории успеха', // MISSING: all languages
+        'onboarding.ai_mentor': 'Ai Наставник', // MISSING: all languages
+        'onboarding.wishes_subtitle': 'Жизнь мечты теперь доступна', // MISSING: all languages
+        'onboarding.define_dreams': 'Определи свои Желания', // MISSING: all languages
+        'onboarding.what_you_want': 'Чего ты действительно хочешь?', // MISSING: all languages
+        'onboarding.track_progress': 'Отслежай прогрес', // MISSING: all languages
+        'onboarding.track_daily': 'Делай шаг каждый день', // MISSING: all languages
+        'onboarding.business_subtitle': 'Система нового поколения', // MISSING: all languages
+        'onboarding.business': 'Продажи', // MISSING: all languages
+        'onboarding.insights_analytics': 'Клиенты уже ждут', // MISSING: all languages
+        'onboarding.automation': 'Автоматизация', // MISSING: all languages
+        'onboarding.pay_first_subtitle': 'Каждая покупка - это инвестиция', // MISSING: all languages
+        'onboarding.invest_earn_grow': 'Покупка → Участие → Рост',// MISSING: all languages
+        'onboarding.values_subtitle': 'Независимость. Безопасность. Устойчивость.', // MISSING: all languages
+        'onboarding.value_security': 'Безопасность', // MISSING: all languages
+        'onboarding.value_sustainability': 'Устойчивость', // MISSING: all languages
+        'onboarding.value_independence': 'Независимость', // MISSING: all languages
+        'onboarding.exclusive_content': 'Подробные инструкции', // MISSING: all languages
+        'onboarding.proven_strategies': 'Работающие практики', // MISSING: all languages
+        'onboarding.expert_insights': 'Реальные данные', // MISSING: all languages
+        'onboarding.continue': 'Вперед!', // MISSING: all languages
     },
 };
