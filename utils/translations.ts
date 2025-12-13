@@ -204,28 +204,65 @@ export type TranslationKey =
     | 'onboarding.choose_language'
     | 'onboarding.hero_title'
     | 'onboarding.hero_subtitle'
-    | 'onboarding.hero_description'
     | 'onboarding.program_title'
+    | 'onboarding.program_subtitle'
     | 'onboarding.program_description'
+    | 'onboarding.level_1'
+    | 'onboarding.level_20'
+    | 'onboarding.first_step'
+    | 'onboarding.financial_stress'
+    | 'onboarding.freedom_joy'
     | 'onboarding.challenges_title'
+    | 'onboarding.challenges_subtitle'
     | 'onboarding.challenges_description'
-    | 'onboarding.wishes_title'
-    | 'onboarding.wishes_description'
+    | 'onboarding.daily_challenges'
+    | 'onboarding.achievements'
+    | 'onboarding.rare_rewards'
+    | 'onboarding.streaks'
     | 'onboarding.ai_core_title'
+    | 'onboarding.ai_core_subtitle'
     | 'onboarding.ai_core_description'
+    | 'onboarding.lifelong_income'
+    | 'onboarding.always_working'
+    | 'onboarding.annual_growth'
     | 'onboarding.success_title'
+    | 'onboarding.success_subtitle'
     | 'onboarding.success_description'
+    | 'onboarding.success_stories'
+    | 'onboarding.ai_mentor'
+    | 'onboarding.wishes_title'
+    | 'onboarding.wishes_subtitle'
+    | 'onboarding.wishes_description'
+    | 'onboarding.define_dreams'
+    | 'onboarding.what_you_want'
+    | 'onboarding.track_progress'
+    | 'onboarding.track_daily'
+    | 'onboarding.business_title'
+    | 'onboarding.business_subtitle'
+    | 'onboarding.business_description'
+    | 'onboarding.business'
+    | 'onboarding.insights_analytics'
+    | 'onboarding.automation'
     | 'onboarding.pay_first_title'
+    | 'onboarding.pay_first_subtitle'
     | 'onboarding.pay_first_description'
+    | 'onboarding.invest_earn_grow'
     | 'onboarding.values_title'
+    | 'onboarding.values_subtitle'
     | 'onboarding.values_description'
+    | 'onboarding.value_security'
+    | 'onboarding.value_sustainability'
+    | 'onboarding.value_independence'
     | 'onboarding.learning_title'
     | 'onboarding.learning_description'
-    | 'onboarding.business_title'
-    | 'onboarding.business_description'
+    | 'onboarding.exclusive_content'
+    | 'onboarding.proven_strategies'
+    | 'onboarding.expert_insights'
     | 'onboarding.cta_title'
     | 'onboarding.cta_description'
-    | 'onboarding.get_started';
+    | 'onboarding.get_started'
+    | 'onboarding.start_path'
+    | 'onboarding.continue';
 
 export const translations: { [key in Language]: Partial<{ [key in TranslationKey]: string }> } = {
     en: {
@@ -421,8 +458,8 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.choose_language': 'Choose Your Language',
         'onboarding.hero_title': 'Abundance Effect',
         'onboarding.hero_subtitle': 'Path to Abundance, Freedom & Self-Realization',
-        'onboarding.hero_description': 'Imagine: waking up without bills anxiety, living the life you dreamed of. But now routine stifles, fear of money shortage prevents breathing. What if there\'s a way out? We are a community where AI helps turn fears into freedom. Not a bank, not a scheme - real people like you changing lives.',
         'onboarding.program_title': 'Growth Program',
+        'onboarding.program_subtitle': 'From 0 to $1,000,000 at level 20',
         'onboarding.program_description': 'Remember that feeling when salary goes to bills and dreams are postponed? From zero to level 20 - and your net worth grows to $1,000,000. This is not a fairy tale: real steps where every day brings growth. Imagine how your fears melt away and confidence grows.',
         'onboarding.challenges_title': 'Complete Challenges & Get Rewards',
         'onboarding.challenges_description': 'Income is always at hand - independent, flexible. You decide when and how much to earn. Higher levels - more income and influence.',

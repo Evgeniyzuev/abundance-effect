@@ -50,43 +50,6 @@ function LanguageSelector() {
   );
 }
 
-function OnboardingSection({ 
-  title, 
-  description, 
-  children, 
-  className = "",
-  imagePosition = "right" 
-}: {
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-  className?: string;
-  imagePosition?: "left" | "right";
-}) {
-  return (
-    <section className={`py-12 px-6 ${className}`}>
-      <div className="max-w-4xl mx-auto">
-        <div className={`flex flex-col ${imagePosition === "right" ? "lg:flex-row" : "lg:flex-row-reverse"} items-center gap-8`}>
-          <div className="flex-1 space-y-4">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-              {title}
-            </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              {description}
-            </p>
-            {children}
-          </div>
-          <div className="flex-1">
-            <div className="aspect-[4/3] bg-gray-100 rounded-2xl flex items-center justify-center">
-              <div className="text-4xl opacity-60">📱</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function HeroSection() {
   const { t } = useLanguage();
   const { user } = useUser();
@@ -107,12 +70,12 @@ function HeroSection() {
         
         {/* Bright Title */}
         <h1 className="text-4xl lg:text-6xl font-bold mb-6 tracking-tight bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
-          Эффект Изобилия
+          {t('onboarding.hero_title')}
         </h1>
         
         {/* Subtitle */}
         <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8">
-          Жизнь в изобилии — это не мечта, а естественное состояние человека, когда он в гармонии с собой, другими и миром.
+          {t('onboarding.hero_subtitle')}
         </p>
         
         {/* Start Button */}
@@ -120,7 +83,7 @@ function HeroSection() {
           href={user ? "/challenges" : "/login"}
           className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
         >
-          <span>Начать</span>
+          <span>{t('onboarding.get_started')}</span>
           <span className="text-xl">🚀</span>
         </Link>
       </div>
@@ -136,13 +99,13 @@ function ProgramSection() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Программа роста 💹
+            {t('onboarding.program_title')} 💹
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            С нуля до $1 000 000 net worth
+            {t('onboarding.program_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto">
-            Прозрачная система уровней: от первого шага до первого миллиона. На 20 уровне — $1 000 000 чистого капитала.
+            {t('onboarding.program_description')}
           </p>
         </div>
         
@@ -150,34 +113,26 @@ function ProgramSection() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-3">🌱</div>
-            <div className="text-lg font-semibold text-gray-800">Level 1</div>
-            <div className="text-sm text-gray-600 mt-1">Первый шаг</div>
+            <div className="text-lg font-semibold text-gray-800">{t('onboarding.level_1')}</div>
+            <div className="text-sm text-gray-600 mt-1">{t('onboarding.first_step')}</div>
           </div>
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-3">👑</div>
-            <div className="text-lg font-semibold text-gray-800">Level 20</div>
+            <div className="text-lg font-semibold text-gray-800">{t('onboarding.level_20')}</div>
             <div className="text-sm text-gray-600 mt-1">$1 000 000</div>
           </div>
         </div>
         
-        {/* Emotion cards from previous section */}
+        {/* Emotion cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-red-50 p-4 rounded-xl text-center">
             <div className="text-3xl mb-2">😰</div>
-            <div className="text-sm font-semibold text-gray-800">Финансовый стресс</div>
+            <div className="text-sm font-semibold text-gray-800">{t('onboarding.financial_stress')}</div>
           </div>
           <div className="bg-green-50 p-4 rounded-xl text-center">
             <div className="text-3xl mb-2">🏖️</div>
-            <div className="text-sm font-semibold text-gray-800">Свобода и радость</div>
+            <div className="text-sm font-semibold text-gray-800">{t('onboarding.freedom_joy')}</div>
           </div>
-        </div>
-        
-        <div className="flex flex-wrap justify-center gap-3">
-          {['Level 1-5', 'Level 6-10', 'Level 11-15', 'Level 16-20'].map((level) => (
-            <div key={level} className="bg-gray-50 px-4 py-2 rounded-full border border-gray-200">
-              <span className="text-sm font-medium text-gray-700">{level}</span>
-            </div>
-          ))}
         </div>
       </div>
     </section>
@@ -192,32 +147,32 @@ function ChallengesSection() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Челленджи и награды 🏆
+            {t('onboarding.challenges_title')} 🏆
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Доход, который всегда под рукой
+            {t('onboarding.challenges_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Выполняй задания — получай вознаграждения. Сам решаешь, когда и сколько зарабатывать. Чем выше уровень — тем больше доход.
+            {t('onboarding.challenges_description')}
           </p>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-orange-50 p-4 rounded-xl">
             <div className="text-2xl mb-2">🏆</div>
-            <div className="text-sm font-semibold text-gray-800">Ежедневные челленджи</div>
+            <div className="text-sm font-semibold text-gray-800">{t('onboarding.daily_challenges')}</div>
           </div>
           <div className="bg-green-50 p-4 rounded-xl">
             <div className="text-2xl mb-2">🎖️</div>
-            <div className="text-sm font-semibold text-gray-800">Достижения</div>
+            <div className="text-sm font-semibold text-gray-800">{t('onboarding.achievements')}</div>
           </div>
           <div className="bg-blue-50 p-4 rounded-xl">
             <div className="text-2xl mb-2">💎</div>
-            <div className="text-sm font-semibold text-gray-800">Редкие награды</div>
+            <div className="text-sm font-semibold text-gray-800">{t('onboarding.rare_rewards')}</div>
           </div>
           <div className="bg-purple-50 p-4 rounded-xl">
             <div className="text-2xl mb-2">🔥</div>
-            <div className="text-sm font-semibold text-gray-800">Страйки</div>
+            <div className="text-sm font-semibold text-gray-800">{t('onboarding.streaks')}</div>
           </div>
         </div>
       </div>
@@ -233,13 +188,13 @@ function AiCoreSection() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            AI Core 🤖
+            {t('onboarding.ai_core_title')} 🤖
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Неотчуждаемый капитал
+            {t('onboarding.ai_core_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Гарантированный пассивный доход. Рост на 26% годовых — минимум. ×2 за 3 года, ×10 за 10 лет. Работает даже без твоих усилий.
+            {t('onboarding.ai_core_description')}
           </p>
         </div>
         
@@ -250,17 +205,17 @@ function AiCoreSection() {
             </div>
             <div>
               <div className="text-lg font-bold">AI Core</div>
-              <div className="text-indigo-200">Пожизненный доход</div>
+              <div className="text-indigo-200">{t('onboarding.lifelong_income')}</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white/10 p-4 rounded-xl">
               <div className="text-xl font-bold">24/7</div>
-              <div className="text-sm text-indigo-200">Всегда работает</div>
+              <div className="text-sm text-indigo-200">{t('onboarding.always_working')}</div>
             </div>
             <div className="bg-white/10 p-4 rounded-xl">
               <div className="text-xl font-bold">26%</div>
-              <div className="text-sm text-indigo-200">Годовой рост</div>
+              <div className="text-sm text-indigo-200">{t('onboarding.annual_growth')}</div>
             </div>
           </div>
         </div>
@@ -270,29 +225,31 @@ function AiCoreSection() {
 }
 
 function SuccessStoriesSection() {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-12 px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Истории успеха 🌟
+            {t('onboarding.success_title')} 🌟
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Учись у тех, кто уже там
+            {t('onboarding.success_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Реальные кейсы людей, достигших твоих целей. Технологии повышения дохода, ИИ-наставник и ассистент — всё для твоего роста.
+            {t('onboarding.success_description')}
           </p>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-orange-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-2">📖</div>
-            <div className="font-semibold text-gray-800">Истории успеха</div>
+            <div className="font-semibold text-gray-800">{t('onboarding.success_stories')}</div>
           </div>
           <div className="bg-purple-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-2">🧠</div>
-            <div className="font-semibold text-gray-800">AI Наставник</div>
+            <div className="font-semibold text-gray-800">{t('onboarding.ai_mentor')}</div>
           </div>
         </div>
       </div>
@@ -308,13 +265,13 @@ function WishesSection() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Исполнение желаний ✨
+            {t('onboarding.wishes_title')} ✨
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Жизнь мечты — уже доступна
+            {t('onboarding.wishes_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Современные технологии позволяют не просто закрывать базовые потребности, но и реализовывать самые смелые мечты. Узнай, как это делают другие.
+            {t('onboarding.wishes_description')}
           </p>
         </div>
         
@@ -324,8 +281,8 @@ function WishesSection() {
               <span className="text-white text-lg">💫</span>
             </div>
             <div>
-              <div className="font-semibold text-gray-800">Определи свои мечты</div>
-              <div className="text-sm text-gray-600">Чего ты действительно хочешь</div>
+              <div className="font-semibold text-gray-800">{t('onboarding.define_dreams')}</div>
+              <div className="text-sm text-gray-600">{t('onboarding.what_you_want')}</div>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
@@ -333,8 +290,8 @@ function WishesSection() {
               <span className="text-white text-lg">📈</span>
             </div>
             <div>
-              <div className="font-semibold text-gray-800">Отслеживай прогресс</div>
-              <div className="text-sm text-gray-600">Следи за путём каждый день</div>
+              <div className="font-semibold text-gray-800">{t('onboarding.track_progress')}</div>
+              <div className="text-sm text-gray-600">{t('onboarding.track_daily')}</div>
             </div>
           </div>
         </div>
@@ -344,31 +301,33 @@ function WishesSection() {
 }
 
 function BusinessSection() {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-12 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Развивай своё дело 💼
+            {t('onboarding.business_title')} 💼
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Инструменты нового поколения
+            {t('onboarding.business_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Всё для предпринимателей: инсайты о клиентах, автоматизация, AI-аналитика. Создавай то, чего люди действительно хотят.
+            {t('onboarding.business_description')}
           </p>
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-blue-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-2">💼</div>
-            <div className="font-semibold text-gray-800">Бизнес</div>
-            <div className="text-sm text-gray-600 mt-1">Инсайты и аналитика</div>
+            <div className="font-semibold text-gray-800">{t('onboarding.business')}</div>
+            <div className="text-sm text-gray-600 mt-1">{t('onboarding.insights_analytics')}</div>
           </div>
           <div className="bg-orange-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-2">⚙️</div>
             <div className="font-semibold text-gray-800">Tech Tools</div>
-            <div className="text-sm text-gray-600 mt-1">Автоматизация</div>
+            <div className="text-sm text-gray-600 mt-1">{t('onboarding.automation')}</div>
           </div>
         </div>
       </div>
@@ -377,25 +336,26 @@ function BusinessSection() {
 }
 
 function PayYourselfSection() {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-12 px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Плати сначала себе 💰
+            {t('onboarding.pay_first_title')} 💰
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Каждая покупка — инвестиция
+            {t('onboarding.pay_first_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Становись бенефициаром бизнесов. Не трать — вкладывай. Деньги возвращаются и множатся, принося доход снова и снова.
+            {t('onboarding.pay_first_description')}
           </p>
         </div>
         
         <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-2xl text-center">
           <div className="text-4xl mb-3">💸</div>
-          <div className="text-lg font-semibold text-gray-800">Invest → Earn → Grow</div>
-          <div className="text-sm text-gray-600 mt-2">Вкладывай → Зарабатывай → Расти</div>
+          <div className="text-lg font-semibold text-gray-800">{t('onboarding.invest_earn_grow')}</div>
         </div>
       </div>
     </section>
@@ -403,10 +363,12 @@ function PayYourselfSection() {
 }
 
 function ValuesSection() {
+  const { t } = useLanguage();
+  
   const values = [
-    { icon: <Shield className="w-8 h-8" />, label: "Безопасность" },
-    { icon: <Globe className="w-8 h-8" />, label: "Устойчивость" },
-    { icon: <Heart className="w-8 h-8" />, label: "Независимость" }
+    { icon: <Shield className="w-8 h-8" />, label: t('onboarding.value_security') },
+    { icon: <Globe className="w-8 h-8" />, label: t('onboarding.value_sustainability') },
+    { icon: <Heart className="w-8 h-8" />, label: t('onboarding.value_independence') }
   ];
   
   return (
@@ -414,13 +376,13 @@ function ValuesSection() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-            Ценности 🌱
+            {t('onboarding.values_title')} 🌱
           </h2>
           <p className="text-lg text-amber-600 font-medium mb-4">
-            Независимость. Безопасность. Устойчивость.
+            {t('onboarding.values_subtitle')}
           </p>
           <p className="text-gray-600 leading-relaxed max-w-2xl mx-auto">
-            Мы строим общество устойчивых людей, которые не вредят миру и друг другу ради денег и власти. Изобилие — это ответственность.
+            {t('onboarding.values_description')}
           </p>
         </div>
         
@@ -457,15 +419,15 @@ function LearningSection() {
         <div className="flex flex-wrap gap-4">
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="text-2xl mb-2">📚</div>
-            <div className="font-semibold text-gray-800">Эксклюзивный контент</div>
+            <div className="font-semibold text-gray-800">{t('onboarding.exclusive_content')}</div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="text-2xl mb-2">💡</div>
-            <div className="font-semibold text-gray-800">Проверенные стратегии</div>
+            <div className="font-semibold text-gray-800">{t('onboarding.proven_strategies')}</div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="text-2xl mb-2">🎓</div>
-            <div className="font-semibold text-gray-800">Экспертные инсайты</div>
+            <div className="font-semibold text-gray-800">{t('onboarding.expert_insights')}</div>
           </div>
         </div>
       </div>
@@ -481,16 +443,16 @@ function CtaSection() {
     <section className="py-16 px-6 bg-gradient-to-r from-amber-500 to-orange-500">
       <div className="max-w-3xl mx-auto text-center text-white">
         <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-          Готов начать?
+          {t('onboarding.cta_title')}
         </h2>
         <p className="text-xl mb-8 opacity-90 leading-relaxed">
-          Первый шаг к изобилию — осознание, что оно уже здесь
+          {t('onboarding.cta_description')}
         </p>
         <Link
           href={user ? "/challenges" : "/login"}
           className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
         >
-          <span>{user ? 'Продолжить' : 'Начать путь'}</span>
+          <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
           <span className="text-xl">{user ? '🎯' : '🚀'}</span>
         </Link>
       </div>
@@ -506,7 +468,6 @@ function HomeContent() {
 
   const ONBOARDING_SKIP_KEY = 'abundance_skip_onboarding';
 
-  // Simple skip onboarding check
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const skipOnboardingValue = localStorage.getItem(ONBOARDING_SKIP_KEY);
@@ -516,27 +477,18 @@ function HomeContent() {
     }
   }, []);
 
-  // Handle skip onboarding for logged-in users
   useEffect(() => {
     if (user && !isLoading && skipOnboarding) {
       router.push('/challenges');
     }
   }, [user, isLoading, skipOnboarding, router]);
 
-  const handleSkipOnboardingChange = (checked: boolean) => {
-    setSkipOnboarding(checked);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(ONBOARDING_SKIP_KEY, checked.toString());
-    }
-  };
-
-  // Show loading state
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="text-gray-900 text-xl mb-4 font-medium">
-            Загрузка...
+            {t('common.loading')}
           </div>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto"></div>
         </div>
@@ -560,10 +512,9 @@ function HomeContent() {
       <LearningSection />
       <CtaSection />
       
-      {/* Footer */}
       <footer className="py-8 px-6 bg-gray-900 text-center">
         <div className="text-gray-400 text-sm">
-          © 2024 Abundance Effect. Светлое будущее начинается сегодня.
+          © 2024 Abundance Effect
         </div>
       </footer>
     </div>
