@@ -5,275 +5,157 @@ import { useLanguage } from '@/context/LanguageContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
-import { languages } from '@/utils/translations';
 
-function LanguageSelector() {
-  const { language, setLanguage, t } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
-
+function Header() {
   return (
-    <div className="fixed top-6 right-6 z-50">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="px-4 py-2 text-sm flex items-center gap-2 bg-white/90 backdrop-blur-sm shadow-lg rounded-full border border-gray-200/50"
-      >
-        <span className="text-lg">🌐</span>
-        <span className="hidden sm:inline">{languages[language]}</span>
-      </button>
-      
-      {isOpen && (
-        <div className="absolute top-12 right-0 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-2 min-w-48">
-          <div className="text-xs font-medium text-gray-500 mb-2 px-3 py-1">
-            {t('onboarding.choose_language')}
-          </div>
-          {Object.entries(languages).map(([code, name]) => (
-            <button
-              key={code}
-              onClick={() => {
-                setLanguage(code as any);
-                setIsOpen(false);
-              }}
-              className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${
-                language === code
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {name}
-            </button>
-          ))}
+    <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+      <div className="px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+        <div className="flex items-center space-x-2">
+          <img src="/icon-512.png" alt="Logo" className="w-8 h-8 rounded-full" />
+          <span className="font-semibold text-lg">Abundance</span>
         </div>
-      )}
-    </div>
-  );
-}
-
-function OnboardingSection({ 
-  title, 
-  description, 
-  children, 
-  className = "",
-  imagePosition = "right" 
-}: {
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-  className?: string;
-  imagePosition?: "left" | "right";
-}) {
-  return (
-    <section className={`py-12 px-6 ${className}`}>
-      <div className="max-w-4xl mx-auto">
-        <div className={`flex flex-col ${imagePosition === "right" ? "lg:flex-row" : "lg:flex-row-reverse"} items-center gap-8`}>
-          <div className="flex-1 space-y-4">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
-              {title}
-            </h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              {description}
-            </p>
-            {children}
-          </div>
-          <div className="flex-1">
-            <div className="aspect-[4/3] bg-gray-100 rounded-2xl flex items-center justify-center">
-              <div className="text-4xl opacity-60">📱</div>
-            </div>
-          </div>
-        </div>
+        <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+        </button>
       </div>
-    </section>
+    </header>
   );
 }
 
 function HeroSection() {
-  const { t } = useLanguage();
+  const { user } = useUser();
   
   return (
-    <section className="min-h-screen flex items-center justify-center relative bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
-            {t('onboarding.hero_title')}
+    <section className="pt-8 pb-12 px-4 text-center">
+      <div className="mb-6">
+        <div className="flex items-center justify-center mb-4">
+          <img src="/icon-512.png" alt="Эффект Изобилия" className="w-16 h-16 rounded-2xl mr-3" />
+          <h1 className="text-3xl font-bold leading-tight">
+            Эффект Изобилия
           </h1>
-          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-6">
-            {t('onboarding.hero_subtitle')}
-          </p>
-          <p className="text-lg text-gray-500 leading-relaxed max-w-3xl mx-auto">
-            {t('onboarding.hero_description')}
-          </p>
         </div>
+        <p className="text-gray-600 text-lg leading-relaxed">
+          Жизнь в изобилии — это не мечта, а естественное состояние человека, когда он в гармонии с собой, другими и миром.
+        </p>
+      </div>
+      
+      <div className="mt-8 flex flex-col gap-3">
+        <Link
+          href={user ? "/challenges" : "/login"}
+          className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg"
+        >
+          <span>{user ? 'Продолжить' : 'Начать путь'}</span>
+          <span className="text-xl">🚀</span>
+        </Link>
         
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-gray-400 rounded-full mt-2"></div>
-          </div>
-        </div>
+        <button className="inline-flex items-center justify-center gap-2 bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 font-medium px-6 py-3 rounded-xl hover:bg-white/90 transition-all">
+          <span>Узнать больше</span>
+          <span className="text-sm">↓</span>
+        </button>
       </div>
     </section>
   );
 }
 
-function EmotionSection() {
+function Section({ 
+  title, 
+  subtitle, 
+  children, 
+  image1, 
+  image2, 
+  layout = "default" 
+}: {
+  title: string;
+  subtitle?: string;
+  children?: React.ReactNode;
+  image1?: string;
+  image2?: string;
+  layout?: "default" | "double" | "full";
+}) {
   return (
-    <section className="py-12 px-6 bg-white">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-            Your Transformation Starts Here
-          </h2>
-          <p className="text-lg text-gray-600">
-            From stress and struggle to freedom and abundance
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-red-50 p-6 rounded-2xl text-center">
-            <div className="text-4xl mb-2">😰</div>
-            <div className="font-semibold text-gray-800">Financial Stress</div>
+    <section className="px-4 py-6">
+      <div className="mb-5">
+        <h2 className="text-xl font-semibold mb-1">{title}</h2>
+        {subtitle && (
+          <p className="text-amber-600 font-medium text-sm">{subtitle}</p>
+        )}
+      </div>
+      
+      {layout === "double" && image1 && image2 && (
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="rounded-2xl overflow-hidden">
+            <img 
+              src={image1} 
+              alt={`${title} 1`}
+              className="w-full h-auto"
+            />
           </div>
-          <div className="bg-green-50 p-6 rounded-2xl text-center">
-            <div className="text-4xl mb-2">🏖️</div>
-            <div className="font-semibold text-gray-800">Freedom & Joy</div>
+          <div className="rounded-2xl overflow-hidden">
+            <img 
+              src={image2} 
+              alt={`${title} 2`}
+              className="w-full h-auto"
+            />
           </div>
         </div>
+      )}
+      
+      {layout === "full" && (
+        <div className="mb-5 rounded-2xl overflow-hidden">
+          <img 
+            src={image1} 
+            alt={title}
+            className="w-full h-auto"
+          />
+        </div>
+      )}
+      
+      {children && (
+        <p className="text-gray-700 leading-relaxed">
+          {children}
+        </p>
+      )}
+      
+      <div className="mt-8">
+        <div className="h-px bg-gray-100"></div>
       </div>
     </section>
-  );
-}
-
-function ProgramSection() {
-  const { t } = useLanguage();
-  
-  return (
-    <section className="py-12 px-6 bg-gray-50">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
-            {t('onboarding.program_title')} 💹
-          </h2>
-          <p className="text-lg text-gray-600 leading-relaxed">
-            {t('onboarding.program_description')}
-          </p>
-        </div>
-        
-        <div className="text-center bg-green-50 p-8 rounded-2xl">
-          <div className="text-4xl mb-4">📈</div>
-          <div className="text-xl font-semibold text-gray-800">$1,000,000 Net Worth</div>
-          <div className="text-gray-600 mt-2">From 0 to Millionaire</div>
-        </div>
-        
-        <div className="flex flex-wrap justify-center gap-4 mt-6">
-          <div className="bg-white px-4 py-2 rounded-full shadow-sm border">
-            <span className="text-sm font-medium text-gray-700">Level 1-5</span>
-          </div>
-          <div className="bg-white px-4 py-2 rounded-full shadow-sm border">
-            <span className="text-sm font-medium text-gray-700">Level 6-10</span>
-          </div>
-          <div className="bg-white px-4 py-2 rounded-full shadow-sm border">
-            <span className="text-sm font-medium text-gray-700">Level 11-15</span>
-          </div>
-          <div className="bg-white px-4 py-2 rounded-full shadow-sm border">
-            <span className="text-sm font-medium text-gray-700">Level 16-20</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ChallengesSection() {
-  const { t } = useLanguage();
-  
-  return (
-    <OnboardingSection
-      title={t('onboarding.challenges_title')}
-      description={t('onboarding.challenges_description')}
-    >
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        <div className="bg-orange-50 p-4 rounded-xl">
-          <div className="text-2xl mb-2">🏆</div>
-          <div className="text-sm font-semibold text-gray-800">Daily Challenges</div>
-        </div>
-        <div className="bg-green-50 p-4 rounded-xl">
-          <div className="text-2xl mb-2">🎖️</div>
-          <div className="text-sm font-semibold text-gray-800">Achievements</div>
-        </div>
-        <div className="bg-blue-50 p-4 rounded-xl">
-          <div className="text-2xl mb-2">💎</div>
-          <div className="text-sm font-semibold text-gray-800">Rare Rewards</div>
-        </div>
-        <div className="bg-purple-50 p-4 rounded-xl">
-          <div className="text-2xl mb-2">🔥</div>
-          <div className="text-sm font-semibold text-gray-800">Streaks</div>
-        </div>
-      </div>
-    </OnboardingSection>
-  );
-}
-
-function AiCoreSection() {
-  const { t } = useLanguage();
-  
-  return (
-    <OnboardingSection
-      title={t('onboarding.ai_core_title')}
-      description={t('onboarding.ai_core_description')}
-      imagePosition="left"
-    >
-      <div className="bg-indigo-900 p-6 rounded-2xl text-white mt-6">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <span className="text-2xl">🤖</span>
-          </div>
-          <div>
-            <div className="text-lg font-bold">AI Core</div>
-            <div className="text-indigo-200">Lifelong Income</div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/10 p-4 rounded-xl">
-            <div className="text-xl font-bold">24/7</div>
-            <div className="text-sm text-indigo-200">Always Working</div>
-          </div>
-          <div className="bg-white/10 p-4 rounded-xl">
-            <div className="text-xl font-bold">∞</div>
-            <div className="text-sm text-indigo-200">Lifelong Income</div>
-          </div>
-        </div>
-      </div>
-    </OnboardingSection>
   );
 }
 
 function CtaSection() {
-  const { t } = useLanguage();
   const { user } = useUser();
+  const { t } = useLanguage();
   
   return (
-    <section className="py-16 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
-      <div className="max-w-3xl mx-auto text-center text-white">
-        <h2 className="text-3xl lg:text-4xl font-bold mb-6">
-          {t('onboarding.cta_title')}
-        </h2>
-        <p className="text-xl mb-8 opacity-90 leading-relaxed">
-          {t('onboarding.cta_description')}
+    <section className="px-4 py-8 text-center bg-gradient-to-br from-amber-50 to-orange-50">
+      <div className="mb-6">
+        <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">🎯</span>
+        </div>
+        <h3 className="text-xl font-semibold mb-2">Готов начать?</h3>
+        <p className="text-gray-600">
+          Первый шаг к изобилию — осознание, что оно уже здесь
         </p>
-        <Link
-          href={user ? "/challenges" : "/login"}
-          className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
-        >
-          <span>{user ? 'Continue' : t('onboarding.get_started')}</span>
-          <span className="text-xl">{user ? '🎯' : '🚀'}</span>
-        </Link>
       </div>
+      
+      <Link
+        href={user ? "/challenges" : "/login"}
+        className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg"
+      >
+        <span>{user ? 'Продолжить путь' : 'Начать путь'}</span>
+        <span className="text-xl">✨</span>
+      </Link>
+      
+      <p className="mt-6 text-xs text-gray-500">
+        Abundance Effect • Светлое будущее начинается сегодня
+      </p>
     </section>
   );
 }
 
 function HomeContent() {
   const { user, isLoading } = useUser();
-  const { t } = useLanguage();
   const router = useRouter();
   const [skipOnboarding, setSkipOnboarding] = useState(false);
 
@@ -311,80 +193,110 @@ function HomeContent() {
           <div className="text-gray-900 text-xl mb-4 font-medium">
             Загрузка...
           </div>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600 mx-auto"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <LanguageSelector />
+    <div className="bg-white text-gray-900 font-sans">
+      <Header />
       
-      <HeroSection />
-      <EmotionSection />
-      <ProgramSection />
-      <ChallengesSection />
-      <AiCoreSection />
-      
-      {/* Wish Fulfillment Section */}
-      <OnboardingSection
-        title={t('onboarding.wishes_title')}
-        description={t('onboarding.wishes_description')}
-        className="bg-pink-50"
-      >
-        <div className="space-y-4 mt-6">
-          <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-            <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg">💫</span>
-            </div>
-            <div>
-              <div className="font-semibold text-gray-800">Set Your Dreams</div>
-              <div className="text-sm text-gray-600">Define what you truly want</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg">📈</span>
-            </div>
-            <div>
-              <div className="font-semibold text-gray-800">Track Progress</div>
-              <div className="text-sm text-gray-600">Monitor your journey daily</div>
-            </div>
-          </div>
-        </div>
-      </OnboardingSection>
+      <main className="max-w-md mx-auto">
+        <HeroSection />
+        
+        <Section
+          title="Программа роста"
+          subtitle="С нуля до $1 000 000 net worth"
+          layout="double"
+          image1="https://placehold.co/280x280/f8f6f4/333333?text=Level+1"
+          image2="https://placehold.co/280x280/e8f4f0/333333?text=Level+20"
+        >
+          Прозрачная система уровней: от первого шага до первого миллиона. На 20 уровне — $1 000 000 чистого капитала.
+        </Section>
 
-      {/* Learning Section */}
-      <OnboardingSection
-        title={t('onboarding.learning_title')}
-        description={t('onboarding.learning_description')}
-        className="bg-gray-50"
-      >
-        <div className="flex flex-wrap gap-4 mt-6">
-          <div className="bg-white p-4 rounded-xl shadow-sm border">
-            <div className="text-2xl mb-2">📚</div>
-            <div className="font-semibold text-gray-800">Exclusive Content</div>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border">
-            <div className="text-2xl mb-2">💡</div>
-            <div className="font-semibold text-gray-800">Proven Strategies</div>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border">
-            <div className="text-2xl mb-2">🎓</div>
-            <div className="font-semibold text-gray-800">Expert Insights</div>
-          </div>
-        </div>
-      </OnboardingSection>
-      
-      <CtaSection />
-      
-      {/* Footer */}
-      <footer className="py-8 px-6 bg-gray-900 text-center">
-        <div className="text-gray-400 text-sm">
-          © 2024 Abundance Effect. Transform your life.
-        </div>
-      </footer>
+        <Section
+          title="Челленджи и награды"
+          subtitle="Доход, который всегда под рукой"
+          layout="double"
+          image1="https://placehold.co/280x350/faf7f2/333333?text=Challenge"
+          image2="https://placehold.co/280x350/eef8f5/333333?text=Reward"
+        >
+          Выполняй задания — получай вознаграждения. Сам решаешь, когда и сколько зарабатывать. Чем выше уровень — тем больше доход.
+        </Section>
+
+        <Section
+          title="AI Core"
+          subtitle="Неотчуждаемый капитал"
+          layout="full"
+          image1="https://placehold.co/600x400/f0f9f6/333333?text=AI+Core+%E2%86%92+26%25+annual"
+        >
+          Гарантированный пассивный доход. Рост на 26% годовых — минимум. ×2 за 3 года, ×10 за 10 лет. Работает даже без твоих усилий.
+        </Section>
+
+        <Section
+          title="Истории успеха"
+          subtitle="Учись у тех, кто уже там"
+          layout="double"
+          image1="https://placehold.co/280x350/fff8f0/333333?text=Success+Story"
+          image2="https://placehold.co/280x350/f5f0ff/333333?text=AI+Mentor"
+        >
+          Реальные кейсы людей, достигших твоих целей. Технологии повышения дохода, ИИ-наставник и ассистент — всё для твоего роста.
+        </Section>
+
+        <Section
+          title="Исполнение желаний"
+          subtitle="Жизнь мечты — уже доступна"
+          layout="full"
+          image1="https://placehold.co/600x400/fff0f5/333333?text=Wish+Granted+%E2%9C%A8"
+        >
+          Современные технологии позволяют не просто закрывать базовые потребности, но и реализовывать самые смелые мечты. Узнай, как это делают другие.
+        </Section>
+
+        <Section
+          title="Развивай своё дело"
+          subtitle="Инструменты нового поколения"
+          layout="double"
+          image1="https://placehold.co/280x300/f2f8ff/333333?text=Business"
+          image2="https://placehold.co/280x300/fcf4f0/333333?text=Tech+Tools"
+        >
+          Всё для предпринимателей: инсайты о клиентах, автоматизация, AI-аналитика. Создавай то, чего люди действительно хотят.
+        </Section>
+
+        <Section
+          title="Плати сначала себе"
+          subtitle="Каждая покупка — инвестиция"
+          layout="full"
+          image1="https://placehold.co/600x350/f0f7ff/333333?text=Invest+→+Earn+→+Grow"
+        >
+          Становись бенефициаром бизнесов. Не трать — вкладывай. Деньги возвращаются и множатся, принося доход снова и снова.
+        </Section>
+
+        <Section
+          title="Ценности"
+          subtitle="Независимость. Безопасность. Устойчивость."
+        >
+          Мы строим общество устойчивых людей, которые не вредят миру и друг другу ради денег и власти. Изобилие — это ответственность.
+        </Section>
+        
+        {/* Skip onboarding checkbox - only show for logged-in users */}
+        {user && (
+          <section className="px-4 py-4">
+            <label className="inline-flex items-center gap-3 text-gray-600 hover:text-gray-800 transition-colors cursor-pointer">
+              <input
+                type="checkbox"
+                checked={skipOnboarding}
+                onChange={(e) => handleSkipOnboardingChange(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-sm">Не показывать эту страницу снова</span>
+            </label>
+          </section>
+        )}
+        
+        <CtaSection />
+      </main>
     </div>
   );
 }
