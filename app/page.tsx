@@ -438,6 +438,25 @@ function LearningSection() {
 function CtaSection() {
   const { t } = useLanguage();
   const { user } = useUser();
+  const [skipOnboarding, setSkipOnboarding] = useState(false);
+
+  const ONBOARDING_SKIP_KEY = 'abundance_skip_onboarding';
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const skipOnboardingValue = localStorage.getItem(ONBOARDING_SKIP_KEY);
+      if (skipOnboardingValue === 'true') {
+        setSkipOnboarding(true);
+      }
+    }
+  }, []);
+
+  const handleSkipChange = (checked: boolean) => {
+    setSkipOnboarding(checked);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ONBOARDING_SKIP_KEY, checked.toString());
+    }
+  };
   
   return (
     <section className="py-16 px-6 bg-gradient-to-r from-amber-500 to-orange-500">
@@ -448,13 +467,26 @@ function CtaSection() {
         <p className="text-xl mb-8 opacity-90 leading-relaxed">
           {t('onboarding.cta_description')}
         </p>
-        <Link
-          href={user ? "/challenges" : "/login"}
-          className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
-        >
-          <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
-          <span className="text-xl">{user ? '🎯' : '🚀'}</span>
-        </Link>
+        <div className="flex items-center justify-center gap-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={skipOnboarding}
+              onChange={(e) => handleSkipChange(e.target.checked)}
+              className="w-5 h-5 rounded-lg border-2 border-white/30 bg-white/20 text-white checked:bg-white checked:border-white focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-orange-500 transition-all"
+            />
+            <span className="text-white/90 text-sm font-medium">
+              Don't show again
+            </span>
+          </label>
+          <Link
+            href={user ? "/challenges" : "/login"}
+            className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
+            <span className="text-xl">{user ? '🎯' : '🚀'}</span>
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -514,7 +546,7 @@ function HomeContent() {
       
       <footer className="py-8 px-6 bg-gray-900 text-center">
         <div className="text-gray-400 text-sm">
-          © 2024 Abundance Effect
+          © 2026 Abundance Effect
         </div>
       </footer>
     </div>
