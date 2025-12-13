@@ -208,62 +208,62 @@ export type TranslationKey =
     | 'onboarding.program_title'
     | 'onboarding.program_subtitle'
     | 'onboarding.program_description'
-    | 'onboarding.level_1'
-    | 'onboarding.level_20'
-    | 'onboarding.first_step'
-    | 'onboarding.financial_stress'
-    | 'onboarding.freedom_joy'
+    | 'onboarding.level_1' // MISSING: all languages
+    | 'onboarding.level_20' // MISSING: all languages
+    | 'onboarding.first_step' // MISSING: all languages
+    | 'onboarding.financial_stress' // MISSING: all languages
+    | 'onboarding.freedom_joy' // MISSING: all languages
     | 'onboarding.challenges_title'
-    | 'onboarding.challenges_subtitle'
+    | 'onboarding.challenges_subtitle' // MISSING: all languages
     | 'onboarding.challenges_description'
-    | 'onboarding.daily_challenges'
-    | 'onboarding.achievements'
-    | 'onboarding.rare_rewards'
-    | 'onboarding.streaks'
+    | 'onboarding.daily_challenges' // MISSING: all languages
+    | 'onboarding.achievements' // MISSING: all languages
+    | 'onboarding.rare_rewards' // MISSING: all languages
+    | 'onboarding.streaks' // MISSING: all languages
     | 'onboarding.ai_core_title'
-    | 'onboarding.ai_core_subtitle'
+    | 'onboarding.ai_core_subtitle' // MISSING: all languages
     | 'onboarding.ai_core_description'
-    | 'onboarding.lifelong_income'
-    | 'onboarding.always_working'
-    | 'onboarding.annual_growth'
+    | 'onboarding.lifelong_income' // MISSING: all languages
+    | 'onboarding.always_working' // MISSING: all languages
+    | 'onboarding.annual_growth' // MISSING: all languages
     | 'onboarding.success_title'
-    | 'onboarding.success_subtitle'
+    | 'onboarding.success_subtitle' // MISSING: all languages
     | 'onboarding.success_description'
-    | 'onboarding.success_stories'
-    | 'onboarding.ai_mentor'
+    | 'onboarding.success_stories' // MISSING: all languages
+    | 'onboarding.ai_mentor' // MISSING: all languages
     | 'onboarding.wishes_title'
-    | 'onboarding.wishes_subtitle'
+    | 'onboarding.wishes_subtitle' // MISSING: all languages
     | 'onboarding.wishes_description'
-    | 'onboarding.define_dreams'
-    | 'onboarding.what_you_want'
-    | 'onboarding.track_progress'
-    | 'onboarding.track_daily'
+    | 'onboarding.define_dreams' // MISSING: all languages
+    | 'onboarding.what_you_want' // MISSING: all languages
+    | 'onboarding.track_progress' // MISSING: all languages
+    | 'onboarding.track_daily' // MISSING: all languages
     | 'onboarding.business_title'
-    | 'onboarding.business_subtitle'
+    | 'onboarding.business_subtitle' // MISSING: all languages
     | 'onboarding.business_description'
-    | 'onboarding.business'
-    | 'onboarding.insights_analytics'
-    | 'onboarding.automation'
+    | 'onboarding.business' // MISSING: all languages
+    | 'onboarding.insights_analytics' // MISSING: all languages
+    | 'onboarding.automation' // MISSING: all languages
     | 'onboarding.pay_first_title'
-    | 'onboarding.pay_first_subtitle'
+    | 'onboarding.pay_first_subtitle' // MISSING: all languages
     | 'onboarding.pay_first_description'
-    | 'onboarding.invest_earn_grow'
+    | 'onboarding.invest_earn_grow' // MISSING: all languages
     | 'onboarding.values_title'
-    | 'onboarding.values_subtitle'
+    | 'onboarding.values_subtitle' // MISSING: all languages
     | 'onboarding.values_description'
-    | 'onboarding.value_security'
-    | 'onboarding.value_sustainability'
-    | 'onboarding.value_independence'
+    | 'onboarding.value_security' // MISSING: all languages
+    | 'onboarding.value_sustainability' // MISSING: all languages
+    | 'onboarding.value_independence' // MISSING: all languages
     | 'onboarding.learning_title'
     | 'onboarding.learning_description'
-    | 'onboarding.exclusive_content'
-    | 'onboarding.proven_strategies'
-    | 'onboarding.expert_insights'
+    | 'onboarding.exclusive_content' // MISSING: all languages
+    | 'onboarding.proven_strategies' // MISSING: all languages
+    | 'onboarding.expert_insights' // MISSING: all languages
     | 'onboarding.cta_title'
     | 'onboarding.cta_description'
     | 'onboarding.get_started'
-    | 'onboarding.start_path'
-    | 'onboarding.continue';
+    | 'onboarding.start_path' // MISSING: all languages
+    | 'onboarding.continue'; // MISSING: all languages
 
 export const translations: { [key in Language]: Partial<{ [key in TranslationKey]: string }> } = {
     en: {
