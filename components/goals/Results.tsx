@@ -156,6 +156,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             );
             setModalOpen(true);
             return;
+        }
         // Special case for finance participation knowledge item
         if (item.id === 'finance_participation') {
             setModalTitle(item.title);
@@ -177,7 +178,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             setModalOpen(true);
             return;
         }
-        }
+        
 
         setModalTitle(item.title);
         setModalContent(
