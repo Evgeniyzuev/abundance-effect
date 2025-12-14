@@ -156,6 +156,27 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             );
             setModalOpen(true);
             return;
+        // Special case for finance participation knowledge item
+        if (item.id === 'finance_participation') {
+            setModalTitle(item.title);
+            setModalContent(
+                <div className="space-y-4">
+                    <div className="text-6xl text-center py-4">{item.image}</div>
+                    <p className="text-gray-700 leading-relaxed">{item.description}</p>
+                    <button
+                        onClick={() => {
+                            setModalOpen(false);
+                            window.location.href = '/finance';
+                        }}
+                        className="w-full bg-emerald-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-emerald-600 transition-colors"
+                    >
+                        Открыть Экономику участия
+                    </button>
+                </div>
+            );
+            setModalOpen(true);
+            return;
+        }
         }
 
         setModalTitle(item.title);
