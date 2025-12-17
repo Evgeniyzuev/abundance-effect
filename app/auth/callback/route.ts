@@ -36,15 +36,34 @@ export async function GET(request: Request) {
                 }
             }
 
+            // Check user's aicore_balance to determine redirect destination
+            const { data: userData, error: userError } = await supabase
+                .from('users')
+                .select('aicore_balance')
+                .eq('id', data.user.id)
+                .single()
+
+            let redirectUrl = next; // Default redirect
+
+            if (!userError && userData) {
+                // If user has no core (aicore_balance = 0), redirect to core-creation
+                if (userData.aicore_balance === 0) {
+                    redirectUrl = '/core-creation';
+                } else {
+                    // If user already has core, redirect to challenges
+                    redirectUrl = '/challenges';
+                }
+            }
+
             const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
             const isLocalEnv = process.env.NODE_ENV === 'development'
             if (isLocalEnv) {
                 // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-                return NextResponse.redirect(`${origin}${next}`)
+                return NextResponse.redirect(`${origin}${redirectUrl}`)
             } else if (forwardedHost) {
-                return NextResponse.redirect(`https://${forwardedHost}${next}`)
+                return NextResponse.redirect(`https://${forwardedHost}${redirectUrl}`)
             } else {
-                return NextResponse.redirect(`${origin}${next}`)
+                return NextResponse.redirect(`${origin}${redirectUrl}`)
             }
         }
     }

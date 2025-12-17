@@ -19,32 +19,39 @@ export default function CoreCreationPage() {
         }
     }, [user, router]);
 
-    const handleCreateCore = async () => {
-        if (!user || user.aicore_balance > 0 || isCreating) return;
+    // Auto-create core asynchronously when user has aicore_balance = 0
+    useEffect(() => {
+        const createCoreAsync = async () => {
+            if (!user || user.aicore_balance > 0 || isCreating) return;
 
-        setIsCreating(true);
+            setIsCreating(true);
 
-        try {
-            const supabase = createClient();
+            try {
+                const supabase = createClient();
 
-            // Set initial core balance to 1
-            const { error } = await supabase
-                .from('users')
-                .update({ aicore_balance: 1 })
-                .eq('id', user.id);
+                // Set initial core balance to 1
+                const { error } = await supabase
+                    .from('users')
+                    .update({ aicore_balance: 1 })
+                    .eq('id', user.id);
 
-            if (error) throw error;
+                if (error) throw error;
 
-            // Refresh user data
-            await refreshUser();
+                // Refresh user data
+                await refreshUser();
 
-            // Close page
-            router.push('/challenges');
+            } catch (error) {
+                console.error('Error creating core:', error);
+                setIsCreating(false);
+            }
+        };
 
-        } catch (error) {
-            console.error('Error creating core:', error);
-            setIsCreating(false);
-        }
+        createCoreAsync();
+    }, [user, refreshUser, isCreating]);
+
+    const handleClosePage = () => {
+        // Just redirect to challenges - core creation happens asynchronously
+        router.push('/challenges');
     };
 
     return (
@@ -224,7 +231,7 @@ export default function CoreCreationPage() {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={handleCreateCore}
+                        onClick={handleClosePage}
                         disabled={isCreating}
                         className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
