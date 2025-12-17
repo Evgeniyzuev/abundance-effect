@@ -512,7 +512,7 @@ export default function FinancePage() {
               </div>
               <div className="text-3xl hidden md:block">⇄</div>
               <div className="text-center">
-                <div className="text-4xl mb-3">🔄📈 👤 ⇄ 💰 ⇄ 🏢</div>
+                <div className="text-4xl mb-3">🔄📈👤 ⇄ 💰 ⇄ 🏢</div>
                 <p className="text-gray-400">Вы участвуете — деньги возвращаются многократно</p>
               </div>
             </div>
