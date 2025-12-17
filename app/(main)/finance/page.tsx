@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Sparkles, Target, Award, Brain, Heart, TrendingUp, Users, Shield, Globe } from 'lucide-react';
 
 export default function FinancePage() {
-  const [isAnimating, setIsAnimating] = useState(true);
+  const [animationStep, setAnimationStep] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsAnimating(false), 6000);
-    return () => clearTimeout(timer);
+    const interval = setInterval(() => {
+      setAnimationStep(prev => (prev + 1) % 4); // 4 steps in the sequence
+    }, 1500); // Change every 1.5 seconds
+    return () => clearInterval(interval);
   }, []);
 
 
@@ -97,29 +99,29 @@ export default function FinancePage() {
                   <div className="absolute top-1/2 left-1/5 right-1/5 h-0.5 bg-gradient-to-r from-gray-500/30 via-gray-400/50 to-gray-500/30 -translate-y-1/2"></div>
                   
                   {/* Customer */}
-                  <motion.div 
-                    animate={{ 
-                      scale: isAnimating ? [1, 0.65, 0.65] : 0.65,
+                  <motion.div
+                    animate={{
+                      scale: animationStep === 1 ? 0.7 : animationStep === 2 ? 0.6 : animationStep === 3 ? 0.5 : 1,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 3 : 0,
+                    transition={{
+                      duration: 0.8,
                       ease: "easeInOut"
                     }}
-                    className="absolute left-1/4 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    className="absolute left-1/5 top-1/2 -translate-x-1/2 -translate-y-1/2"
                   >
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/80 to-cyan-500/80 border border-blue-400/40 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                       П
                     </div>
                     <p className="text-xs text-center mt-2 text-gray-400">Покупатель</p>
                   </motion.div>
-                  
+
                   {/* Business */}
-                  <motion.div 
-                    animate={{ 
-                      scale: isAnimating ? [1, 1, 1] : 1,
+                  <motion.div
+                    animate={{
+                      scale: animationStep === 2 ? 1.1 : animationStep === 3 ? 1.0 : 1,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 3 : 0,
+                    transition={{
+                      duration: 0.8,
                       ease: "easeInOut"
                     }}
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -129,56 +131,76 @@ export default function FinancePage() {
                     </div>
                     <p className="text-xs text-center mt-2 text-gray-400">Бизнес</p>
                   </motion.div>
-                  
+
                   {/* Beneficiary */}
-                  <motion.div 
-                    animate={{ 
-                      scale: isAnimating ? [1, 1.6, 1.6] : 1.6,
+                  <motion.div
+                    animate={{
+                      scale: animationStep === 3 ? 1.4 : 1,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 3 : 0,
+                    transition={{
+                      duration: 0.8,
                       ease: "easeInOut"
                     }}
-                    className="absolute right-1/4 top-1/2 translate-x-1/2 -translate-y-1/2"
+                    className="absolute right-1/5 top-1/2 translate-x-1/2 -translate-y-1/2"
                   >
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/80 to-pink-500/80 border border-purple-400/40 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                       Б
                     </div>
                     <p className="text-xs text-center mt-2 text-gray-400">Бенефициар</p>
                   </motion.div>
-                  
-                  {/* Money arrows */}
-                  <motion.svg 
-                    width="28" 
-                    height="28" 
-                    viewBox="0 0 24 24" 
-                    className="absolute left-2/5 top-1/2 -translate-y-1/2"
-                    animate={{ 
-                      x: isAnimating ? [0, 20, 40] : 40
+
+                  {/* Arrow from Question to Customer */}
+                  <motion.svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    className="absolute left-1/10 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    animate={{
+                      opacity: animationStep === 0 ? [0.3, 1, 0.3] : 0.3,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 2.5 : 0,
+                    transition={{
+                      duration: 0.8,
+                      repeat: animationStep === 0 ? Infinity : 0,
                       ease: "easeInOut"
                     }}
                   >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#E5E7EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.8"/>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                   </motion.svg>
-                  
-                  <motion.svg 
-                    width="28" 
-                    height="28" 
-                    viewBox="0 0 24 24" 
-                    className="absolute left-3/5 top-1/2 -translate-y-1/2"
-                    animate={{ 
-                      x: isAnimating ? [0, 40, 80] : 80
+
+                  {/* Arrow from Customer to Business */}
+                  <motion.svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    className="absolute left-7/20 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    animate={{
+                      opacity: animationStep === 1 ? [0.3, 1, 0.3] : 0.3,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 2.5 : 0,
-                      ease: "easeInOut",
-                      delay: 0.5
+                    transition={{
+                      duration: 0.8,
+                      repeat: animationStep === 1 ? Infinity : 0,
+                      ease: "easeInOut"
                     }}
                   >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#E5E7EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.8"/>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                  </motion.svg>
+
+                  {/* Arrow from Business to Beneficiary */}
+                  <motion.svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    className="absolute left-13/20 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    animate={{
+                      opacity: animationStep === 3 ? [0.3, 1, 0.3] : 0.3,
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: animationStep === 3 ? Infinity : 0,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#EC4899" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                   </motion.svg>
                 </div>
               </div>
@@ -240,17 +262,19 @@ export default function FinancePage() {
               <div className="flex flex-col items-center mb-8">
                 <div className="relative w-full max-w-md h-72 flex items-center justify-center">
                   {/* Left circle - Customer-Beneficiary */}
-                  <motion.div 
-                    animate={{ 
-                      scale: isAnimating ? [1, 1.35, 1.35] : 1.35,
+                  <motion.div
+                    animate={{
+                      scale: 1.2,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 3 : 0,
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse",
                       ease: "easeInOut"
                     }}
-                    className="absolute left-1/4 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                    className="absolute left-1/3 top-1/2 -translate-x-1/2 -translate-y-1/2"
                   >
-                    <div className="w-26 h-26 rounded-2xl bg-gradient-to-br from-blue-500/90 to-cyan-500/90 border border-blue-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
+                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500/90 to-cyan-500/90 border border-blue-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
                       <div className="text-center">
                         <span>П</span><br/>
                         <span className="text-sm">=</span><br/>
@@ -259,20 +283,22 @@ export default function FinancePage() {
                     </div>
                     <p className="text-xs text-center mt-2 text-gray-400">Покупатель-Бенефициар</p>
                   </motion.div>
-                  
+
                   {/* Right circle - Business */}
                   <motion.div
-                    animate={{ 
-                      scale: isAnimating ? [1, 1.35, 1.35] : 1.35,
+                    animate={{
+                      scale: 1.2,
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 3 : 0,
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse",
                       ease: "easeInOut",
-                      delay: 0.3
+                      delay: 0.5
                     }}
-                    className="absolute right-1/4 top-1/2 translate-x-1/2 -translate-y-1/2"
+                    className="absolute right-1/3 top-1/2 translate-x-1/2 -translate-y-1/2"
                   >
-                    <div className="w-26 h-26 rounded-2xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 border border-emerald-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
+                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 border border-emerald-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
                       <div className="text-center">
                         <span>Б</span><br/>
                         <span className="text-sm">+</span><br/>
@@ -281,20 +307,28 @@ export default function FinancePage() {
                     </div>
                     <p className="text-xs text-center mt-2 text-gray-400">Бизнес + Сообщество</p>
                   </motion.div>
-                  
-                  {/* Circular arrows */}
-                  <motion.svg 
-                    width="220" 
-                    height="220" 
-                    viewBox="0 0 220 220" 
+
+                  {/* Circular arrows with blinking */}
+                  <motion.svg
+                    width="200"
+                    height="200"
+                    viewBox="0 0 200 200"
                     className="absolute"
-                    animate={{ 
-                      rotate: isAnimating ? [0, 360] : 360 
+                    animate={{
+                      rotate: [0, 360],
+                      opacity: [0.4, 1, 0.4]
                     }}
-                    transition={{ 
-                      duration: isAnimating ? 10 : 0,
-                      repeat: Infinity,
-                      ease: "linear"
+                    transition={{
+                      rotate: {
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear"
+                      },
+                      opacity: {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }
                     }}
                   >
                     {/* Top arrow (right direction) */}
@@ -473,15 +507,13 @@ export default function FinancePage() {
             <h3 className="text-2xl font-bold text-gray-200 mb-6">Суть трансформации</h3>
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
               <div className="text-center">
-                <div className="text-4xl mb-3">👤 → 💸 → 🏢 → 🧠</div>
-                <p className="text-gray-400">Вы отдаёте деньги — получает кто-то другой</p>
-                <p className="text-red-400 mt-2 font-medium">Старый путь</p>
+                <div className="text-4xl mb-3">📉👤 → 💸 → 🏢 → 📛</div>
+                <p className="text-gray-400">Вы отдаёте деньги навсегда — богатеет кто-то другой</p>
               </div>
               <div className="text-3xl hidden md:block">⇄</div>
               <div className="text-center">
-                <div className="text-4xl mb-3">🔄 👤 ⇄ 💰 ⇄ 🏢 ⇄ 👤</div>
-                <p className="text-gray-400">Вы участвуете — вы получаете обратно</p>
-                <p className="text-emerald-400 mt-2 font-medium">Новый путь</p>
+                <div className="text-4xl mb-3">🔄📈 👤 ⇄ 💰 ⇄ 🏢</div>
+                <p className="text-gray-400">Вы участвуете — деньги возвращаются многократно</p>
               </div>
             </div>
           </div>
