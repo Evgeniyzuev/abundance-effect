@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Abundance Effect — Твой Core. Твоя гарантия. Твоё будущее.</title>
+  <meta name="description" content="Первая экономика, где твоё благополучие — не лотерея, а алгоритмическая гарантия.">
+  <style>
+    /* ===== Сброс и базовые стили ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --dark: #0F172A;
+      --darker: #090E1E;
+      --green: #10B981;
+      --green-light: #34D399;
+      --gold: #FBBF24;
+      --gold-light: #FCD34D;
+      --gray: #64748B;
+      --light: #F8FAFC;
+      --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: linear-gradient(135deg, #f0fdf4, #ecfeff);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4 {
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--green), #059669);
+      color: white;
+      font-weight: 700;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: var(--transition);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      border: none;
+      cursor: pointer;
+    }
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+    .btn-large {
+      font-size: 20px;
+      padding: 20px 48px;
+    }
+    section {
+      padding: 80px 0;
+    }
+    @media (max-width: 768px) {
+      section { padding: 60px 0; }
+      .btn { padding: 14px 24px; font-size: 16px; }
+      .btn-large { padding: 18px 32px; font-size: 18px; }
+    }
+
+    /* ===== Шапка ===== */
+    header {
+      padding: 40px 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--dark), var(--green));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo::before {
+      content: "∞";
+      font-size: 32px;
+    }
+
+    /* ===== Герой ===== */
+    .hero {
+      text-align: center;
+      padding: 80px 0 120px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      max-width: 800px;
+      margin: 0 auto 24px;
+    }
+    .hero p {
+      font-size: 22px;
+      color: var(--gray);
+      max-width: 700px;
+      margin: 0 auto 40px;
+    }
+    .core-counter {
+      background: white;
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--dark);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      margin: 20px 0;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2); }
+      50% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.6); }
+    }
+
+    /* ===== Преимущества ===== */
+    .features {
+      background: white;
+    }
+    .section-title {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 60px;
+      color: var(--dark);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+    }
+    .feature-card {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 32px;
+      transition: var(--transition);
+      border: 1px solid #e2e8f0;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      border-color: var(--green);
+    }
+
+.feature-icon {
+      width: 64px;
+      height: 64px;
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: var(--green);
+      margin-bottom: 20px;
+    }
+    .feature-card h3 {
+      font-size: 22px;
+      margin-bottom: 16px;
+      color: var(--dark);
+    }
+
+    /* ===== Контраст ===== */
+    .contrast {
+      background: linear-gradient(135deg, var(--darker), #1e293b);
+      color: white;
+    }
+    .contrast .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .contrast-col h2 {
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+    .old-world, .abundance {
+      padding: 32px;
+      border-radius: 16px;
+    }
+    .old-world {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .abundance {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(251, 191, 36, 0.1));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .old-world h3 {
+      color: #f87171;
+      margin-bottom: 16px;
+    }
+    .abundance h3 {
+      color: var(--green-light);
+      margin-bottom: 16px;
+    }
+    .contrast-list {
+      list-style: none;
+    }
+    .contrast-list li {
+      padding: 12px 0 12px 36px;
+      position: relative;
+    }
+    .contrast-list li::before {
+      position: absolute;
+      left: 0;
+      font-size: 20px;
+    }
+    .old-world .contrast-list li::before { content: "⚠️"; }
+    .abundance .contrast-list li::before { content: "✅"; }
+
+    @media (max-width: 900px) {
+      .contrast .container { grid-template-columns: 1fr; }
+    }
+
+    /* ===== CTA ===== */
+    .cta {
+      text-align: center;
+      background: linear-gradient(135deg, #0c4a6e, #0f766e);
+      color: white;
+      padding: 100px 0;
+    }
+    .cta h2 {
+      font-size: 40px;
+      max-width: 800px;
+      margin: 0 auto 32px;
+    }
+    .cta p {
+      font-size: 20px;
+      max-width: 700px;
+      margin: 0 auto 40px;
+      opacity: 0.9;
+    }
+
+    /* ===== Футер ===== */
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--gray);
+      font-size: 16px;
+    }
+    .tagline {
+      font-weight: 700;
+      color: var(--dark);
+      margin: 20px 0;
+    }
+
+    /* Анимации при прокрутке */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeInUp 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+  <!-- Шапка -->
+  <header>
+    <div class="container header-content">
+      <div class="logo">Abundance Effect</div>
+      <a href="#start" class="btn">Создать мой Core</a>
+    </div>
+  </header>
+
+  <!-- Герой -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="fade-in">Ты хочешь жить в системе, которая борется за власть —<br>или в системе, которая борется за твоё благополучие?</h1>
+      <p class="fade-in delay-1">Abundance Effect — первая экономика, где твой рост — не лотерея. Это алгоритмическая гарантия.</p>
+      
+      <div class="core-counter fade-in delay-2">
+        📈 Сейчас в системе: <strong>1 284 участника</strong> | Суммарный рост за 24ч: <strong>$3 217</strong>
+      </div>
+
+      <a href="#start" class="btn btn-large fade-in delay-3">Создать мой Core — от $1</a>
+      <p class="fade-in delay-4" style="margin-top: 20px; font-size: 16px; color: var(--gray);">
+        Это займёт 60 секунд. И изменит всё.
+      </p>
+    </div>
+  </section>
+
+  <!-- Преимущества -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">Твои преимущества — не обещания. Архитектура.</h2>
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🔐</div>
+          <h3>Твой Core — неприкасаем</h3>
+
+<p>Неотчуждаемый, пожизненный, защищённый алгоритмически. Никаких краж, санкций, заморозок, конфискаций.</p>
+        </div>
+        <div class="feature-card fade-in delay-1">
+          <div class="feature-icon">🔄</div>
+          <h3>Деньги не исчезают — они возвращаются</h3>
+          <p>Каждая покупка увеличивает твой Core. Потребитель = бенефициар. Циклический рост вместо кризисов.</p>
+        </div>
+        <div class="feature-card fade-in delay-2">
+          <div class="feature-icon">💼</div>
+          <h3>Гарантированная занятость</h3>
+          <p>Задания от $0.30 — всегда есть. Работаешь сам на себя. Без HR, резюме, начальников, дискриминации.</p>
+        </div>
+        <div class="feature-card fade-in delay-3">
+          <div class="feature-icon">📱</div>
+          <h3>Финансы как воздух</h3>
+          <p>Платежи — мгновенно, 0% комиссия. Кассы, счёта, учёт — бесплатно. Всё в телефоне.</p>
+        </div>
+        <div class="feature-card fade-in delay-4">
+          <div class="feature-icon">🛡️</div>
+          <h3>Независимость от элит</h3>
+          <p>Твоё благополучие не зависит от политиков, корпораций или миллиардеров. Оно — в твоём Core.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon">🌱</div>
+          <h3>Рост через вклад</h3>
+          <p>Чем больше ты даёшь — тем сильнее растёшь ты и все. 1000 человек +$1000 > 1 человек +$1M.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Контраст -->
+  <section class="contrast" id="start">
+    <div class="container">
+      <div class="contrast-col">
+        <h2>Старый мир</h2>
+        <div class="old-world">
+          <h3>Где ты — ресурс</h3>
+          <ul class="contrast-list">
+            <li>Доход зависит от удачи, связей, наследства</li>
+            <li>Потратил деньги — они исчезли</li>
+            <li>Работа = подчинение</li>
+            <li>Безопасность = накопления (которые могут обесцениться)</li>
+            <li>Будущее = тревога</li>
+          </ul>
+        </div>
+      </div>
+      <div class="contrast-col">
+        <h2>Abundance Effect</h2>
+        <div class="abundance">
+          <h3>Где ты — акционер изобилия</h3>
+          <ul class="contrast-list">
+            <li><strong>26% годовых</strong> — алгоритмическая гарантия</li>
+            <li>Потратил $100 → твой Core вырос</li>
+            <li>Работа = самореализация + рост</li>
+            <li>Безопасность = твой неотчуждаемый Core</li>
+            <li>Будущее = математически предсказуемый рост</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <h2>Твой Core — это твой голос. Твоя гарантия. Твой вклад в будущее.</h2>
+      <p>Он не может быть украден. Даже тобой.</p>
+      <a href="#" class="btn btn-large" onclick="alert('Спасибо! MVP запускается в январе 2026. Оставьте email на abundance.effect@future — и получите приглашение первыми.'); return false;">
+        Создать мой Core
+      </a>
+    </div>
+  </section>
+
+  <!-- Футер -->
+  <footer>
+    <div class="container">
+      <div class="logo" style="justify-content: center; font-size: 24px;">Abundance Effect</div>
+      <div class="tagline">Where your well-being is the algorithm.</div>
+      <p>© 2025 Abundance Effect. Все права за людьми.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Простая анимация при прокрутке
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.fade-in').forEach(el => {
+        el.style.opacity = 0;
+        observer.observe(el);
+      });
+    });
+  </script>
+
+</body>
+</html>
