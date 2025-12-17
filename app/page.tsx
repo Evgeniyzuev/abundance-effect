@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { languages } from '@/utils/translations';
 import { Shield, Globe, Heart } from 'lucide-react';
-import { createClient } from '@/utils/supabase/client';
 
 function LanguageSelector() {
   const { language, setLanguage, t } = useLanguage();
@@ -462,7 +461,7 @@ function CtaSection() {
 }
 
 function HomeContent() {
-  const { user, isLoading, refreshUser } = useUser();
+  const { user, isLoading } = useUser();
   const { t } = useLanguage();
   const router = useRouter();
   const [skipOnboarding, setSkipOnboarding] = useState(false);
@@ -479,38 +478,15 @@ function HomeContent() {
   }, []);
 
   useEffect(() => {
-    const handleOnboardingRedirect = async () => {
-      if (user && !isLoading && skipOnboarding) {
-        // Check if user has created a core
-        if (user.aicore_balance === 0) {
-          try {
-            // Create initial core automatically
-            const supabase = createClient();
-            const { error } = await supabase
-              .from('users')
-              .update({ aicore_balance: 1 })
-              .eq('id', user.id);
-
-            if (error) throw error;
-
-            // Refresh user data
-            await refreshUser();
-
-            // Show core creation page
-            router.push('/core-creation');
-          } catch (error) {
-            console.error('Error creating initial core:', error);
-            // Fallback to challenges if core creation fails
-            router.push('/challenges');
-          }
-        } else {
-          router.push('/challenges');
-        }
+    if (user && !isLoading && skipOnboarding) {
+      // Check if user has created a core
+      if (user.aicore_balance === 0) {
+        router.push('/core-creation');
+      } else {
+        router.push('/challenges');
       }
-    };
-
-    handleOnboardingRedirect();
-  }, [user, isLoading, skipOnboarding, router, refreshUser]);
+    }
+  }, [user, isLoading, skipOnboarding, router]);
 
   if (isLoading) {
     return (
