@@ -80,7 +80,11 @@ function HeroSection() {
         
         {/* Start Button */}
         <Link
-          href={user ? "/challenges" : "/login"}
+          href={
+            !user ? "/login" :
+            user.aicore_balance === 0 ? "/core-creation" :
+            "/challenges"
+          }
           className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
         >
           <span>{t('onboarding.get_started')}</span>
@@ -449,7 +453,11 @@ function CtaSection() {
           {t('onboarding.cta_description')}
         </p>
         <Link
-          href={user ? "/challenges" : "/login"}
+          href={
+            !user ? "/login" :
+            user.aicore_balance === 0 ? "/core-creation" :
+            "/challenges"
+          }
           className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
         >
           <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
