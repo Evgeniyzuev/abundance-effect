@@ -12,12 +12,7 @@ export default function CoreCreationPage() {
     const router = useRouter();
     const [isCreating, setIsCreating] = useState(false);
 
-    useEffect(() => {
-        // If user already has core, redirect to challenges
-        if (user && user.aicore_balance > 0) {
-            router.push('/challenges');
-        }
-    }, [user, router]);
+    // Removed auto-redirect logic - page only closes via button
 
     // Auto-create core asynchronously when user has aicore_balance = 0
     useEffect(() => {
@@ -232,8 +227,7 @@ export default function CoreCreationPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleClosePage}
-                        disabled={isCreating}
-                        className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl"
                     >
                         <CheckCircle className="w-8 h-8" />
                         Ядро создано
