@@ -5,56 +5,24 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Zap, TreePine, ArrowRight, CheckCircle } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
-import { createClient } from '@/utils/supabase/client';
 
 export default function CoreCreationPage() {
-    const { user, refreshUser } = useUser();
+    const { user } = useUser();
     const router = useRouter();
-    const [isCreating, setIsCreating] = useState(false);
-    const [isCreated, setIsCreated] = useState(false);
-    const [showVisualization, setShowVisualization] = useState(false);
+    const [showVisualization, setShowVisualization] = useState(true);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
-        // If user already has core, redirect to challenges
-        if (user && user.aicore_balance > 0) {
-            router.push('/challenges');
-        }
-    }, [user, router]);
+        // Show visualization immediately since core is already created
+        const timer = setTimeout(() => {
+            setShowSuccess(true);
+        }, 3000);
 
-    const handleCreateCore = async () => {
-        if (!user) return;
+        return () => clearTimeout(timer);
+    }, []);
 
-        setIsCreating(true);
-
-        try {
-            const supabase = createClient();
-
-            // Set initial core balance to 1
-            const { error } = await supabase
-                .from('users')
-                .update({ aicore_balance: 1 })
-                .eq('id', user.id);
-
-            if (error) throw error;
-
-            // Refresh user data
-            await refreshUser();
-
-            // Show visualization
-            setShowVisualization(true);
-
-            // After animation, show success and redirect
-            setTimeout(() => {
-                setIsCreated(true);
-                setTimeout(() => {
-                    router.push('/challenges');
-                }, 2000);
-            }, 3000);
-
-        } catch (error) {
-            console.error('Error creating core:', error);
-            setIsCreating(false);
-        }
+    const handleContinue = () => {
+        router.push('/challenges');
     };
 
     const EnergyTreeVisualization = () => (
@@ -155,7 +123,7 @@ export default function CoreCreationPage() {
         </div>
     );
 
-    if (isCreated) {
+    if (showSuccess) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-white flex items-center justify-center">
                 <motion.div
@@ -177,14 +145,20 @@ export default function CoreCreationPage() {
                         <CheckCircle className="w-24 h-24 text-green-400 mx-auto" />
                     </motion.div>
                     <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-green-300">
-                        AI Core Создан!
+                        AI Core Активирован!
                     </h2>
                     <p className="text-xl text-gray-300">
                         Ваш путь к бесконечному изобилию начался
                     </p>
-                    <div className="text-sm text-gray-400">
-                        Перенаправление...
-                    </div>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleContinue}
+                        className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl"
+                    >
+                        Начать путешествие
+                        <ArrowRight className="w-6 h-6" />
+                    </motion.button>
                 </motion.div>
             </div>
         );
@@ -332,7 +306,7 @@ export default function CoreCreationPage() {
                     </div>
                 </motion.div>
 
-                {/* Create Core Button */}
+                {/* Continue Button */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -342,22 +316,12 @@ export default function CoreCreationPage() {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={handleCreateCore}
-                        disabled={isCreating}
-                        className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={handleContinue}
+                        className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl"
                     >
-                        {isCreating ? (
-                            <>
-                                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                Создание AI Core...
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles className="w-8 h-8" />
-                                Создать AI Core
-                                <ArrowRight className="w-6 h-6" />
-                            </>
-                        )}
+                        <Sparkles className="w-8 h-8" />
+                        Узнать больше
+                        <ArrowRight className="w-6 h-6" />
                     </motion.button>
                 </motion.div>
             </main>
