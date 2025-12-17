@@ -478,15 +478,15 @@ function HomeContent() {
   }, []);
 
   useEffect(() => {
-    if (user && !isLoading && skipOnboarding) {
-      // Check if user has created a core
+    if (user && !isLoading) {
+      // Always redirect based on ai_core_balance when user is logged in
       if (user.aicore_balance === 0) {
         router.push('/core-creation');
       } else {
         router.push('/challenges');
       }
     }
-  }, [user, isLoading, skipOnboarding, router]);
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (

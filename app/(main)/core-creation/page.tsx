@@ -11,7 +11,6 @@ export default function CoreCreationPage() {
     const { user, refreshUser } = useUser();
     const router = useRouter();
     const [isCreating, setIsCreating] = useState(false);
-    const [isCreated, setIsCreated] = useState(false);
     const [showVisualization, setShowVisualization] = useState(false);
 
     useEffect(() => {
@@ -21,40 +20,51 @@ export default function CoreCreationPage() {
         }
     }, [user, router]);
 
-    const handleCreateCore = async () => {
-        if (!user) return;
+    // Auto-create core when user has ai_core_balance = 0
+    useEffect(() => {
+        const createCore = async () => {
+            if (!user || user.aicore_balance > 0 || isCreating) return;
 
-        setIsCreating(true);
+            setIsCreating(true);
 
-        try {
-            const supabase = createClient();
+            try {
+                const supabase = createClient();
 
-            // Set initial core balance to 1
-            const { error } = await supabase
-                .from('users')
-                .update({ aicore_balance: 1 })
-                .eq('id', user.id);
+                // Set initial core balance to 1
+                const { error } = await supabase
+                    .from('users')
+                    .update({ aicore_balance: 1 })
+                    .eq('id', user.id);
 
-            if (error) throw error;
+                if (error) throw error;
 
-            // Refresh user data
-            await refreshUser();
+                // Refresh user data
+                await refreshUser();
 
-            // Show visualization
-            setShowVisualization(true);
+                // Show visualization
+                setShowVisualization(true);
 
-            // After animation, show success and redirect
-            setTimeout(() => {
-                setIsCreated(true);
+                // After animation, redirect to challenges
                 setTimeout(() => {
                     router.push('/challenges');
-                }, 2000);
-            }, 3000);
+                }, 5000);
 
-        } catch (error) {
-            console.error('Error creating core:', error);
-            setIsCreating(false);
-        }
+            } catch (error) {
+                console.error('Error creating core:', error);
+                setIsCreating(false);
+            }
+        };
+
+        createCore();
+    }, [user, refreshUser, router, isCreating]);
+
+    const handleShowAnimation = () => {
+        // Just show the visualization animation
+        setShowVisualization(true);
+        // Hide after animation completes
+        setTimeout(() => {
+            setShowVisualization(false);
+        }, 5000);
     };
 
     const EnergyTreeVisualization = () => (
@@ -155,40 +165,7 @@ export default function CoreCreationPage() {
         </div>
     );
 
-    if (isCreated) {
-        return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-white flex items-center justify-center">
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="text-center space-y-6"
-                >
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.1, 1],
-                            rotate: [0, 5, -5, 0]
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                    >
-                        <CheckCircle className="w-24 h-24 text-green-400 mx-auto" />
-                    </motion.div>
-                    <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-green-300">
-                        AI Core Создан!
-                    </h2>
-                    <p className="text-xl text-gray-300">
-                        Ваш путь к бесконечному изобилию начался
-                    </p>
-                    <div className="text-sm text-gray-400">
-                        Перенаправление...
-                    </div>
-                </motion.div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-white overflow-hidden">
@@ -342,22 +319,13 @@ export default function CoreCreationPage() {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={handleCreateCore}
+                        onClick={handleShowAnimation}
                         disabled={isCreating}
                         className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {isCreating ? (
-                            <>
-                                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                Создание AI Core...
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles className="w-8 h-8" />
-                                Создать AI Core
-                                <ArrowRight className="w-6 h-6" />
-                            </>
-                        )}
+                        <Sparkles className="w-8 h-8" />
+                        Посмотреть анимацию создания
+                        <ArrowRight className="w-6 h-6" />
                     </motion.button>
                 </motion.div>
             </main>
