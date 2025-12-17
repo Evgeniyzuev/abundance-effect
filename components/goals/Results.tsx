@@ -178,6 +178,27 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             setModalOpen(true);
             return;
         }
+        // Special case for core creation knowledge item
+        if (item.id === 'core_creation') {
+            setModalTitle(item.title);
+            setModalContent(
+                <div className="space-y-4">
+                    <div className="text-6xl text-center py-4">{item.image}</div>
+                    <p className="text-gray-700 leading-relaxed">{item.description}</p>
+                    <button
+                        onClick={() => {
+                            setModalOpen(false);
+                            window.location.href = '/core-creation';
+                        }}
+                        className="w-full bg-purple-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-600 transition-colors"
+                    >
+                        Открыть AI Core
+                    </button>
+                </div>
+            );
+            setModalOpen(true);
+            return;
+        }
         
 
         setModalTitle(item.title);

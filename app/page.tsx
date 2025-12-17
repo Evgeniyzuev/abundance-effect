@@ -479,7 +479,12 @@ function HomeContent() {
 
   useEffect(() => {
     if (user && !isLoading && skipOnboarding) {
-      router.push('/challenges');
+      // Check if user has created a core
+      if (user.aicore_balance === 0) {
+        router.push('/core-creation');
+      } else {
+        router.push('/challenges');
+      }
     }
   }, [user, isLoading, skipOnboarding, router]);
 
