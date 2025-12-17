@@ -449,7 +449,7 @@ function CtaSection() {
           {t('onboarding.cta_description')}
         </p>
         <Link
-          href={user ? (user.aicore_balance === 0 ? "/core-creation" : "/challenges") : "/login"}
+          href={user ? "/challenges" : "/login"}
           className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
         >
           <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
@@ -478,15 +478,15 @@ function HomeContent() {
   }, []);
 
   useEffect(() => {
-    if (user && !isLoading && skipOnboarding) {
-      // Check if user has created a core
+    if (user && !isLoading) {
+      // Always redirect based on ai_core_balance when user is logged in
       if (user.aicore_balance === 0) {
         router.push('/core-creation');
       } else {
         router.push('/challenges');
       }
     }
-  }, [user, isLoading, skipOnboarding, router]);
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
