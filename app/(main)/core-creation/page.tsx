@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Zap, TreePine, ArrowRight, CheckCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Zap, TreePine, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import { createClient } from '@/utils/supabase/client';
 
@@ -11,7 +11,6 @@ export default function CoreCreationPage() {
     const { user, refreshUser } = useUser();
     const router = useRouter();
     const [isCreating, setIsCreating] = useState(false);
-    const [showVisualization, setShowVisualization] = useState(false);
 
     useEffect(() => {
         // If user already has core, redirect to challenges
@@ -20,152 +19,33 @@ export default function CoreCreationPage() {
         }
     }, [user, router]);
 
-    // Auto-create core when user has ai_core_balance = 0
-    useEffect(() => {
-        const createCore = async () => {
-            if (!user || user.aicore_balance > 0 || isCreating) return;
+    const handleCreateCore = async () => {
+        if (!user || user.aicore_balance > 0 || isCreating) return;
 
-            setIsCreating(true);
+        setIsCreating(true);
 
-            try {
-                const supabase = createClient();
+        try {
+            const supabase = createClient();
 
-                // Set initial core balance to 1
-                const { error } = await supabase
-                    .from('users')
-                    .update({ aicore_balance: 1 })
-                    .eq('id', user.id);
+            // Set initial core balance to 1
+            const { error } = await supabase
+                .from('users')
+                .update({ aicore_balance: 1 })
+                .eq('id', user.id);
 
-                if (error) throw error;
+            if (error) throw error;
 
-                // Refresh user data
-                await refreshUser();
+            // Refresh user data
+            await refreshUser();
 
-                // Show visualization
-                setShowVisualization(true);
+            // Close page
+            router.push('/challenges');
 
-                // After animation, redirect to challenges
-                setTimeout(() => {
-                    router.push('/challenges');
-                }, 5000);
-
-            } catch (error) {
-                console.error('Error creating core:', error);
-                setIsCreating(false);
-            }
-        };
-
-        createCore();
-    }, [user, refreshUser, router, isCreating]);
-
-    const handleShowAnimation = () => {
-        // Just show the visualization animation
-        setShowVisualization(true);
-        // Hide after animation completes
-        setTimeout(() => {
-            setShowVisualization(false);
-        }, 5000);
+        } catch (error) {
+            console.error('Error creating core:', error);
+            setIsCreating(false);
+        }
     };
-
-    const EnergyTreeVisualization = () => (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-            <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="relative w-full max-w-md h-96 flex items-center justify-center"
-            >
-                {/* Energy core sphere */}
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{
-                        scale: [0, 1.2, 1],
-                        opacity: [0, 1, 1]
-                    }}
-                    transition={{ duration: 1 }}
-                    className="absolute w-24 h-24 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 shadow-2xl"
-                >
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.1, 1],
-                            opacity: [0.8, 1, 0.8]
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                        className="w-full h-full rounded-full bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 flex items-center justify-center"
-                    >
-                        <Zap className="w-8 h-8 text-white" />
-                    </motion.div>
-                </motion.div>
-
-                {/* Flowing energy particles */}
-                {[...Array(8)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        initial={{ opacity: 0 }}
-                        animate={{
-                            opacity: [0, 1, 0],
-                            x: [0, Math.cos(i * 45 * Math.PI / 180) * 120],
-                            y: [0, Math.sin(i * 45 * Math.PI / 180) * 120],
-                        }}
-                        transition={{
-                            duration: 3,
-                            delay: i * 0.2,
-                            repeat: Infinity,
-                            ease: "easeOut"
-                        }}
-                        className="absolute w-2 h-2 bg-cyan-400 rounded-full shadow-lg"
-                    />
-                ))}
-
-                {/* Growing tree */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{
-                        opacity: 1,
-                        scale: [0, 1.2, 1],
-                    }}
-                    transition={{ duration: 2, delay: 1 }}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                >
-                    <TreePine className="w-32 h-32 text-green-400" />
-                </motion.div>
-
-                {/* Energy waves */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{
-                        opacity: [0, 0.5, 0],
-                        scale: [0.5, 2, 3],
-                    }}
-                    transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeOut"
-                    }}
-                    className="absolute w-32 h-32 rounded-full border-2 border-cyan-400/50"
-                />
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{
-                        opacity: [0, 0.3, 0],
-                        scale: [0.5, 2.5, 4],
-                    }}
-                    transition={{
-                        duration: 2,
-                        delay: 0.5,
-                        repeat: Infinity,
-                        ease: "easeOut"
-                    }}
-                    className="absolute w-32 h-32 rounded-full border-2 border-blue-400/30"
-                />
-            </motion.div>
-        </div>
-    );
-
-
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-white overflow-hidden">
@@ -193,7 +73,7 @@ export default function CoreCreationPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
+                        className="text-xl md:text-2xl  max-w-3xl mx-auto leading-relaxed"
                     >
                         Ваш личный вклад в систему Abundance Effect
                     </motion.p>
@@ -213,7 +93,7 @@ export default function CoreCreationPage() {
                             <Zap className="w-8 h-8 text-white" />
                         </div>
                         <h3 className="text-2xl font-bold mb-4">Гарантированный доход</h3>
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className=" leading-relaxed">
                             0.0633% в день — пожизненно и гарантированно
                         </p>
                     </motion.div>
@@ -228,7 +108,7 @@ export default function CoreCreationPage() {
                             <TreePine className="w-8 h-8 text-white" />
                         </div>
                         <h3 className="text-2xl font-bold mb-4">Бесконечный рост</h3>
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className=" leading-relaxed">
                             26% в год минимум, 2x за 3 года, 10x за 10 лет, 1000x за 30 лет
                         </p>
                     </motion.div>
@@ -243,7 +123,7 @@ export default function CoreCreationPage() {
                             <Sparkles className="w-8 h-8 text-white" />
                         </div>
                         <h3 className="text-2xl font-bold mb-4">Неотчуждаемо</h3>
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className=" leading-relaxed">
                             Нельзя потерять, потратить, передать или украсть
                         </p>
                     </motion.div>
@@ -265,7 +145,7 @@ export default function CoreCreationPage() {
                                 </div>
                                 <div>
                                     <h4 className="text-lg font-semibold mb-2">Abundance AI</h4>
-                                    <p className="text-gray-300">
+                                    <p className="">
                                         Управляет ресурсами системы, исполняя желания пользователей
                                     </p>
                                 </div>
@@ -276,7 +156,7 @@ export default function CoreCreationPage() {
                                 </div>
                                 <div>
                                     <h4 className="text-lg font-semibold mb-2">Ваш вклад</h4>
-                                    <p className="text-gray-300">
+                                    <p className="">
                                         AI Core — это ваш личный вклад в систему изобилия
                                     </p>
                                 </div>
@@ -289,7 +169,7 @@ export default function CoreCreationPage() {
                                 </div>
                                 <div>
                                     <h4 className="text-lg font-semibold mb-2">Распределение дохода</h4>
-                                    <p className="text-gray-300">
+                                    <p className="">
                                         Доходы распределяются пропорционально личному вкладу
                                     </p>
                                 </div>
@@ -300,11 +180,36 @@ export default function CoreCreationPage() {
                                 </div>
                                 <div>
                                     <h4 className="text-lg font-semibold mb-2">Рост через реинвестирование</h4>
-                                    <p className="text-gray-300">
+                                    <p className="">
                                         Автоматический рост даже без ваших действий
                                     </p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Core Visualization */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.6 }}
+                    className="text-center mb-12"
+                >
+                    <div className="relative w-48 h-48 mx-auto mb-8">
+                        {/* Static Core Visualization */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 shadow-2xl flex items-center justify-center">
+                                <Zap className="w-8 h-8 text-white" />
+                            </div>
+                        </div>
+                        {/* Tree Icon */}
+                        <div className="absolute bottom-4 right-4">
+                            <img
+                                src="/icon-192.png"
+                                alt="Tree"
+                                className="w-16 h-16 rounded-lg"
+                            />
                         </div>
                     </div>
                 </motion.div>
@@ -319,21 +224,16 @@ export default function CoreCreationPage() {
                     <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        onClick={handleShowAnimation}
+                        onClick={handleCreateCore}
                         disabled={isCreating}
                         className="inline-flex items-center gap-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white font-bold px-12 py-6 rounded-3xl text-xl hover:from-cyan-600 hover:via-blue-600 hover:to-purple-600 transition-all shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <Sparkles className="w-8 h-8" />
-                        Посмотреть анимацию создания
+                        <CheckCircle className="w-8 h-8" />
+                        Ядро создано
                         <ArrowRight className="w-6 h-6" />
                     </motion.button>
                 </motion.div>
             </main>
-
-            {/* Visualization Overlay */}
-            <AnimatePresence>
-                {showVisualization && <EnergyTreeVisualization />}
-            </AnimatePresence>
         </div>
     );
 }

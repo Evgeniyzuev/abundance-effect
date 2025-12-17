@@ -477,16 +477,7 @@ function HomeContent() {
     }
   }, []);
 
-  useEffect(() => {
-    if (user && !isLoading) {
-      // Always redirect based on ai_core_balance when user is logged in
-      if (user.aicore_balance === 0) {
-        router.push('/core-creation');
-      } else {
-        router.push('/challenges');
-      }
-    }
-  }, [user, isLoading, router]);
+  // Removed automatic redirect logic - let users complete onboarding first
 
   if (isLoading) {
     return (
