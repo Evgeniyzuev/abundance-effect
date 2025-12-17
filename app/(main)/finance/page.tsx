@@ -507,7 +507,7 @@ export default function FinancePage() {
             <h3 className="text-2xl font-bold text-gray-200 mb-6">Суть трансформации</h3>
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
               <div className="text-center">
-                <div className="text-4xl mb-3">📉👤 → 💸 → 🏢 → 📛</div>
+                <div className="text-4xl mb-3">📉👤💸 → 🏢 → 📛</div>
                 <p className="text-gray-400">Вы отдаёте деньги навсегда — богатеет кто-то другой</p>
               </div>
               <div className="text-3xl hidden md:block">⇄</div>
