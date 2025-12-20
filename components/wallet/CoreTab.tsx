@@ -59,10 +59,8 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
         const currentLevelThreshold = levelThresholds.find(t => t.level === userLevel)?.core || 0
         const nextLevelThreshold = levelThresholds.find(t => t.level === userLevel + 1)?.core || (currentLevelThreshold * 2)
 
-        // Calculate progress from current level threshold to next level threshold
-        const progressRange = nextLevelThreshold - currentLevelThreshold
-        const progressMade = balance - currentLevelThreshold
-        const progressPercentage = progressRange > 0 ? (progressMade / progressRange) * 100 : 100
+
+        const progressPercentage = nextLevelThreshold > 0 ? (balance / nextLevelThreshold) * 100 : 0
 
         return {
             currentLevel: userLevel,
@@ -190,7 +188,7 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
             {/* Core Balance Section */}
             <div className="flex flex-col items-center justify-center py-8 space-y-2 bg-gray-50 border-b border-gray-100">
                 <p className="text-gray-500 text-sm font-medium">{t('wallet.core_balance')}</p>
-                
+
                 {loading ? (
                     <div className="flex items-center space-x-2">
                         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
