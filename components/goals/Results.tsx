@@ -456,59 +456,71 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Base */}
                 {activeTab === 'base' && (
-                    <div className="absolute inset-0 z-0 flex w-full overflow-hidden animate-in fade-in duration-500">
-                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                        <div
-                            className="flex-1 relative bg-gray-100 transition-all duration-500"
-                            style={{
-                                backgroundImage: `url(${baseItem.image})`,
-                                backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
-                                backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat'
-                            }}
-                        >
-                            {BASE_BACKGROUNDS.length > 1 && (
-                                <button
-                                    className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
-                                    onClick={() => {
-                                        const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
-                                        setBase(BASE_BACKGROUNDS[nextIndex].id);
-                                    }}
-                                >
-                                    {(baseIndex >= 0 ? baseIndex : 0) + 1}
-                                </button>
-                            )}
+                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500">
+                        <h2 className="text-2xl font-bold text-gray-800">Base Page</h2>
+                        <p className="text-gray-500 mt-2">Debugging layout issues...</p>
+                        {/* 
+                        <div className="absolute inset-0 z-0 flex w-full overflow-hidden">
+                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
+                            <div
+                                className="flex-1 relative bg-gray-100 transition-all duration-500"
+                                style={{
+                                    backgroundImage: `url(${baseItem.image})`,
+                                    backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat'
+                                }}
+                            >
+                                {BASE_BACKGROUNDS.length > 1 && (
+                                    <button
+                                        className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                        onClick={() => {
+                                            const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
+                                            setBase(BASE_BACKGROUNDS[nextIndex].id);
+                                        }}
+                                    >
+                                        {(baseIndex >= 0 ? baseIndex : 0) + 1}
+                                    </button>
+                                )}
+                            </div>
+                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                         </div>
-                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
+                        */}
                     </div>
                 )}
 
                 {/* Character */}
                 {activeTab === 'character' && (
-                    <div className="absolute inset-0 z-0 flex w-full overflow-hidden animate-in fade-in duration-500">
-                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                        <div
-                            className="flex-1 relative bg-gray-100 transition-all duration-500"
-                            style={{
-                                backgroundImage: `url(${characterItem.image})`,
-                                backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
-                                backgroundPosition: 'center',
-                                backgroundRepeat: 'no-repeat'
-                            }}
-                        >
-                            {CHARACTER_BACKGROUNDS.length > 1 && (
-                                <button
-                                    className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
-                                    onClick={() => {
-                                        const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
-                                        setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
-                                    }}
-                                >
-                                    {(characterIndex >= 0 ? characterIndex : 0) + 1}
-                                </button>
-                            )}
+                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500">
+                        <h2 className="text-2xl font-bold text-gray-800">Character Page</h2>
+                        <p className="text-gray-500 mt-2">Debugging layout issues...</p>
+                        {/* 
+                        <div className="absolute inset-0 z-0 flex w-full overflow-hidden">
+                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
+                            <div
+                                className="flex-1 relative bg-gray-100 transition-all duration-500"
+                                style={{
+                                    backgroundImage: `url(${characterItem.image})`,
+                                    backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat'
+                                }}
+                            >
+                                {CHARACTER_BACKGROUNDS.length > 1 && (
+                                    <button
+                                        className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                        onClick={() => {
+                                            const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
+                                            setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
+                                        }}
+                                    >
+                                        {(characterIndex >= 0 ? characterIndex : 0) + 1}
+                                    </button>
+                                )}
+                            </div>
+                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                         </div>
-                        {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
+                        */}
                     </div>
                 )}
 
