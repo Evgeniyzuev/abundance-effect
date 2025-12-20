@@ -39,6 +39,18 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
     const BASE_BACKGROUNDS = gameItems.filter(i => i.type === 'base');
     const CHARACTER_BACKGROUNDS = gameItems.filter(i => i.type === 'character');
 
+    const DEFAULT_BASE = {
+        id: 'base_default',
+        image: 'https://blush-keen-constrictor-906.mypinata.cloud/ipfs/bafybeidrqqjj73obl35ceqeg7qoqmc2aphlvpuau57o7b3sd5zoz6ecjtq',
+        title: 'Default Base'
+    };
+
+    const DEFAULT_CHARACTER = {
+        id: 'char_default',
+        image: 'https://i.pinimg.com/736x/92/a8/c9/92a8c9100c338d19b9e3294a347d8d09.jpg',
+        title: 'Default Character'
+    };
+
     useEffect(() => {
         loadFromCache();
         fetchResults();
@@ -268,10 +280,16 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
     };
 
     const unlockedAchievements = (results?.unlocked_achievements as string[]) || [];
-    const selectedBaseId = results?.selected_base_id || BASE_BACKGROUNDS[0]?.id;
-    const selectedCharacterId = results?.selected_character_id || CHARACTER_BACKGROUNDS[0]?.id;
-    const baseIndex = BASE_BACKGROUNDS.findIndex(b => b.id === selectedBaseId);
-    const characterIndex = CHARACTER_BACKGROUNDS.findIndex(c => c.id === selectedCharacterId);
+
+    // Select base
+    const selectedBaseId = results?.selected_base_id;
+    const baseItem = BASE_BACKGROUNDS.find(b => b.id === selectedBaseId) || BASE_BACKGROUNDS[0] || DEFAULT_BASE;
+    const baseIndex = BASE_BACKGROUNDS.findIndex(b => b.id === baseItem.id);
+
+    // Select character
+    const selectedCharacterId = results?.selected_character_id;
+    const characterItem = CHARACTER_BACKGROUNDS.find(c => c.id === selectedCharacterId) || CHARACTER_BACKGROUNDS[0] || DEFAULT_CHARACTER;
+    const characterIndex = CHARACTER_BACKGROUNDS.findIndex(c => c.id === characterItem.id);
 
     return (
         <div
@@ -443,15 +461,13 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         <div
                             className="flex-1 relative bg-gray-200 transition-all duration-500"
                             style={{
-                                backgroundImage: (BASE_BACKGROUNDS.length > 0 && BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0])
-                                    ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})`
-                                    : 'none',
+                                backgroundImage: `url(${baseItem.image})`,
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat'
                             }}
                         >
-                            {BASE_BACKGROUNDS.length > 0 && (
+                            {BASE_BACKGROUNDS.length > 1 && (
                                 <button
                                     className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
                                     onClick={() => {
@@ -474,15 +490,13 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         <div
                             className="flex-1 relative bg-gray-200 transition-all duration-500"
                             style={{
-                                backgroundImage: (CHARACTER_BACKGROUNDS.length > 0 && CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0])
-                                    ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})`
-                                    : 'none',
+                                backgroundImage: `url(${characterItem.image})`,
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat'
                             }}
                         >
-                            {CHARACTER_BACKGROUNDS.length > 0 && (
+                            {CHARACTER_BACKGROUNDS.length > 1 && (
                                 <button
                                     className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
                                     onClick={() => {
