@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { ChevronDown, Sparkles, Target, Award, Brain, Heart, TrendingUp, Users, Shield, Globe } from 'lucide-react';
 
 export default function FinancePage() {
+  const router = useRouter();
   const [animationStep, setAnimationStep] = useState(0);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function FinancePage() {
       {/* Header */}
       <header className="relative py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -38,7 +40,7 @@ export default function FinancePage() {
               Экономика участия
             </span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -52,9 +54,9 @@ export default function FinancePage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         {/* Comparison Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
-          
+
           {/* Traditional Business */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -63,7 +65,7 @@ export default function FinancePage() {
           >
             {/* Glowing accent top bar */}
             <div className="h-1.5 w-full bg-gradient-to-r from-red-500/70 via-red-400/70 to-orange-400/70"></div>
-            
+
             <div className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-300 to-orange-300">
@@ -73,17 +75,17 @@ export default function FinancePage() {
                   Линейная экономика
                 </span>
               </div>
-              
+
               {/* Diagram */}
               <div className="flex flex-col items-center mb-8">
                 <div className="relative w-full max-w-md h-72 flex items-center justify-center">
                   {/* Question mark source */}
-                  <motion.div 
-                    animate={{ 
+                  <motion.div
+                    animate={{
                       scale: [1, 1.05, 1],
                       opacity: [0.6, 0.9, 0.6]
                     }}
-                    transition={{ 
+                    transition={{
                       duration: 2,
                       repeat: Infinity,
                       ease: "easeInOut"
@@ -94,10 +96,10 @@ export default function FinancePage() {
                       <span className="text-white text-2xl font-bold">?</span>
                     </div>
                   </motion.div>
-                  
+
                   {/* Money flow line */}
                   <div className="absolute top-1/2 left-1/5 right-1/5 h-0.5 bg-gradient-to-r from-gray-500/30 via-gray-400/50 to-gray-500/30 -translate-y-1/2"></div>
-                  
+
                   {/* Customer */}
                   <motion.div
                     animate={{
@@ -164,7 +166,7 @@ export default function FinancePage() {
                       ease: "easeInOut"
                     }}
                   >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   </motion.svg>
 
                   {/* Arrow from Customer to Business */}
@@ -182,7 +184,7 @@ export default function FinancePage() {
                       ease: "easeInOut"
                     }}
                   >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   </motion.svg>
 
                   {/* Arrow from Business to Beneficiary */}
@@ -200,11 +202,11 @@ export default function FinancePage() {
                       ease: "easeInOut"
                     }}
                   >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#EC4899" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#EC4899" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   </motion.svg>
                 </div>
               </div>
-              
+
               {/* Problems list */}
               <div className="rounded-2xl bg-red-500/5 border border-red-500/15 p-5">
                 <h3 className="font-bold text-lg text-red-300 mb-4 flex items-center">
@@ -221,7 +223,7 @@ export default function FinancePage() {
                     "Монополизация",
                     "Лишние затраты на рекламу/лоббизм"
                   ].map((item, index) => (
-                    <motion.li 
+                    <motion.li
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -236,9 +238,9 @@ export default function FinancePage() {
               </div>
             </div>
           </motion.div>
-          
+
           {/* Participation Business */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -247,7 +249,7 @@ export default function FinancePage() {
           >
             {/* Glowing accent top bar */}
             <div className="h-1.5 w-full bg-gradient-to-r from-cyan-400/70 via-emerald-400/70 to-green-400/70"></div>
-            
+
             <div className="p-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-emerald-300">
@@ -257,7 +259,7 @@ export default function FinancePage() {
                   Экономика участия
                 </span>
               </div>
-              
+
               {/* Diagram */}
               <div className="flex flex-col items-center mb-8">
                 <div className="relative w-full max-w-md h-72 flex items-center justify-center">
@@ -276,8 +278,8 @@ export default function FinancePage() {
                   >
                     <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500/90 to-cyan-500/90 border border-blue-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
                       <div className="text-center">
-                        <span>П</span><br/>
-                        <span className="text-sm">=</span><br/>
+                        <span>П</span><br />
+                        <span className="text-sm">=</span><br />
                         <span>Б</span>
                       </div>
                     </div>
@@ -300,8 +302,8 @@ export default function FinancePage() {
                   >
                     <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 border border-emerald-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
                       <div className="text-center">
-                        <span>Б</span><br/>
-                        <span className="text-sm">+</span><br/>
+                        <span>Б</span><br />
+                        <span className="text-sm">+</span><br />
                         <span>С</span>
                       </div>
                     </div>
@@ -332,47 +334,47 @@ export default function FinancePage() {
                     }}
                   >
                     {/* Top arrow (right direction) */}
-                    <path 
-                      d="M75 75 Q110 40 145 75" 
-                      stroke="url(#topGradient)" 
-                      strokeWidth="2.5" 
-                      fill="none" 
+                    <path
+                      d="M75 75 Q110 40 145 75"
+                      stroke="url(#topGradient)"
+                      strokeWidth="2.5"
+                      fill="none"
                       strokeLinecap="round"
                       strokeDasharray="6,4"
                     />
                     <polygon points="140,70 152,75 140,80" fill="url(#topGradientFill)" />
-                    
+
                     {/* Bottom arrow (left direction) */}
-                    <path 
-                      d="M145 145 Q110 180 75 145" 
-                      stroke="url(#bottomGradient)" 
-                      strokeWidth="2.5" 
-                      fill="none" 
+                    <path
+                      d="M145 145 Q110 180 75 145"
+                      stroke="url(#bottomGradient)"
+                      strokeWidth="2.5"
+                      fill="none"
                       strokeLinecap="round"
                       strokeDasharray="6,4"
                     />
                     <polygon points="80,150 68,145 80,140" fill="url(#bottomGradientFill)" />
-                    
+
                     {/* Gradients definitions */}
                     <defs>
                       <linearGradient id="topGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8"/>
-                        <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.8"/>
+                        <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.8" />
                       </linearGradient>
                       <linearGradient id="bottomGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#10B981" stopOpacity="0.8"/>
-                        <stop offset="100%" stopColor="#0D9488" stopOpacity="0.8"/>
+                        <stop offset="0%" stopColor="#10B981" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#0D9488" stopOpacity="0.8" />
                       </linearGradient>
                       <linearGradient id="topGradientFill" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#3B82F6"/>
-                        <stop offset="100%" stopColor="#06B6D4"/>
+                        <stop offset="0%" stopColor="#3B82F6" />
+                        <stop offset="100%" stopColor="#06B6D4" />
                       </linearGradient>
                       <linearGradient id="bottomGradientFill" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#10B981"/>
-                        <stop offset="100%" stopColor="#0D9488"/>
+                        <stop offset="0%" stopColor="#10B981" />
+                        <stop offset="100%" stopColor="#0D9488" />
                       </linearGradient>
                     </defs>
-                    
+
                     {/* Dollar sign in center */}
                     <text x="110" y="115" textAnchor="middle" fontSize="28" fill="#E5E7EB" fontWeight="bold" opacity="0.9">$</text>
                   </motion.svg>
@@ -395,7 +397,7 @@ export default function FinancePage() {
                     "Разнообразие и здоровая конкуренция",
                     "Минимизация ненужных затрат"
                   ].map((item, index) => (
-                    <motion.li 
+                    <motion.li
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -413,7 +415,7 @@ export default function FinancePage() {
         </div>
 
         {/* AI & Automation Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
@@ -482,7 +484,7 @@ export default function FinancePage() {
               </div>
             </div>
 
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.02 }}
               className="mt-10 p-6 rounded-2xl bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 text-center"
             >
@@ -497,7 +499,7 @@ export default function FinancePage() {
         </motion.div>
 
         {/* Core Principle */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
@@ -518,12 +520,12 @@ export default function FinancePage() {
             </div>
           </div>
 
-          <motion.div 
+          <motion.div
             whileHover={{ scale: 1.03 }}
             className="mt-12 max-w-3xl mx-auto p-6 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20"
           >
             <p className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-300">
-              Каждый покупатель — это Бенефициар.<br/>
+              Каждый покупатель — это Бенефициар.<br />
               Каждая покупка — это инвестиция в будущее.
             </p>
             <p className="mt-6 text-xl text-gray-300">
@@ -532,6 +534,7 @@ export default function FinancePage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => router.back()}
               className="mt-6 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-full shadow-lg"
             >
               Покупайте у себя! 🌐
