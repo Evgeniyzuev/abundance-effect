@@ -456,9 +456,14 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Base */}
                 {activeTab === 'base' && (
-                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500">
+                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500 bg-white">
                         <h2 className="text-2xl font-bold text-gray-800">Base Page</h2>
-                        <p className="text-gray-500 mt-2">Debugging layout issues...</p>
+                        <p className="text-gray-500 mt-2 mb-4">Testing image rendering...</p>
+                        <img
+                            src="https://blush-keen-constrictor-906.mypinata.cloud/ipfs/bafybeidrqqjj73obl35ceqeg7qoqmc2aphlvpuau57o7b3sd5zoz6ecjtq"
+                            alt="Test Base"
+                            className="w-64 h-auto rounded-xl shadow-lg border border-gray-100"
+                        />
                         {/* 
                         <div className="absolute inset-0 z-0 flex w-full overflow-hidden">
                             {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
@@ -491,9 +496,14 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Character */}
                 {activeTab === 'character' && (
-                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500">
+                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500 bg-white">
                         <h2 className="text-2xl font-bold text-gray-800">Character Page</h2>
-                        <p className="text-gray-500 mt-2">Debugging layout issues...</p>
+                        <p className="text-gray-500 mt-2 mb-4">Testing image rendering...</p>
+                        <img
+                            src="https://blush-keen-constrictor-906.mypinata.cloud/ipfs/bafybeidrqqjj73obl35ceqeg7qoqmc2aphlvpuau57o7b3sd5zoz6ecjtq"
+                            alt="Test Character"
+                            className="w-64 h-auto rounded-xl shadow-lg border border-gray-100"
+                        />
                         {/* 
                         <div className="absolute inset-0 z-0 flex w-full overflow-hidden">
                             {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
