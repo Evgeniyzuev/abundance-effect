@@ -528,8 +528,8 @@ function HomeContent() {
     }
   };
 
-  // If we should skip, and we are still loading user, show a minimal loading while we wait for auth to decide where to go
-  if (skipOnboarding === true && isLoading) {
+  // 1. Initial wait for localStorage check
+  if (skipOnboarding === null) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
@@ -537,8 +537,16 @@ function HomeContent() {
     );
   }
 
-  // Otherwise show onboarding immediately! 
-  // We don't wait for isLoading here.
+  // 2. If we should skip, we always show a loader while the redirect logic in useEffect runs
+  if (skipOnboarding === true) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+      </div>
+    );
+  }
+
+  // 3. Only show onboarding if skipOnboarding is explicitly false
   return (
     <div className="min-h-screen bg-white">
       <LanguageSelector />
