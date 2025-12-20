@@ -49,30 +49,32 @@ export default function WalletPage() {
                     </button>
                     <button
                         onClick={() => setActiveTab("core")}
-                        className={`flex items-center justify-center w-full h-full transition-all duration-500 ${activeTab === "core" ? "text-blue-600" : "text-gray-300 hover:text-gray-500"
+                        className={`flex items-center justify-center w-full h-full transition-all duration-500 ${activeTab === "core" ? "text-blue-600" : "text-blue-400/60 hover:text-blue-500"
                             }`}
                     >
                         <motion.div
-                            animate={activeTab === "core" ? {
+                            animate={{
                                 rotate: 360,
-                                scale: [1, 1.15, 1],
-                                filter: [
-                                    "drop-shadow(0 0 0px rgba(59, 130, 246, 0))",
-                                    "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
-                                    "drop-shadow(0 0 0px rgba(59, 130, 246, 0))"
-                                ]
-                            } : { rotate: 0, scale: 1, filter: "none" }}
-                            transition={activeTab === "core" ? {
-                                rotate: { duration: 8, repeat: Infinity, ease: "linear" },
-                                scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                                filter: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                            } : { duration: 0.3 }}
+                                scale: activeTab === "core" ? [1, 1.15, 1] : [1, 1.05, 1],
+                                opacity: activeTab === "core" ? 1 : 0.8,
+                                filter: activeTab === "core" ? [
+                                    "drop-shadow(0 0 2px rgba(59, 130, 246, 0.4))",
+                                    "drop-shadow(0 0 10px rgba(59, 130, 246, 0.8))",
+                                    "drop-shadow(0 0 2px rgba(59, 130, 246, 0.4))"
+                                ] : "drop-shadow(0 0 4px rgba(59, 130, 246, 0.15))"
+                            }}
+                            transition={{
+                                rotate: { duration: activeTab === "core" ? 8 : 20, repeat: Infinity, ease: "linear" },
+                                scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                                filter: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                                opacity: { duration: 0.5 }
+                            }}
                             className="flex items-center justify-center"
                         >
                             <Atom
                                 size={24}
-                                strokeWidth={activeTab === "core" ? 2.5 : 1.5}
-                                className={activeTab === "core" ? "text-blue-500" : "text-inherit"}
+                                strokeWidth={activeTab === "core" ? 2.5 : 2}
+                                className="text-blue-500"
                             />
                         </motion.div>
                     </button>
