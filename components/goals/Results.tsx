@@ -456,81 +456,63 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Base */}
                 {activeTab === 'base' && (
-                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500 bg-white">
-                        <h2 className="text-2xl font-bold text-gray-800">Base Page</h2>
-                        <p className="text-gray-500 mt-2 mb-4">Testing image rendering...</p>
-                        <img
-                            src="https://blush-keen-constrictor-906.mypinata.cloud/ipfs/bafybeidrqqjj73obl35ceqeg7qoqmc2aphlvpuau57o7b3sd5zoz6ecjtq"
-                            alt="Test Base"
-                            className="w-64 h-auto rounded-xl shadow-lg border border-gray-100"
+                    <div className="flex-1 relative bg-[#F2F2F7] overflow-hidden animate-in fade-in duration-500">
+                        <div
+                            className="absolute inset-0 transition-all duration-500"
+                            style={{
+                                backgroundImage: `url(${baseItem.image})`,
+                                backgroundSize: 'contain',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundColor: '#F2F2F7'
+                            }}
                         />
-                        {/* 
-                        <div className="absolute inset-0 z-0 flex w-full overflow-hidden">
-                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                            <div
-                                className="flex-1 relative bg-gray-100 transition-all duration-500"
-                                style={{
-                                    backgroundImage: `url(${baseItem.image})`,
-                                    backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
-                                    backgroundPosition: 'center',
-                                    backgroundRepeat: 'no-repeat'
+
+                        {BASE_BACKGROUNDS.length > 1 && (
+                            <button
+                                className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center space-x-2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-white/50 active:scale-95 transition-all z-10"
+                                onClick={() => {
+                                    const nextIndex = (baseIndex + 1) % BASE_BACKGROUNDS.length;
+                                    setBase(BASE_BACKGROUNDS[nextIndex].id);
                                 }}
                             >
-                                {BASE_BACKGROUNDS.length > 1 && (
-                                    <button
-                                        className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
-                                        onClick={() => {
-                                            const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
-                                            setBase(BASE_BACKGROUNDS[nextIndex].id);
-                                        }}
-                                    >
-                                        {(baseIndex >= 0 ? baseIndex : 0) + 1}
-                                    </button>
-                                )}
-                            </div>
-                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                        </div>
-                        */}
+                                <span className="font-bold text-gray-800">Base</span>
+                                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                                    {baseIndex + 1}/{BASE_BACKGROUNDS.length}
+                                </span>
+                            </button>
+                        )}
                     </div>
                 )}
 
                 {/* Character */}
                 {activeTab === 'character' && (
-                    <div className="flex flex-col items-center justify-center h-full pt-20 animate-in fade-in duration-500 bg-white">
-                        <h2 className="text-2xl font-bold text-gray-800">Character Page</h2>
-                        <p className="text-gray-500 mt-2 mb-4">Testing image rendering...</p>
-                        <img
-                            src="https://blush-keen-constrictor-906.mypinata.cloud/ipfs/bafybeidrqqjj73obl35ceqeg7qoqmc2aphlvpuau57o7b3sd5zoz6ecjtq"
-                            alt="Test Character"
-                            className="w-64 h-auto rounded-xl shadow-lg border border-gray-100"
+                    <div className="flex-1 relative bg-[#F2F2F7] overflow-hidden animate-in fade-in duration-500">
+                        <div
+                            className="absolute inset-0 transition-all duration-500"
+                            style={{
+                                backgroundImage: `url(${characterItem.image})`,
+                                backgroundSize: 'contain',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundColor: '#F2F2F7'
+                            }}
                         />
-                        {/* 
-                        <div className="absolute inset-0 z-0 flex w-full overflow-hidden">
-                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                            <div
-                                className="flex-1 relative bg-gray-100 transition-all duration-500"
-                                style={{
-                                    backgroundImage: `url(${characterItem.image})`,
-                                    backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
-                                    backgroundPosition: 'center',
-                                    backgroundRepeat: 'no-repeat'
+
+                        {CHARACTER_BACKGROUNDS.length > 1 && (
+                            <button
+                                className="absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center space-x-2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-white/50 active:scale-95 transition-all z-10"
+                                onClick={() => {
+                                    const nextIndex = (characterIndex + 1) % CHARACTER_BACKGROUNDS.length;
+                                    setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
                                 }}
                             >
-                                {CHARACTER_BACKGROUNDS.length > 1 && (
-                                    <button
-                                        className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
-                                        onClick={() => {
-                                            const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
-                                            setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
-                                        }}
-                                    >
-                                        {(characterIndex >= 0 ? characterIndex : 0) + 1}
-                                    </button>
-                                )}
-                            </div>
-                            {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
-                        </div>
-                        */}
+                                <span className="font-bold text-gray-800">Character</span>
+                                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                                    {characterIndex + 1}/{CHARACTER_BACKGROUNDS.length}
+                                </span>
+                            </button>
+                        )}
                     </div>
                 )}
 
