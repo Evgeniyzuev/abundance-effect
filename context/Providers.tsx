@@ -4,6 +4,7 @@ import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { TonPriceProvider } from './TonPriceContext'
 import { LanguageProvider } from './LanguageContext'
 import { UserProvider } from './UserContext'
+import { NotificationProvider } from './NotificationContext'
 import { LevelProvider } from './LevelProvider'
 
 interface ProvidersProps {
@@ -24,9 +25,11 @@ export function Providers({ children }: ProvidersProps) {
       <TonPriceProvider>
         <LanguageProvider>
           <UserProvider>
-            <LevelProvider>
-              {children}
-            </LevelProvider>
+            <NotificationProvider>
+              <LevelProvider>
+                {children}
+              </LevelProvider>
+            </NotificationProvider>
           </UserProvider>
         </LanguageProvider>
       </TonPriceProvider>

@@ -19,7 +19,7 @@ export default function TopNav({ activeTab, onTabChange }: TopNavProps) {
     ];
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200 pt-safe">
+        <div className="fixed top-12 left-0 right-0 z-[30] bg-white/80 backdrop-blur-lg border-b border-gray-100">
             <div className="flex justify-around items-center h-12">
                 {tabs.map((tab) => {
                     const Icon = tab.icon;

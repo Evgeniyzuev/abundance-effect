@@ -19,7 +19,7 @@ export default function FinancePage() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-gray-100 overflow-x-hidden">
+    <div className="min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-gray-100 overflow-x-hidden">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>

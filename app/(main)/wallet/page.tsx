@@ -38,7 +38,7 @@ export default function WalletPage() {
     return (
         <div className="flex flex-col h-full bg-white">
             {/* Icon Tabs */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 pt-safe">
+            <div className="fixed top-12 left-0 right-0 z-[30] bg-white border-b border-gray-100">
                 <div className="flex justify-around items-center h-12">
                     <button
                         onClick={() => setActiveTab("wallet")}

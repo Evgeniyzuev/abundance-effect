@@ -26,7 +26,7 @@ export default function GoalsPage() {
     };
 
     return (
-        <div className="m-0 h-screen flex flex-col bg-gray-50 overflow-hidden">
+        <div className="m-0 h-full flex flex-col bg-gray-50 overflow-hidden">
             <TopNav activeTab={activeTab} onTabChange={handleTabChange} />
 
             <div className="flex-1 pt-14 overflow-hidden relative flex flex-col">
