@@ -80,11 +80,13 @@ export default function ReferralPage() {
     return (
         <div className="flex flex-col h-full bg-white pb-20">
             {/* Header */}
-            <div className="px-6 pt-12 pb-6">
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Рефералы</h1>
-                <p className="mt-2 text-base text-gray-600">
-                    Приглашайте друзей и получайте награды
-                </p>
+            <div className="px-6 pt-safe pb-6">
+                <div className="pt-4">
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Рефералы</h1>
+                    <p className="mt-2 text-base text-gray-600">
+                        Приглашайте друзей и получайте награды
+                    </p>
+                </div>
             </div>
 
             {/* Stats Cards */}

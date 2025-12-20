@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
 import { useLevelCheck } from '@/hooks/useLevelCheck';
+import NotificationBell from '@/components/NotificationBell';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function SocialPage() {
     const { user, session, logout } = useUser();
@@ -48,8 +51,19 @@ export default function SocialPage() {
 
     return (
         <div className="flex flex-col h-full bg-white">
+            {/* Top Toolbar - only in Profile */}
+            <div className="px-6 pt-safe">
+                <div className="flex items-center justify-between h-14">
+                    <Link href="/" className="flex items-center gap-2">
+                        <Image src="/icon-192.png" alt="Logo" width={28} height={28} className="rounded-lg shadow-sm" />
+                        <span className="font-bold text-gray-900 tracking-tight">Abundance</span>
+                    </Link>
+                    <NotificationBell />
+                </div>
+            </div>
+
             {/* Header */}
-            <div className="px-6 pt-12 pb-6">
+            <div className="px-6 pt-4 pb-6">
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{t('profile.title')}</h1>
             </div>
 

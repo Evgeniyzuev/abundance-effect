@@ -19,7 +19,7 @@ export default function FinancePage() {
   }, []);
 
   return (
-    <div className="min-h-full bg-gray-50 text-gray-900 overflow-x-hidden">
+    <div className="min-h-full bg-gray-50 text-gray-900 overflow-x-hidden pt-safe">
       {/* Subtle light background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>

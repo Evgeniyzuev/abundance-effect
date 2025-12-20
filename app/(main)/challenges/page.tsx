@@ -114,13 +114,12 @@ export default function ChallengesPage() {
                                         await joinChallenge(challenge.id);
                                     }
                                 }}
-                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 flex items-center gap-1 ${
-                                    challenge.userParticipation?.status === 'completed'
+                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 flex items-center gap-1 ${challenge.userParticipation?.status === 'completed'
                                         ? 'bg-green-100 text-green-800'
                                         : challenge.userParticipation?.status === 'active'
                                             ? 'bg-blue-500 text-blue-800 hover:bg-blue-700' // Changed from blue-100 to blue-500 for better contrast
                                             : 'bg-blue-500 text-white hover:bg-blue-600'
-                                }`}
+                                    }`}
                                 disabled={challenge.userParticipation?.status === 'completed' || checkingChallenges.has(challenge.id)}
                             >
                                 {checkingChallenges.has(challenge.id) ? (
@@ -129,10 +128,10 @@ export default function ChallengesPage() {
                                         {t('challenges.checking')}
                                     </>
                                 ) : challenge.userParticipation?.status === 'completed'
-                                ? <CheckCircle className="w-3 h-3" />
-                                : challenge.userParticipation?.status === 'active'
-                                    ? t('challenges.check')
-                                    : t('challenges.join')
+                                    ? <CheckCircle className="w-3 h-3" />
+                                    : challenge.userParticipation?.status === 'active'
+                                        ? t('challenges.check')
+                                        : t('challenges.join')
                                 }
                             </button>
                         </div>
@@ -203,9 +202,9 @@ export default function ChallengesPage() {
     );
 
     return (
-        <div className="pb-20 px-4">
+        <div className="pb-20 px-4 pt-safe">
             {/* Page Header */}
-            <div className="pt-6 pb-4 flex items-center justify-between">
+            <div className="pt-4 pb-4 flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-gray-900">{t('challenges.page_title')}</h1>
                 <button
                     onClick={() => fetchChallenges()}

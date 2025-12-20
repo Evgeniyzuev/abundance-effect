@@ -38,7 +38,7 @@ export default function WalletPage() {
     return (
         <div className="flex flex-col h-full bg-white">
             {/* Icon Tabs */}
-            <div className="fixed top-12 left-0 right-0 z-[30] bg-white border-b border-gray-100">
+            <div className="fixed top-0 left-0 right-0 z-[30] bg-white border-b border-gray-100 pt-safe">
                 <div className="flex justify-around items-center h-12">
                     <button
                         onClick={() => setActiveTab("wallet")}
@@ -82,29 +82,32 @@ export default function WalletPage() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto pt-14 pb-20">
-                {activeTab === "wallet" ? (
-                    <WalletTab
-                        walletBalance={walletBalance}
-                        onTopUp={() => setIsTopUpModalOpen(true)}
-                        onTransfer={() => setIsTransferModalOpen(true)}
-                        onSend={() => setIsSendModalOpen(true)}
-                        onWithdraw={() => setIsWithdrawModalOpen(true)}
-                        userId={user?.id || null}
-                        loading={loading}
-                        error={error}
-                    />
-                ) : (
-                    <CoreTab
-                        coreBalance={coreBalance}
-                        reinvestPercentage={reinvestPercentage}
-                        userId={user?.id || null}
-                        onTransfer={() => setIsTransferModalOpen(true)}
-                        onReinvestUpdate={handleReinvestUpdate}
-                        loading={loading}
-                        error={error}
-                    />
-                )}
+            <div className="flex-1 overflow-y-auto pt-safe pb-20">
+                <div className="pt-12">
+
+                    {activeTab === "wallet" ? (
+                        <WalletTab
+                            walletBalance={walletBalance}
+                            onTopUp={() => setIsTopUpModalOpen(true)}
+                            onTransfer={() => setIsTransferModalOpen(true)}
+                            onSend={() => setIsSendModalOpen(true)}
+                            onWithdraw={() => setIsWithdrawModalOpen(true)}
+                            userId={user?.id || null}
+                            loading={loading}
+                            error={error}
+                        />
+                    ) : (
+                        <CoreTab
+                            coreBalance={coreBalance}
+                            reinvestPercentage={reinvestPercentage}
+                            userId={user?.id || null}
+                            onTransfer={() => setIsTransferModalOpen(true)}
+                            onReinvestUpdate={handleReinvestUpdate}
+                            loading={loading}
+                            error={error}
+                        />
+                    )}
+                </div>
             </div>
 
             {/* Modals */}
@@ -144,4 +147,5 @@ export default function WalletPage() {
             )}
         </div>
     );
+
 }
