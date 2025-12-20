@@ -199,7 +199,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             setModalOpen(true);
             return;
         }
-        
+
 
         setModalTitle(item.title);
         setModalContent(
@@ -298,8 +298,8 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                             className={`
                                 flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300
                                 ${isActive
-                                    ? 'bg-blue-500/80 text-white shadow-lg shadow-blue-500/30 scale-110 backdrop-blur-sm'
-                                    : 'bg-white/30 text-gray-600 hover:bg-white/50 hover:text-blue-500 hover:scale-105 shadow-sm backdrop-blur-sm'
+                                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30 scale-110 active:scale-95'
+                                    : 'bg-white/80 backdrop-blur-md text-gray-500 hover:bg-white hover:text-blue-500 shadow-sm'
                                 }
                             `}
                             title={tab.title}
@@ -443,17 +443,19 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         <div
                             className="flex-1 relative bg-gray-200 transition-all duration-500"
                             style={{
-                                backgroundImage: BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0]?.image ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})` : 'none',
+                                backgroundImage: BASE_BACKGROUNDS?.[baseIndex >= 0 ? baseIndex : 0]?.image ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})` : 'none',
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat'
                             }}
                         >
                             <button
-                                className="absolute bottom-8 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
                                 onClick={() => {
-                                    const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
-                                    setBase(BASE_BACKGROUNDS[nextIndex].id);
+                                    if (BASE_BACKGROUNDS.length > 0) {
+                                        const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
+                                        setBase(BASE_BACKGROUNDS[nextIndex].id);
+                                    }
                                 }}
                             >
                                 {(baseIndex >= 0 ? baseIndex : 0) + 1}
@@ -470,17 +472,19 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         <div
                             className="flex-1 relative bg-gray-200 transition-all duration-500"
                             style={{
-                                backgroundImage: CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0]?.image ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})` : 'none',
+                                backgroundImage: CHARACTER_BACKGROUNDS?.[characterIndex >= 0 ? characterIndex : 0]?.image ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})` : 'none',
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat'
                             }}
                         >
                             <button
-                                className="absolute bottom-8 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
                                 onClick={() => {
-                                    const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
-                                    setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
+                                    if (CHARACTER_BACKGROUNDS.length > 0) {
+                                        const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
+                                        setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
+                                    }
                                 }}
                             >
                                 {(characterIndex >= 0 ? characterIndex : 0) + 1}
