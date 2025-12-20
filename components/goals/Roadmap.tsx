@@ -3,16 +3,14 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useUser } from '@/context/UserContext';
 import { useLevelCheck } from '@/hooks/useLevelCheck';
 import { createClient } from '@/utils/supabase/client';
-import { translations } from '@/utils/translations';
 import { motion } from 'framer-motion';
 
 export default function Roadmap() {
-    const { language } = useLanguage();
+    const { t } = useLanguage();
     const { user } = useUser();
     const { levelThresholds } = useLevelCheck();
     const supabase = createClient();
-    const t = (key: keyof typeof translations['en']) => translations[language][key] || key;
-    
+
     const [mapImage, setMapImage] = useState<string>('/images/roadmap_bg.png');
 
     // Load map background from game_items
@@ -124,7 +122,7 @@ export default function Roadmap() {
                         {/* Yellow Triangle Navigator Icon */}
                         <div className="relative text-yellow-400 p-6">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 2 L18 16 C18 18 16.5 20 15 20 L9 20 C7.5 20 6 18 6 16 L12 2 Z" fill="currentColor" stroke="currentColor"/>
+                                <path d="M12 2 L18 16 C18 18 16.5 20 15 20 L9 20 C7.5 20 6 18 6 16 L12 2 Z" fill="currentColor" stroke="currentColor" />
                             </svg>
                         </div>
 
