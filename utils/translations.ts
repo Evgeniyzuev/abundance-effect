@@ -263,7 +263,8 @@ export type TranslationKey =
     | 'onboarding.cta_description'
     | 'onboarding.get_started'
     | 'onboarding.start_path' // MISSING: all languages
-    | 'onboarding.continue'; // MISSING: all languages
+    | 'onboarding.continue'
+    | 'onboarding.dont_show_again'; // MISSING: all languages
 
 export const translations: { [key in Language]: Partial<{ [key in TranslationKey]: string }> } = {
     en: {
@@ -518,6 +519,7 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.proven_strategies': 'Proven Strategies',
         'onboarding.expert_insights': 'Real Data',
         'onboarding.continue': 'Forward!',
+        'onboarding.dont_show_again': "Don't show again",
     },
     zh: {
         // Goals
@@ -771,6 +773,7 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.proven_strategies': '经过验证的策略',
         'onboarding.expert_insights': '真实数据',
         'onboarding.continue': '前进！',
+        'onboarding.dont_show_again': '不再显示',
     },
     es: {
         // Goals
@@ -1015,6 +1018,7 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.proven_strategies': 'Estrategias Probadas',
         'onboarding.expert_insights': 'Datos Reales',
         'onboarding.continue': '¡Adelante!',
+        'onboarding.dont_show_again': 'No volver a mostrar',
     },
     hi: {
         // Goals
@@ -1259,6 +1263,7 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.proven_strategies': 'सिद्ध रणनीतियाँ',
         'onboarding.expert_insights': 'वास्तविक डेटा',
         'onboarding.continue': 'आगे बढ़ें!',
+        'onboarding.dont_show_again': 'दोबारा न दिखाएं',
     },
     ar: {
         // Goals
@@ -1483,6 +1488,7 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.proven_strategies': 'استراتيجيات مثبتة',
         'onboarding.expert_insights': 'بيانات حقيقية',
         'onboarding.continue': 'إلى الأمام!',
+        'onboarding.dont_show_again': 'عدم الإظهار مرة أخرى',
     },
     ru: {
         // Goals
@@ -1735,6 +1741,7 @@ export const translations: { [key in Language]: Partial<{ [key in TranslationKey
         'onboarding.exclusive_content': 'Подробные инструкции', // MISSING: all languages
         'onboarding.proven_strategies': 'Работающие практики', // MISSING: all languages
         'onboarding.expert_insights': 'Реальные данные', // MISSING: all languages
-        'onboarding.continue': 'Вперед!', // MISSING: all languages
+        'onboarding.continue': 'Вперед!',
+        'onboarding.dont_show_again': 'Не показывать снова', // MISSING: all languages
     },
 };

@@ -9,6 +9,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { languages } from '@/utils/translations';
 import { Shield, Globe, Heart } from 'lucide-react';
 
+const ONBOARDING_SKIP_KEY = 'abundance_skip_onboarding';
+
 function LanguageSelector() {
   const { language, setLanguage, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +24,7 @@ function LanguageSelector() {
         <span className="text-lg">🌐</span>
         <span className="hidden sm:inline">{languages[language]}</span>
       </button>
-      
+
       {isOpen && (
         <div className="absolute top-12 right-0 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-2 min-w-48">
           <div className="text-xs font-medium text-gray-500 mb-2 px-3 py-1">
@@ -35,11 +37,10 @@ function LanguageSelector() {
                 setLanguage(code as any);
                 setIsOpen(false);
               }}
-              className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${
-                language === code
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
+              className={`w-full text-left px-3 py-2 rounded-xl text-sm transition-colors ${language === code
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-700 hover:bg-gray-100'
+                }`}
             >
               {name}
             </button>
@@ -50,13 +51,27 @@ function LanguageSelector() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ isSkipChecked, onSkipToggle }: { isSkipChecked: boolean, onSkipToggle: (val: boolean) => void }) {
   const { t } = useLanguage();
   const { user } = useUser();
-  
+
   return (
     <section className="py-16 px-6 bg-gradient-to-br from-amber-50 to-orange-50">
-      <div className="max-w-3xl mx-auto text-center">
+      <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+        {/* Skip Checkbox */}
+        <div className="mb-8 p-1">
+          <label className="flex items-center gap-3 cursor-pointer group bg-white/50 hover:bg-white/80 transition-all px-4 py-2 rounded-full border border-orange-100 hover:border-orange-200">
+            <input
+              type="checkbox"
+              checked={isSkipChecked}
+              onChange={(e) => onSkipToggle(e.target.checked)}
+              className="w-5 h-5 rounded-lg border-2 border-orange-200 text-amber-500 focus:ring-amber-500 transition-all cursor-pointer"
+            />
+            <span className="text-sm font-semibold text-orange-800 group-hover:text-orange-900 transition-colors">
+              {t('onboarding.dont_show_again')}
+            </span>
+          </label>
+        </div>
         {/* Logo */}
         <div className="mb-6">
           <Image
@@ -67,23 +82,23 @@ function HeroSection() {
             className="mx-auto rounded-2xl shadow-lg"
           />
         </div>
-        
+
         {/* Bright Title */}
         <h1 className="text-4xl lg:text-6xl font-bold mb-6 tracking-tight bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
           {t('onboarding.hero_title')}
         </h1>
-        
+
         {/* Subtitle */}
         <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-8">
           {t('onboarding.hero_subtitle')}
         </p>
-        
+
         {/* Start Button */}
         <Link
           href={
             !user ? "/login" :
-            user.aicore_balance === 0 ? "/core-creation" :
-            "/challenges"
+              user.aicore_balance === 0 ? "/core-creation" :
+                "/challenges"
           }
           className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
         >
@@ -97,7 +112,7 @@ function HeroSection() {
 
 function ProgramSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -112,7 +127,7 @@ function ProgramSection() {
             {t('onboarding.program_description')}
           </p>
         </div>
-        
+
         {/* Double Layout - Level 1 and Level 20 */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-2xl text-center">
@@ -126,7 +141,7 @@ function ProgramSection() {
             <div className="text-sm text-gray-600 mt-1">$1 000 000</div>
           </div>
         </div>
-        
+
         {/* Emotion cards */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="bg-red-50 p-4 rounded-xl text-center">
@@ -145,7 +160,7 @@ function ProgramSection() {
 
 function ChallengesSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
@@ -160,7 +175,7 @@ function ChallengesSection() {
             {t('onboarding.challenges_description')}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-orange-50 p-4 rounded-xl">
             <div className="text-2xl mb-2">🏆</div>
@@ -186,7 +201,7 @@ function ChallengesSection() {
 
 function AiCoreSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -201,7 +216,7 @@ function AiCoreSection() {
             {t('onboarding.ai_core_description')}
           </p>
         </div>
-        
+
         <div className="bg-indigo-900 p-6 rounded-2xl text-white">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -230,7 +245,7 @@ function AiCoreSection() {
 
 function SuccessStoriesSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
@@ -245,7 +260,7 @@ function SuccessStoriesSection() {
             {t('onboarding.success_description')}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-orange-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-2">📖</div>
@@ -263,7 +278,7 @@ function SuccessStoriesSection() {
 
 function WishesSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-pink-50">
       <div className="max-w-4xl mx-auto">
@@ -278,7 +293,7 @@ function WishesSection() {
             {t('onboarding.wishes_description')}
           </p>
         </div>
-        
+
         <div className="space-y-4">
           <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
             <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center">
@@ -306,7 +321,7 @@ function WishesSection() {
 
 function BusinessSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -321,7 +336,7 @@ function BusinessSection() {
             {t('onboarding.business_description')}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-blue-50 p-6 rounded-2xl text-center">
             <div className="text-4xl mb-2">💼</div>
@@ -341,7 +356,7 @@ function BusinessSection() {
 
 function PayYourselfSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
@@ -356,7 +371,7 @@ function PayYourselfSection() {
             {t('onboarding.pay_first_description')}
           </p>
         </div>
-        
+
         <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-2xl text-center">
           <div className="text-4xl mb-3">💸</div>
           <div className="text-lg font-semibold text-gray-800">{t('onboarding.invest_earn_grow')}</div>
@@ -368,13 +383,13 @@ function PayYourselfSection() {
 
 function ValuesSection() {
   const { t } = useLanguage();
-  
+
   const values = [
     { icon: <Shield className="w-8 h-8" />, label: t('onboarding.value_security') },
     { icon: <Globe className="w-8 h-8" />, label: t('onboarding.value_sustainability') },
     { icon: <Heart className="w-8 h-8" />, label: t('onboarding.value_independence') }
   ];
-  
+
   return (
     <section className="py-12 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -389,7 +404,7 @@ function ValuesSection() {
             {t('onboarding.values_description')}
           </p>
         </div>
-        
+
         <div className="grid grid-cols-3 gap-4">
           {values.map((item, i) => (
             <div key={i} className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-2xl">
@@ -407,7 +422,7 @@ function ValuesSection() {
 
 function LearningSection() {
   const { t } = useLanguage();
-  
+
   return (
     <section className="py-12 px-6 bg-gray-50">
       <div className="max-w-4xl mx-auto">
@@ -419,7 +434,7 @@ function LearningSection() {
             {t('onboarding.learning_description')}
           </p>
         </div>
-        
+
         <div className="flex flex-wrap gap-4">
           <div className="bg-white p-4 rounded-xl shadow-sm border">
             <div className="text-2xl mb-2">📚</div>
@@ -439,10 +454,10 @@ function LearningSection() {
   );
 }
 
-function CtaSection() {
+function CtaSection({ isSkipChecked, onSkipToggle }: { isSkipChecked: boolean, onSkipToggle: (val: boolean) => void }) {
   const { t } = useLanguage();
   const { user } = useUser();
-  
+
   return (
     <section className="py-16 px-6 bg-gradient-to-r from-amber-500 to-orange-500">
       <div className="max-w-3xl mx-auto text-center text-white">
@@ -452,17 +467,32 @@ function CtaSection() {
         <p className="text-xl mb-8 opacity-90 leading-relaxed">
           {t('onboarding.cta_description')}
         </p>
-        <Link
-          href={
-            !user ? "/login" :
-            user.aicore_balance === 0 ? "/core-creation" :
-            "/challenges"
-          }
-          className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
-        >
-          <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
-          <span className="text-xl">{user ? '🎯' : '🚀'}</span>
-        </Link>
+
+        <div className="flex flex-col items-center gap-6">
+          <Link
+            href={
+              !user ? "/login" :
+                user.aicore_balance === 0 ? "/core-creation" :
+                  "/challenges"
+            }
+            className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            <span>{user ? t('onboarding.continue') : t('onboarding.start_path')}</span>
+            <span className="text-xl">{user ? '🎯' : '🚀'}</span>
+          </Link>
+
+          <label className="flex items-center gap-3 cursor-pointer group bg-white/10 hover:bg-white/20 transition-all px-4 py-2 rounded-full border border-white/20 hover:border-white/40">
+            <input
+              type="checkbox"
+              checked={isSkipChecked}
+              onChange={(e) => onSkipToggle(e.target.checked)}
+              className="w-5 h-5 rounded-lg border-2 border-white/40 text-white bg-transparent focus:ring-white transition-all cursor-pointer"
+            />
+            <span className="text-sm font-semibold text-white group-hover:text-white transition-colors">
+              {t('onboarding.dont_show_again')}
+            </span>
+          </label>
+        </div>
       </div>
     </section>
   );
@@ -472,39 +502,48 @@ function HomeContent() {
   const { user, isLoading } = useUser();
   const { t } = useLanguage();
   const router = useRouter();
-  const [skipOnboarding, setSkipOnboarding] = useState(false);
-
-  const ONBOARDING_SKIP_KEY = 'abundance_skip_onboarding';
+  const [skipOnboarding, setSkipOnboarding] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const skipOnboardingValue = localStorage.getItem(ONBOARDING_SKIP_KEY);
-      if (skipOnboardingValue === 'true') {
-        setSkipOnboarding(true);
-      }
+      const skipValue = localStorage.getItem(ONBOARDING_SKIP_KEY) === 'true';
+      setSkipOnboarding(skipValue);
     }
   }, []);
 
-  // Removed automatic redirect logic - let users complete onboarding first
+  useEffect(() => {
+    // Redirect logic: only if skipOnboarding is true AND user state is determined
+    if (skipOnboarding === true && !isLoading) {
+      const destination = !user ? "/login" :
+        user.aicore_balance === 0 ? "/core-creation" :
+          "/challenges";
+      router.replace(destination);
+    }
+  }, [skipOnboarding, isLoading, user, router]);
 
-  if (isLoading) {
+  const handleSkipToggle = (val: boolean) => {
+    setSkipOnboarding(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ONBOARDING_SKIP_KEY, val ? 'true' : 'false');
+    }
+  };
+
+  // If we should skip, and we are still loading user, show a minimal loading while we wait for auth to decide where to go
+  if (skipOnboarding === true && isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="text-gray-900 text-xl mb-4 font-medium">
-            {t('common.loading')}
-          </div>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto"></div>
-        </div>
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
       </div>
     );
   }
 
+  // Otherwise show onboarding immediately! 
+  // We don't wait for isLoading here.
   return (
     <div className="min-h-screen bg-white">
       <LanguageSelector />
-      
-      <HeroSection />
+
+      <HeroSection isSkipChecked={!!skipOnboarding} onSkipToggle={handleSkipToggle} />
       <ProgramSection />
       <ChallengesSection />
       <AiCoreSection />
@@ -514,8 +553,8 @@ function HomeContent() {
       <PayYourselfSection />
       <ValuesSection />
       <LearningSection />
-      <CtaSection />
-      
+      <CtaSection isSkipChecked={!!skipOnboarding} onSkipToggle={handleSkipToggle} />
+
       <footer className="py-8 px-6 bg-gray-900 text-center">
         <div className="text-gray-400 text-sm">
           © 2024 Abundance Effect
