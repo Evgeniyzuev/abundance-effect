@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, Sparkles, Target, Award, Brain, Heart, TrendingUp, Users, Shield, Globe } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function FinancePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [animationStep, setAnimationStep] = useState(0);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function FinancePage() {
             transition={{ duration: 0.6 }}
             className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900"
           >
-            Экономика участия
+            {t('finance.title')}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -41,7 +43,7 @@ export default function FinancePage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl mt-4 text-gray-500 max-w-2xl mx-auto"
           >
-            Как ваша покупка либо углубляет кризис — либо создаёт изобилие для всех
+            {t('finance.hero_subtitle')}
           </motion.p>
         </div>
       </header>
@@ -59,8 +61,8 @@ export default function FinancePage() {
             <div className="p-6 md:p-8">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Старая модель</h2>
-                  <p className="text-sm text-gray-500 mt-1">Линейная экономика</p>
+                  <h2 className="text-xl font-bold text-gray-900">{t('finance.old_model_title')}</h2>
+                  <p className="text-sm text-gray-500 mt-1">{t('finance.old_model_subtitle')}</p>
                 </div>
                 <div className="p-2 bg-red-50 rounded-xl">
                   <Shield className="w-5 h-5 text-red-500" />
@@ -82,7 +84,7 @@ export default function FinancePage() {
                     >
                       👤
                     </motion.div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Покупатель</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('finance.buyer')}</span>
                   </div>
 
                   {/* Business */}
@@ -90,7 +92,7 @@ export default function FinancePage() {
                     <div className="w-16 h-16 rounded-2xl bg-white shadow-md border border-gray-100 flex items-center justify-center text-2xl">
                       🏢
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Бизнес</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('finance.business')}</span>
                   </div>
 
                   {/* Beneficiary */}
@@ -104,7 +106,7 @@ export default function FinancePage() {
                     >
                       👑
                     </motion.div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Бенефициар</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{t('finance.beneficiary')}</span>
                   </div>
                 </div>
 
@@ -138,21 +140,21 @@ export default function FinancePage() {
                   className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-center"
                 >
                   <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-bold text-lg">!</div>
-                  <span className="text-[8px] text-red-500 font-bold mt-1">ТУПИК</span>
+                  <span className="text-[8px] text-red-500 font-bold mt-1">{t('finance.dead_end')}</span>
                 </motion.div>
               </div>
 
               {/* Problems list */}
               <div className="space-y-3">
                 <h3 className="font-bold text-sm text-gray-900 flex items-center">
-                  Последствия:
+                  {t('finance.consequences_title')}
                 </h3>
                 <div className="grid grid-cols-1 gap-2">
                   {[
-                    "Деньги уходят из семейного бюджета навсегда",
-                    "Рост цен из-за затрат на рекламу и лоббизм",
-                    "Вас заменяют на ИИ без компенсации",
-                    "Экономические кризисы каждые 10 лет"
+                    t('finance.consequence_1'),
+                    t('finance.consequence_2'),
+                    t('finance.consequence_3'),
+                    t('finance.consequence_4')
                   ].map((item, index) => (
                     <div key={index} className="flex gap-3 items-start text-sm text-gray-600 p-3 bg-red-50/50 rounded-xl">
                       <span className="text-red-500 mt-0.5">✕</span>
@@ -173,8 +175,8 @@ export default function FinancePage() {
             <div className="p-6 md:p-8">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Новая модель</h2>
-                  <p className="text-sm text-emerald-600 mt-1">Экономика участия</p>
+                  <h2 className="text-xl font-bold text-gray-900">{t('finance.new_model_title')}</h2>
+                  <p className="text-sm text-emerald-600 mt-1">{t('finance.new_model_subtitle')}</p>
                 </div>
                 <div className="p-2 bg-emerald-50 rounded-xl">
                   <Sparkles className="w-5 h-5 text-emerald-600" />
@@ -197,10 +199,10 @@ export default function FinancePage() {
                     >
                       👤
                       <div className="absolute -right-1 -top-1 bg-emerald-500 text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold">
-                        БЕНЕФИЦИАР
+                        {t('finance.beneficiary_badge')}
                       </div>
                     </motion.div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Я-Бизнес</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{t('finance.i_business')}</span>
                   </div>
 
                   {/* Infinite Symbol or Flow */}
@@ -222,7 +224,7 @@ export default function FinancePage() {
                     >
                       🌐
                     </motion.div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Сообщество</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{t('finance.community')}</span>
                   </div>
                 </div>
 
@@ -244,21 +246,21 @@ export default function FinancePage() {
                   className="absolute left-1/2 top-4 -translate-x-1/2 bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest flex items-center gap-1"
                 >
                   <TrendingUp className="w-3 h-3" />
-                  Постоянный рост
+                  {t('finance.constant_growth')}
                 </motion.div>
               </div>
 
               {/* Benefits list */}
               <div className="space-y-3">
                 <h3 className="font-bold text-sm text-gray-900 flex items-center">
-                  Преимущества:
+                  {t('finance.benefits_title')}
                 </h3>
                 <div className="grid grid-cols-1 gap-2">
                   {[
-                    "Каждая покупка — это инвестиция в ваше Будущее",
-                    "Деньги циркулируют внутри сообщества",
-                    "ИИ работает на вас как на Совладельца",
-                    "Изобилие через участие и прозрачность"
+                    t('finance.benefit_1'),
+                    t('finance.benefit_2'),
+                    t('finance.benefit_3'),
+                    t('finance.benefit_4')
                   ].map((item, index) => (
                     <div key={index} className="flex gap-3 items-start text-sm text-gray-600 p-3 bg-emerald-50/50 rounded-xl">
                       <span className="text-emerald-500 mt-0.5">✓</span>
@@ -280,10 +282,10 @@ export default function FinancePage() {
           <div className="p-6 md:p-12">
             <div className="text-center mb-10">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                ИИ и Автоматизация: угроза или решение?
+                {t('finance.ai_title')}
               </h2>
               <p className="text-sm md:text-md text-gray-500 mt-3 max-w-2xl mx-auto leading-relaxed">
-                Технологии сами по себе нейтральны — всё зависит от экономической системы, в которой они работают
+                {t('finance.ai_subtitle')}
               </p>
             </div>
 
@@ -294,14 +296,14 @@ export default function FinancePage() {
                   <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
                     ✕
                   </div>
-                  <h3 className="font-bold text-gray-900">В старой модели</h3>
+                  <h3 className="font-bold text-gray-900">{t('finance.ai_old_title')}</h3>
                 </div>
                 <ul className="space-y-3">
                   {[
-                    "ИИ заменяет людей → массовая безработица",
-                    "Прибыль уходит только бенефициарам",
-                    "Рост неравенства и контроля",
-                    "Люди становятся «лишними»"
+                    t('finance.ai_old_list_1'),
+                    t('finance.ai_old_list_2'),
+                    t('finance.ai_old_list_3'),
+                    t('finance.ai_old_list_4')
                   ].map((item, i) => (
                     <li key={i} className="flex gap-2 text-sm text-gray-600 leading-snug">
                       <span className="text-red-400">•</span>
@@ -317,14 +319,14 @@ export default function FinancePage() {
                   <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
                     ✓
                   </div>
-                  <h3 className="font-bold text-gray-900">В модели участия</h3>
+                  <h3 className="font-bold text-gray-900">{t('finance.ai_new_title')}</h3>
                 </div>
                 <ul className="space-y-3">
                   {[
-                    "ИИ освобождает от рутины",
-                    "Автоматизация снижает цены для всех",
-                    "Доходы распределяются среди участников",
-                    "Технологии служат человеку"
+                    t('finance.ai_new_list_1'),
+                    t('finance.ai_new_list_2'),
+                    t('finance.ai_new_list_3'),
+                    t('finance.ai_new_list_4')
                   ].map((item, i) => (
                     <li key={i} className="flex gap-2 text-sm text-gray-600 leading-snug">
                       <span className="text-emerald-400">•</span>
@@ -337,10 +339,10 @@ export default function FinancePage() {
 
             <div className="mt-8 p-6 rounded-2xl bg-indigo-50 border border-indigo-100 text-center">
               <p className="text-lg font-bold text-indigo-900">
-                ИИ не уничтожает работу — он уничтожает <span className="text-red-500 line-through">старую модель</span>
+                {t('finance.ai_conclusion_1')} <span className="text-red-500 line-through">{t('finance.ai_conclusion_old_model')}</span>
               </p>
               <p className="mt-2 text-sm text-indigo-700">
-                В экономике участия технологии делают нас лучше, свободнее и счастливее.
+                {t('finance.ai_conclusion_2')}
               </p>
             </div>
           </div>
@@ -349,16 +351,16 @@ export default function FinancePage() {
         {/* Action Section */}
         <div className="mt-16 text-center space-y-8">
           <div className="inline-flex flex-col items-center bg-gray-50 p-8 rounded-3xl border border-gray-100 w-full max-w-2xl">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Главное отличие одним взглядом</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-6">{t('finance.differences_title')}</h3>
             <div className="flex flex-col md:flex-row items-center gap-10">
               <div className="flex flex-col items-center gap-2">
                 <div className="text-3xl">👤 ➔ 💰 ➔ 🏢</div>
-                <span className="text-xs text-red-500 font-bold uppercase tracking-widest">Прощайте, деньги</span>
+                <span className="text-xs text-red-500 font-bold uppercase tracking-widest">{t('finance.goodbye_money')}</span>
               </div>
               <div className="hidden md:block text-2xl text-gray-300">➔</div>
               <div className="flex flex-col items-center gap-2">
                 <div className="text-3xl text-emerald-600">👤 🔄 💰 🔄 🏢</div>
-                <span className="text-xs text-emerald-600 font-bold uppercase tracking-widest">Деньги возвращаются</span>
+                <span className="text-xs text-emerald-600 font-bold uppercase tracking-widest">{t('finance.money_returns')}</span>
               </div>
             </div>
           </div>
@@ -368,14 +370,14 @@ export default function FinancePage() {
             className="max-w-xl mx-auto space-y-6"
           >
             <h4 className="text-xl md:text-2xl font-extrabold text-gray-900">
-              Вы в праве решать, в какую экономику вкладывать свою жизнь.
+              {t('finance.cta_title')}
             </h4>
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => router.back()}
               className="w-full sm:w-auto px-10 py-5 bg-gray-900 text-white font-bold rounded-2xl shadow-xl hover:bg-black transition-colors flex items-center justify-center gap-3"
             >
-              <span>Покупайте у себя!</span>
+              <span>{t('finance.buy_at_home')}</span>
               <Globe className="w-5 h-5" />
             </motion.button>
           </motion.div>
@@ -383,7 +385,7 @@ export default function FinancePage() {
       </main>
 
       <footer className="py-12 border-t border-gray-100 text-center text-gray-400 text-xs">
-        <p>© 2024 Abundance Effect. Экономика участия — когда технологии служат человечеству.</p>
+        <p>{t('finance.footer_text')}</p>
       </footer>
     </div>
   );
