@@ -56,5 +56,13 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
         return false;
       }
     }
+  },
+  'calculate_time_to_goal': {
+    description: 'Check if user used the goal calculator',
+    verify: async (userId: string, challengeData: any, supabase: any) => {
+      // For this challenge, we trust the client-side trigger that marks it as completed
+      // The server action updateParticipationAction will call this verify function.
+      return true;
+    }
   }
 };

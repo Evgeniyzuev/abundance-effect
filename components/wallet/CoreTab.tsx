@@ -10,6 +10,7 @@ import CoreHistory from "./CoreHistory"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/context/LanguageContext"
 import { useUser } from "@/context/UserContext"
+import { useChallenges } from "@/hooks/useChallenges"
 
 interface CoreTabProps {
     coreBalance: number
@@ -25,6 +26,7 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
     const { t } = useLanguage()
     const { levelThresholds } = useLevelCheck()
     const { user } = useUser()
+    const { challengesWithParticipation, updateParticipation } = useChallenges()
     const [reinvestInputValue, setReinvestInputValue] = useState(reinvestPercentage.toString())
     const [isReinvestChanged, setIsReinvestChanged] = useState(false)
     const [startCore, setStartCore] = useState(coreBalance.toString())
@@ -174,11 +176,22 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
     }
 
     // Calculate time to target
-    const calculateTimeToTarget = () => {
+    const calculateTimeToTarget = async () => {
         if (!targetCoreAmount || Number(targetCoreAmount) <= coreBalance) return
 
         const days = findDaysToTarget(Number(targetCoreAmount))
         setTimeToTarget(days)
+
+        // Check if user has the "Calculate Time to Goal" challenge active
+        const challengeToComplete = challengesWithParticipation.find(
+            c => c.verification_logic === 'calculate_time_to_goal' &&
+                c.userParticipation?.status === 'active'
+        );
+
+        if (challengeToComplete) {
+            console.log('Completing calculate_time_to_goal challenge...');
+            await updateParticipation(challengeToComplete.id, 'completed');
+        }
     }
 
     const { currentLevel, nextLevelThreshold, progressPercentage } = calculateLevelProgress(coreBalance, user?.level || 0)
