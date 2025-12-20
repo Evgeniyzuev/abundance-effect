@@ -6,6 +6,7 @@ import { useChallenges } from '@/hooks/useChallenges';
 import { getChallengeTitle, getChallengeOwnerName, formatChallengeReward, getChallengeTypeName } from '@/utils/challengeTranslations';
 import { CheckCircle, Users, Trophy, Atom, Loader2, RotateCcw } from 'lucide-react';
 import { ChallengeCompletionModal } from '@/components/ChallengesCompletionModal';
+import { ChallengeDetailModal } from '@/components/ChallengeDetailModal';
 
 type ChallengeSection = 'available' | 'accepted' | 'completed';
 
@@ -23,6 +24,11 @@ export default function ChallengesPage() {
     } = useChallenges();
 
     const [expandedSection, setExpandedSection] = useState<ChallengeSection>('available');
+    const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
+
+    const selectedChallenge = selectedChallengeId
+        ? challengesWithParticipation.find(c => c.id === selectedChallengeId)
+        : null;
 
     // Filter challenges by status
     const availableChallenges = challengesWithParticipation.filter(challenge =>
@@ -70,7 +76,10 @@ export default function ChallengesPage() {
             : null;
 
         return (
-            <div className="ios-card p-1 mb-2 relative">
+            <div
+                onClick={() => setSelectedChallengeId(challenge.id)}
+                className="ios-card p-1 mb-2 relative cursor-pointer active:opacity-70 transition-opacity"
+            >
                 {/* Challenge image - positioned absolutely to be full height and extend outside padding */}
                 <div className="absolute left-0 top-0 bottom-0 flex items-center">
                     {challenge.image_url ? (
@@ -104,7 +113,8 @@ export default function ChallengesPage() {
 
                             {/* Action button */}
                             <button
-                                onClick={async () => {
+                                onClick={async (e) => {
+                                    e.stopPropagation(); // Avoid opening the modal
                                     if (challenge.userParticipation) {
                                         // For challenge completion, we need to wait for server response (no optimistic UI)
                                         // because verification script runs on server and may reject completion
@@ -115,10 +125,10 @@ export default function ChallengesPage() {
                                     }
                                 }}
                                 className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors flex-shrink-0 ml-2 flex items-center gap-1 ${challenge.userParticipation?.status === 'completed'
-                                        ? 'bg-green-100 text-green-800'
-                                        : challenge.userParticipation?.status === 'active'
-                                            ? 'bg-blue-500 text-blue-800 hover:bg-blue-700' // Changed from blue-100 to blue-500 for better contrast
-                                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                                    ? 'bg-green-100 text-green-800'
+                                    : challenge.userParticipation?.status === 'active'
+                                        ? 'bg-blue-500 text-blue-800 hover:bg-blue-700' // Changed from blue-100 to blue-500 for better contrast
+                                        : 'bg-blue-500 text-white hover:bg-blue-600'
                                     }`}
                                 disabled={challenge.userParticipation?.status === 'completed' || checkingChallenges.has(challenge.id)}
                             >
@@ -244,6 +254,22 @@ export default function ChallengesPage() {
                 isOpen={showCompletionModal}
                 onClose={() => setShowCompletionModal(false)}
                 challenge={completedChallenge}
+            />
+
+            {/* Detailed Info Modal */}
+            <ChallengeDetailModal
+                isOpen={!!selectedChallengeId}
+                onClose={() => setSelectedChallengeId(null)}
+                challenge={selectedChallenge}
+                actionLoading={selectedChallengeId ? checkingChallenges.has(selectedChallengeId) : false}
+                onAction={async () => {
+                    if (!selectedChallengeId) return;
+                    if (selectedChallenge?.userParticipation) {
+                        await updateParticipation(selectedChallengeId, 'completed');
+                    } else {
+                        await joinChallenge(selectedChallengeId);
+                    }
+                }}
             />
         </div>
     );

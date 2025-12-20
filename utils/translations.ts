@@ -61,6 +61,8 @@ export type TranslationKey =
     // Challenges completion modal
     | 'challenges.completed_title'
     | 'challenges.your_reward'
+    | 'challenges.instructions'
+    | 'challenges.requirements'
     | 'challenges.great'
     // Wallet page
     | 'wallet.title'

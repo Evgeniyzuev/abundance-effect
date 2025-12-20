@@ -43,6 +43,24 @@ export function getChallengeDescription(challenge: Challenge, language: Language
   );
 }
 
+// Get translated instructions for a challenge
+export function getChallengeInstructions(challenge: any, language: Language): string {
+  return getChallengeText(
+    challenge.instructions as Record<string, string> | null,
+    language,
+    ''
+  );
+}
+
+// Get translated requirements for a challenge
+export function getChallengeRequirements(challenge: any, language: Language): string {
+  return getChallengeText(
+    challenge.requirements as Record<string, string> | null,
+    language,
+    ''
+  );
+}
+
 // Get display name for challenge owner
 export function getChallengeOwnerName(challenge: Challenge): string {
   return challenge.owner_name || 'System';

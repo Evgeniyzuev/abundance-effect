@@ -287,6 +287,8 @@ export interface Database {
                     owner_id: string | null
                     owner_name: string | null
                     image_url: string | null
+                    instructions: Json
+                    requirements: Json
                     is_active: boolean
                     priority: number
                     created_at: string
@@ -309,6 +311,8 @@ export interface Database {
                     owner_id?: string | null
                     owner_name?: string | null
                     image_url?: string | null
+                    instructions?: Json
+                    requirements?: Json
                     is_active?: boolean
                     priority?: number
                     created_at?: string
@@ -331,6 +335,8 @@ export interface Database {
                     owner_id?: string | null
                     owner_name?: string | null
                     image_url?: string | null
+                    instructions?: Json
+                    requirements?: Json
                     is_active?: boolean
                     priority?: number
                     created_at?: string
