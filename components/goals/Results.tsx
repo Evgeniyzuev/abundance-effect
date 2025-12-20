@@ -492,34 +492,34 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                 {/* Character */}
                 {activeTab === 'character' && (
                     <div className="flex flex-col h-full animate-in fade-in duration-500 bg-gray-50 relative overflow-hidden">
-                        <div className="flex-1 relative flex items-center justify-center">
+                        {/* Header Header */}
+                        <div className="pt-12 pb-4 px-6 flex items-center justify-center space-x-4 z-20">
+                            <h2
+                                className="text-3xl font-black text-black tracking-tight"
+                                style={{ textShadow: '2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 4px 10px rgba(0,0,0,0.3)' }}
+                            >
+                                {characterItem.title.toUpperCase()}
+                            </h2>
+
+                            {CHARACTER_BACKGROUNDS.length > 1 && (
+                                <button
+                                    className="w-10 h-10 rounded-full border-2 border-white/80 flex items-center justify-center text-white font-bold text-lg bg-black/20 backdrop-blur-md hover:bg-black/40 transition-all active:scale-95 shadow-lg"
+                                    onClick={() => {
+                                        const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
+                                        setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
+                                    }}
+                                >
+                                    {characterIndex + 1}
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="flex-1 relative overflow-hidden">
                             <img
                                 src={characterItem.image}
                                 alt={characterItem.title}
                                 className="w-full h-full object-cover"
                             />
-
-                            {/* Overlay Header */}
-                            <div className="absolute top-20 left-1/2 -translate-x-1/2 w-full px-6 flex items-center justify-center space-x-4 z-20">
-                                <h2
-                                    className="text-3xl font-black text-black tracking-tight"
-                                    style={{ textShadow: '2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 4px 10px rgba(0,0,0,0.3)' }}
-                                >
-                                    {characterItem.title.toUpperCase()}
-                                </h2>
-
-                                {CHARACTER_BACKGROUNDS.length > 1 && (
-                                    <button
-                                        className="w-10 h-10 rounded-full border-2 border-white/80 flex items-center justify-center text-white font-bold text-lg bg-black/20 backdrop-blur-md hover:bg-black/40 transition-all active:scale-95 shadow-lg"
-                                        onClick={() => {
-                                            const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
-                                            setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
-                                        }}
-                                    >
-                                        {characterIndex + 1}
-                                    </button>
-                                )}
-                            </div>
                         </div>
                     </div>
                 )}
