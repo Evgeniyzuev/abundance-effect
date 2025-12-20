@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Wallet, Atom } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useUser } from '@/context/UserContext';
 import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
 import WalletTab from '@/components/wallet/WalletTab';
@@ -41,17 +42,39 @@ export default function WalletPage() {
                 <div className="flex justify-around items-center h-12">
                     <button
                         onClick={() => setActiveTab("wallet")}
-                        className={`flex items-center justify-center w-full h-full transition-colors ${activeTab === "wallet" ? "text-black" : "text-gray-300 hover:text-gray-500"
+                        className={`flex items-center justify-center w-full h-full transition-all duration-300 ${activeTab === "wallet" ? "text-black" : "text-gray-300 hover:text-gray-500"
                             }`}
                     >
                         <Wallet size={24} strokeWidth={activeTab === "wallet" ? 2 : 1.5} />
                     </button>
                     <button
                         onClick={() => setActiveTab("core")}
-                        className={`flex items-center justify-center w-full h-full transition-colors ${activeTab === "core" ? "text-black" : "text-gray-300 hover:text-gray-500"
+                        className={`flex items-center justify-center w-full h-full transition-all duration-500 ${activeTab === "core" ? "text-blue-600" : "text-gray-300 hover:text-gray-500"
                             }`}
                     >
-                        <Atom size={24} strokeWidth={activeTab === "core" ? 2 : 1.5} />
+                        <motion.div
+                            animate={activeTab === "core" ? {
+                                rotate: 360,
+                                scale: [1, 1.15, 1],
+                                filter: [
+                                    "drop-shadow(0 0 0px rgba(59, 130, 246, 0))",
+                                    "drop-shadow(0 0 8px rgba(59, 130, 246, 0.6))",
+                                    "drop-shadow(0 0 0px rgba(59, 130, 246, 0))"
+                                ]
+                            } : { rotate: 0, scale: 1, filter: "none" }}
+                            transition={activeTab === "core" ? {
+                                rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                                scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                                filter: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                            } : { duration: 0.3 }}
+                            className="flex items-center justify-center"
+                        >
+                            <Atom
+                                size={24}
+                                strokeWidth={activeTab === "core" ? 2.5 : 1.5}
+                                className={activeTab === "core" ? "text-blue-500" : "text-inherit"}
+                            />
+                        </motion.div>
                     </button>
                 </div>
             </div>
