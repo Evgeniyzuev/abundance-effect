@@ -456,10 +456,10 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Base */}
                 {activeTab === 'base' && (
-                    <div className="relative h-full flex w-full overflow-hidden animate-in fade-in duration-500">
+                    <div className="absolute inset-0 z-0 flex w-full overflow-hidden animate-in fade-in duration-500">
                         {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                         <div
-                            className="flex-1 relative bg-gray-200 transition-all duration-500"
+                            className="flex-1 relative bg-gray-100 transition-all duration-500"
                             style={{
                                 backgroundImage: `url(${baseItem.image})`,
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
@@ -469,7 +469,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         >
                             {BASE_BACKGROUNDS.length > 1 && (
                                 <button
-                                    className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                    className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
                                     onClick={() => {
                                         const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
                                         setBase(BASE_BACKGROUNDS[nextIndex].id);
@@ -485,10 +485,10 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Character */}
                 {activeTab === 'character' && (
-                    <div className="relative h-full flex w-full overflow-hidden animate-in fade-in duration-500">
+                    <div className="absolute inset-0 z-0 flex w-full overflow-hidden animate-in fade-in duration-500">
                         {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                         <div
-                            className="flex-1 relative bg-gray-200 transition-all duration-500"
+                            className="flex-1 relative bg-gray-100 transition-all duration-500"
                             style={{
                                 backgroundImage: `url(${characterItem.image})`,
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
@@ -498,7 +498,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         >
                             {CHARACTER_BACKGROUNDS.length > 1 && (
                                 <button
-                                    className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                    className="absolute bottom-24 right-4 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
                                     onClick={() => {
                                         const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
                                         setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
