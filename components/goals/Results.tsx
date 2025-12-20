@@ -283,7 +283,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             {/* Vertical Navigation (Right Overlay) */}
             <div
                 className={`
-                    absolute top-2 right-2 z-50 flex flex-col space-y-3
+                    fixed top-16 right-2 z-50 flex flex-col space-y-3
                     transition-all duration-300 ease-out transform
                     ${menuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}
                 `}
@@ -296,7 +296,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
                             className={`
-                                flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300
+                                flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300
                                 ${isActive
                                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30 scale-110 active:scale-95'
                                     : 'bg-white/80 backdrop-blur-md text-gray-500 hover:bg-white hover:text-blue-500 shadow-sm'
@@ -304,7 +304,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                             `}
                             title={tab.title}
                         >
-                            <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                            <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
                         </button>
                     );
                 })}
@@ -315,7 +315,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                 {/* Achievements */}
                 {activeTab === 'achievements' && (
                     <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300">
-                        <div className="p-4 flex-1 overflow-y-auto">
+                        <div className="p-4 pt-16 flex-1 overflow-y-auto">
                             <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
                                 {ACHIEVEMENTS.map((a) => {
                                     const isUnlocked = unlockedAchievements.includes(a.id);
@@ -344,7 +344,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Inventory */}
                 {activeTab === 'inventory' && (
-                    <div className="h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pt-16">
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-0.5 p-0.5">
                             {inventorySlots.map((slot, idx) => {
                                 const item = slot ? INVENTORY_ITEMS.find(i => i.id === slot.itemId) : null;
@@ -391,7 +391,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Knowledge */}
                 {activeTab === 'knowledge' && (
-                    <div className="h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="h-full overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300 pt-16">
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-0.5 p-0.5">
                             {knowledgeSlots.map((slot, idx) => {
                                 const item = slot ? KNOWLEDGE_ITEMS.find(i => i.id === slot.itemId) : null;
@@ -443,23 +443,25 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         <div
                             className="flex-1 relative bg-gray-200 transition-all duration-500"
                             style={{
-                                backgroundImage: BASE_BACKGROUNDS?.[baseIndex >= 0 ? baseIndex : 0]?.image ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})` : 'none',
+                                backgroundImage: (BASE_BACKGROUNDS.length > 0 && BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0])
+                                    ? `url(${BASE_BACKGROUNDS[baseIndex >= 0 ? baseIndex : 0].image})`
+                                    : 'none',
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat'
                             }}
                         >
-                            <button
-                                className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
-                                onClick={() => {
-                                    if (BASE_BACKGROUNDS.length > 0) {
+                            {BASE_BACKGROUNDS.length > 0 && (
+                                <button
+                                    className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                    onClick={() => {
                                         const nextIndex = (baseIndex >= 0 ? baseIndex + 1 : 1) % BASE_BACKGROUNDS.length;
                                         setBase(BASE_BACKGROUNDS[nextIndex].id);
-                                    }
-                                }}
-                            >
-                                {(baseIndex >= 0 ? baseIndex : 0) + 1}
-                            </button>
+                                    }}
+                                >
+                                    {(baseIndex >= 0 ? baseIndex : 0) + 1}
+                                </button>
+                            )}
                         </div>
                         {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                     </div>
@@ -472,23 +474,25 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                         <div
                             className="flex-1 relative bg-gray-200 transition-all duration-500"
                             style={{
-                                backgroundImage: CHARACTER_BACKGROUNDS?.[characterIndex >= 0 ? characterIndex : 0]?.image ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})` : 'none',
+                                backgroundImage: (CHARACTER_BACKGROUNDS.length > 0 && CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0])
+                                    ? `url(${CHARACTER_BACKGROUNDS[characterIndex >= 0 ? characterIndex : 0].image})`
+                                    : 'none',
                                 backgroundSize: typeof window !== 'undefined' && window.innerWidth > window.innerHeight ? 'contain' : 'cover',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat'
                             }}
                         >
-                            <button
-                                className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
-                                onClick={() => {
-                                    if (CHARACTER_BACKGROUNDS.length > 0) {
+                            {CHARACTER_BACKGROUNDS.length > 0 && (
+                                <button
+                                    className="absolute bottom-8 right-16 w-14 h-14 rounded-full border-2 border-white/50 shadow-lg flex items-center justify-center text-white font-bold text-lg bg-black/40 backdrop-blur-md hover:bg-black/60 transition-all z-10 active:scale-95"
+                                    onClick={() => {
                                         const nextIndex = (characterIndex >= 0 ? characterIndex + 1 : 1) % CHARACTER_BACKGROUNDS.length;
                                         setCharacter(CHARACTER_BACKGROUNDS[nextIndex].id);
-                                    }
-                                }}
-                            >
-                                {(characterIndex >= 0 ? characterIndex : 0) + 1}
-                            </button>
+                                    }}
+                                >
+                                    {(characterIndex >= 0 ? characterIndex : 0) + 1}
+                                </button>
+                            )}
                         </div>
                         {typeof window !== 'undefined' && window.innerWidth > window.innerHeight && <div className="w-2 bg-gray-200 flex-shrink-0"></div>}
                     </div>
@@ -496,7 +500,7 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
 
                 {/* Reputation placeholder */}
                 {activeTab === 'reputation' && (
-                    <div className="p-8 flex flex-col items-center justify-center h-full text-center animate-in fade-in zoom-in duration-300">
+                    <div className="p-8 pt-20 flex flex-col items-center justify-center h-full text-center animate-in fade-in zoom-in duration-300">
                         <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
                             <Star className="w-10 h-10 text-blue-400" />
                         </div>
@@ -509,6 +513,6 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={modalTitle}>
                 {modalContent}
             </Modal>
-        </div>
+        </div >
     );
 }

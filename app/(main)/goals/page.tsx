@@ -29,8 +29,8 @@ export default function GoalsPage() {
         <div className="m-0 h-full flex flex-col bg-gray-50 overflow-hidden">
             <TopNav activeTab={activeTab} onTabChange={handleTabChange} />
 
-            <div className={`flex-1 pt-safe overflow-hidden relative flex flex-col ${activeTab === 'results' ? '' : 'overflow-y-auto'}`}>
-                <div className={`flex-1 w-full pt-12 ${activeTab === 'results' ? 'h-full overflow-hidden' : 'overflow-y-auto overflow-x-hidden'}`}>
+            <div className="flex-1 pt-safe overflow-hidden relative flex flex-col">
+                <div className={`flex-1 w-full relative ${activeTab === 'results' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden pt-12'}`}>
                     {activeTab === 'wishboard' && <Wishboard />}
                     {activeTab === 'notes' && <Notes />}
                     {activeTab === 'tasks' && <Tasks />}
