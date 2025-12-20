@@ -11,40 +11,35 @@ export default function FinancePage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setAnimationStep(prev => (prev + 1) % 4); // 4 steps in the sequence
-    }, 1500); // Change every 1.5 seconds
+      setAnimationStep(prev => (prev + 1) % 4);
+    }, 1500);
     return () => clearInterval(interval);
   }, []);
 
-
-
   return (
-    <div className="min-h-full bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-gray-100 overflow-x-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-full bg-gray-50 text-gray-900 overflow-x-hidden">
+      {/* Subtle light background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/5 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
       {/* Header */}
-      <header className="relative py-12 px-4 sm:px-6 lg:px-8">
+      <header className="relative pt-12 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center">
           <motion.h1
-            initial={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold"
+            transition={{ duration: 0.6 }}
+            className="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-900"
           >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-300 to-purple-300">
-              Экономика участия
-            </span>
+            Экономика участия
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-xl md:text-2xl mt-6 text-gray-300 max-w-3xl mx-auto leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg md:text-xl mt-4 text-gray-500 max-w-2xl mx-auto"
           >
             Как ваша покупка либо углубляет кризис — либо создаёт изобилие для всех
           </motion.p>
@@ -53,362 +48,224 @@ export default function FinancePage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         {/* Comparison Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
 
           {/* Traditional Business */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            whileHover={{ y: -8 }}
-            className="relative rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl overflow-hidden"
+            className="flex flex-col bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden"
           >
-            {/* Glowing accent top bar */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-red-500/70 via-red-400/70 to-orange-400/70"></div>
-
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-300 to-orange-300">
-                  Старая модель
-                </h2>
-                <span className="px-3 py-1 bg-red-500/20 text-red-300 text-sm rounded-full border border-red-500/30">
-                  Линейная экономика
-                </span>
-              </div>
-
-              {/* Diagram */}
-              <div className="flex flex-col items-center mb-8">
-                <div className="relative w-full max-w-md h-72 flex items-center justify-center">
-                  {/* Question mark source */}
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.05, 1],
-                      opacity: [0.6, 0.9, 0.6]
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="absolute left-0 top-1/2 -translate-y-1/2"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-orange-500 border border-red-400/50 flex items-center justify-center shadow-lg">
-                      <span className="text-white text-2xl font-bold">?</span>
-                    </div>
-                  </motion.div>
-
-                  {/* Money flow line */}
-                  <div className="absolute top-1/2 left-1/5 right-1/5 h-0.5 bg-gradient-to-r from-gray-500/30 via-gray-400/50 to-gray-500/30 -translate-y-1/2"></div>
-
-                  {/* Customer */}
-                  <motion.div
-                    animate={{
-                      scale: animationStep === 1 ? 0.7 : animationStep === 2 ? 0.6 : animationStep === 3 ? 0.5 : 1,
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      ease: "easeInOut"
-                    }}
-                    className="absolute left-1/5 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  >
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/80 to-cyan-500/80 border border-blue-400/40 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      П
-                    </div>
-                    <p className="text-xs text-center mt-2 text-gray-400">Покупатель</p>
-                  </motion.div>
-
-                  {/* Business */}
-                  <motion.div
-                    animate={{
-                      scale: animationStep === 2 ? 1.1 : animationStep === 3 ? 1.0 : 1,
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      ease: "easeInOut"
-                    }}
-                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  >
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/80 to-teal-500/80 border border-emerald-400/40 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      Б
-                    </div>
-                    <p className="text-xs text-center mt-2 text-gray-400">Бизнес</p>
-                  </motion.div>
-
-                  {/* Beneficiary */}
-                  <motion.div
-                    animate={{
-                      scale: animationStep === 3 ? 1.4 : 1,
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      ease: "easeInOut"
-                    }}
-                    className="absolute right-1/5 top-1/2 translate-x-1/2 -translate-y-1/2"
-                  >
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/80 to-pink-500/80 border border-purple-400/40 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      Б
-                    </div>
-                    <p className="text-xs text-center mt-2 text-gray-400">Бенефициар</p>
-                  </motion.div>
-
-                  {/* Arrow from Question to Customer */}
-                  <motion.svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    className="absolute left-1/10 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                    animate={{
-                      opacity: animationStep === 0 ? [0.3, 1, 0.3] : 0.3,
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: animationStep === 0 ? Infinity : 0,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </motion.svg>
-
-                  {/* Arrow from Customer to Business */}
-                  <motion.svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    className="absolute left-7/20 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                    animate={{
-                      opacity: animationStep === 1 ? [0.3, 1, 0.3] : 0.3,
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: animationStep === 1 ? Infinity : 0,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </motion.svg>
-
-                  {/* Arrow from Business to Beneficiary */}
-                  <motion.svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    className="absolute left-13/20 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                    animate={{
-                      opacity: animationStep === 3 ? [0.3, 1, 0.3] : 0.3,
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: animationStep === 3 ? Infinity : 0,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="#EC4899" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </motion.svg>
+            <div className="p-6 md:p-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Старая модель</h2>
+                  <p className="text-sm text-gray-500 mt-1">Линейная экономика</p>
+                </div>
+                <div className="p-2 bg-red-50 rounded-xl">
+                  <Shield className="w-5 h-5 text-red-500" />
                 </div>
               </div>
 
+              {/* Diagram */}
+              <div className="h-64 relative mb-8 bg-gray-50/50 rounded-2xl border border-gray-100/50 overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-around px-4">
+
+                  {/* Buyer */}
+                  <div className="flex flex-col items-center gap-3 z-10">
+                    <motion.div
+                      animate={{
+                        scale: animationStep === 1 ? 0.9 : animationStep === 2 ? 0.8 : animationStep === 3 ? 0.7 : 1,
+                        filter: animationStep > 0 ? 'grayscale(0.5)' : 'grayscale(0)'
+                      }}
+                      className="w-16 h-16 rounded-2xl bg-white shadow-md border border-gray-100 flex items-center justify-center text-2xl"
+                    >
+                      👤
+                    </motion.div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Покупатель</span>
+                  </div>
+
+                  {/* Business */}
+                  <div className="flex flex-col items-center gap-3 z-10">
+                    <div className="w-16 h-16 rounded-2xl bg-white shadow-md border border-gray-100 flex items-center justify-center text-2xl">
+                      🏢
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Бизнес</span>
+                  </div>
+
+                  {/* Beneficiary */}
+                  <div className="flex flex-col items-center gap-3 z-10">
+                    <motion.div
+                      animate={{
+                        scale: animationStep === 3 ? 1.3 : 1,
+                        boxShadow: animationStep === 3 ? '0 0 20px rgba(168, 85, 247, 0.2)' : '0 0 0px rgba(168, 85, 247, 0)'
+                      }}
+                      className="w-16 h-16 rounded-2xl bg-white shadow-md border border-gray-100 flex items-center justify-center text-2xl"
+                    >
+                      👑
+                    </motion.div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Бенефициар</span>
+                  </div>
+                </div>
+
+                {/* Money Particles */}
+                <AnimatePresence>
+                  {animationStep === 1 && (
+                    <motion.div
+                      initial={{ left: '25%', opacity: 0 }}
+                      animate={{ left: '50%', opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute top-1/2 -translate-y-1/2 text-xl z-20"
+                    >
+                      💵
+                    </motion.div>
+                  )}
+                  {animationStep === 2 && (
+                    <motion.div
+                      initial={{ left: '50%', opacity: 0 }}
+                      animate={{ left: '75%', opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute top-1/2 -translate-y-1/2 text-xl z-20"
+                    >
+                      💰
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* The "Dead End" indicator */}
+                <motion.div
+                  animate={{ opacity: animationStep === 3 ? 1 : 0 }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-center"
+                >
+                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-bold text-lg">!</div>
+                  <span className="text-[8px] text-red-500 font-bold mt-1">ТУПИК</span>
+                </motion.div>
+              </div>
+
               {/* Problems list */}
-              <div className="rounded-2xl bg-red-500/5 border border-red-500/15 p-5">
-                <h3 className="font-bold text-lg text-red-300 mb-4 flex items-center">
-                  <span className="mr-2">⚠️</span>
+              <div className="space-y-3">
+                <h3 className="font-bold text-sm text-gray-900 flex items-center">
                   Последствия:
                 </h3>
-                <ul className="space-y-2.5">
+                <div className="grid grid-cols-1 gap-2">
                   {[
-                    "Потеря денег навсегда",
-                    "Рост неравенства",
-                    "Безработица",
-                    "Перепроизводство",
-                    "Экономические кризисы",
-                    "Монополизация",
-                    "Лишние затраты на рекламу/лоббизм"
+                    "Деньги уходят из семейного бюджета навсегда",
+                    "Рост цен из-за затрат на рекламу и лоббизм",
+                    "Вас заменяют на ИИ без компенсации",
+                    "Экономические кризисы каждые 10 лет"
                   ].map((item, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 * index }}
-                      className="flex items-start text-gray-300"
-                    >
-                      <span className="text-red-400 mr-2 mt-1">•</span>
+                    <div key={index} className="flex gap-3 items-start text-sm text-gray-600 p-3 bg-red-50/50 rounded-xl">
+                      <span className="text-red-500 mt-0.5">✕</span>
                       <span>{item}</span>
-                    </motion.li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           </motion.div>
 
           {/* Participation Business */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            whileHover={{ y: -8 }}
-            className="relative rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl overflow-hidden"
+            className="flex flex-col bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden"
           >
-            {/* Glowing accent top bar */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-cyan-400/70 via-emerald-400/70 to-green-400/70"></div>
-
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-emerald-300">
-                  Новая модель
-                </h2>
-                <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 text-sm rounded-full border border-emerald-500/30">
-                  Экономика участия
-                </span>
-              </div>
-
-              {/* Diagram */}
-              <div className="flex flex-col items-center mb-8">
-                <div className="relative w-full max-w-md h-72 flex items-center justify-center">
-                  {/* Left circle - Customer-Beneficiary */}
-                  <motion.div
-                    animate={{
-                      scale: 1.2,
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      ease: "easeInOut"
-                    }}
-                    className="absolute left-1/3 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  >
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500/90 to-cyan-500/90 border border-blue-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
-                      <div className="text-center">
-                        <span>П</span><br />
-                        <span className="text-sm">=</span><br />
-                        <span>Б</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-center mt-2 text-gray-400">Покупатель-Бенефициар</p>
-                  </motion.div>
-
-                  {/* Right circle - Business */}
-                  <motion.div
-                    animate={{
-                      scale: 1.2,
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      ease: "easeInOut",
-                      delay: 0.5
-                    }}
-                    className="absolute right-1/3 top-1/2 translate-x-1/2 -translate-y-1/2"
-                  >
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500/90 to-teal-500/90 border border-emerald-400/50 flex items-center justify-center text-white font-bold text-xl shadow-2xl">
-                      <div className="text-center">
-                        <span>Б</span><br />
-                        <span className="text-sm">+</span><br />
-                        <span>С</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-center mt-2 text-gray-400">Бизнес + Сообщество</p>
-                  </motion.div>
-
-                  {/* Circular arrows with blinking */}
-                  <motion.svg
-                    width="200"
-                    height="200"
-                    viewBox="0 0 200 200"
-                    className="absolute"
-                    animate={{
-                      rotate: [0, 360],
-                      opacity: [0.4, 1, 0.4]
-                    }}
-                    transition={{
-                      rotate: {
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "linear"
-                      },
-                      opacity: {
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }
-                    }}
-                  >
-                    {/* Top arrow (right direction) */}
-                    <path
-                      d="M75 75 Q110 40 145 75"
-                      stroke="url(#topGradient)"
-                      strokeWidth="2.5"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeDasharray="6,4"
-                    />
-                    <polygon points="140,70 152,75 140,80" fill="url(#topGradientFill)" />
-
-                    {/* Bottom arrow (left direction) */}
-                    <path
-                      d="M145 145 Q110 180 75 145"
-                      stroke="url(#bottomGradient)"
-                      strokeWidth="2.5"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeDasharray="6,4"
-                    />
-                    <polygon points="80,150 68,145 80,140" fill="url(#bottomGradientFill)" />
-
-                    {/* Gradients definitions */}
-                    <defs>
-                      <linearGradient id="topGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="#06B6D4" stopOpacity="0.8" />
-                      </linearGradient>
-                      <linearGradient id="bottomGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#10B981" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="#0D9488" stopOpacity="0.8" />
-                      </linearGradient>
-                      <linearGradient id="topGradientFill" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#3B82F6" />
-                        <stop offset="100%" stopColor="#06B6D4" />
-                      </linearGradient>
-                      <linearGradient id="bottomGradientFill" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#10B981" />
-                        <stop offset="100%" stopColor="#0D9488" />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Dollar sign in center */}
-                    <text x="110" y="115" textAnchor="middle" fontSize="28" fill="#E5E7EB" fontWeight="bold" opacity="0.9">$</text>
-                  </motion.svg>
+            <div className="p-6 md:p-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">Новая модель</h2>
+                  <p className="text-sm text-emerald-600 mt-1">Экономика участия</p>
+                </div>
+                <div className="p-2 bg-emerald-50 rounded-xl">
+                  <Sparkles className="w-5 h-5 text-emerald-600" />
                 </div>
               </div>
 
+              {/* Diagram */}
+              <div className="h-64 relative mb-8 bg-emerald-50/20 rounded-2xl border border-emerald-100/50 overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center gap-12 px-4">
+
+                  {/* Buyer = Beneficiary (Infinite Loop Side) */}
+                  <div className="flex flex-col items-center gap-3 z-10">
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.05, 1],
+                        rotate: [0, 5, 0, -5, 0]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity }}
+                      className="w-20 h-20 rounded-full bg-white shadow-lg border-2 border-emerald-100 flex items-center justify-center text-3xl relative"
+                    >
+                      👤
+                      <div className="absolute -right-1 -top-1 bg-emerald-500 text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold">
+                        БЕНЕФИЦИАР
+                      </div>
+                    </motion.div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Я-Бизнес</span>
+                  </div>
+
+                  {/* Infinite Symbol or Flow */}
+                  <div className="relative w-12 h-12 flex items-center justify-center">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-0 border-2 border-dashed border-emerald-200 rounded-full"
+                    />
+                    <span className="text-2xl text-emerald-500">⇄</span>
+                  </div>
+
+                  {/* Community / Marketplace */}
+                  <div className="flex flex-col items-center gap-3 z-10">
+                    <motion.div
+                      animate={{ scale: [1, 1.02, 1] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                      className="w-20 h-20 rounded-3xl bg-white shadow-lg border border-emerald-50 flex items-center justify-center text-3xl"
+                    >
+                      🌐
+                    </motion.div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Сообщество</span>
+                  </div>
+                </div>
+
+                {/* Circular Money Particles */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 pointer-events-none"
+                >
+                  <motion.div className="absolute top-1/4 left-1/2 -translate-x-1/2 text-lg">✨</motion.div>
+                  <motion.div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 text-lg">💰</motion.div>
+                </motion.div>
+
+                {/* Growth indicator */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 2 }}
+                  className="absolute left-1/2 top-4 -translate-x-1/2 bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest flex items-center gap-1"
+                >
+                  <TrendingUp className="w-3 h-3" />
+                  Постоянный рост
+                </motion.div>
+              </div>
+
               {/* Benefits list */}
-              <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-5">
-                <h3 className="font-bold text-lg text-emerald-300 mb-4 flex items-center">
-                  <span className="mr-2">✨</span>
+              <div className="space-y-3">
+                <h3 className="font-bold text-sm text-gray-900 flex items-center">
                   Преимущества:
                 </h3>
-                <ul className="space-y-2.5">
+                <div className="grid grid-cols-1 gap-2">
                   {[
-                    "Каждая покупка — инвестиция в себя",
-                    "Рост общего благосостояния",
-                    "Создание рабочих мест",
-                    "Производство по реальному спросу",
-                    "Экономическая устойчивость",
-                    "Разнообразие и здоровая конкуренция",
-                    "Минимизация ненужных затрат"
+                    "Каждая покупка — это инвестиция в ваше Будущее",
+                    "Деньги циркулируют внутри сообщества",
+                    "ИИ работает на вас как на Совладельца",
+                    "Изобилие через участие и прозрачность"
                   ].map((item, index) => (
-                    <motion.li
-                      key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 * index }}
-                      className="flex items-start text-gray-300"
-                    >
-                      <span className="text-emerald-400 mr-2 mt-1">•</span>
+                    <div key={index} className="flex gap-3 items-start text-sm text-gray-600 p-3 bg-emerald-50/50 rounded-xl">
+                      <span className="text-emerald-500 mt-0.5">✓</span>
                       <span>{item}</span>
-                    </motion.li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -416,42 +273,38 @@ export default function FinancePage() {
 
         {/* AI & Automation Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-20 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl overflow-hidden"
+          className="mt-16 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden"
         >
-          <div className="h-1.5 w-full bg-gradient-to-r from-violet-500/70 via-fuchsia-500/70 to-pink-500/70"></div>
-          <div className="p-8 md:p-12">
+          <div className="p-6 md:p-12">
             <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-300 via-fuchsia-300 to-pink-300">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                 ИИ и Автоматизация: угроза или решение?
               </h2>
-              <p className="text-lg text-gray-400 mt-4 max-w-3xl mx-auto">
+              <p className="text-sm md:text-md text-gray-500 mt-3 max-w-2xl mx-auto leading-relaxed">
                 Технологии сами по себе нейтральны — всё зависит от экономической системы, в которой они работают
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Old Model AI */}
-              <div className="rounded-2xl bg-red-500/5 border border-red-500/15 p-6">
-                <div className="flex items-center mb-5">
-                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center mr-3">
-                    <span className="text-red-300 font-bold">❌</span>
+              <div className="p-6 rounded-2xl bg-red-50/30 border border-red-100 flex flex-col">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+                    ✕
                   </div>
-                  <h3 className="text-xl font-bold text-red-300">В старой модели</h3>
+                  <h3 className="font-bold text-gray-900">В старой модели</h3>
                 </div>
-                <ul className="space-y-3 text-gray-300">
+                <ul className="space-y-3">
                   {[
                     "ИИ заменяет людей → массовая безработица",
-                    "Автоматизация увеличивает прибыль бенефициарам, но не обществу",
-                    "Рост неравенства → социальное напряжение",
-                    "Усиление контроля и манипуляций",
-                    "Повышение риска системного коллапса",
-                    "Люди превращаются в «лишних»"
+                    "Прибыль уходит только бенефициарам",
+                    "Рост неравенства и контроля",
+                    "Люди становятся «лишними»"
                   ].map((item, i) => (
-                    <li key={i} className="flex items-start">
-                      <span className="text-red-400 mr-2 mt-1">•</span>
+                    <li key={i} className="flex gap-2 text-sm text-gray-600 leading-snug">
+                      <span className="text-red-400">•</span>
                       {item}
                     </li>
                   ))}
@@ -459,24 +312,22 @@ export default function FinancePage() {
               </div>
 
               {/* New Model AI */}
-              <div className="rounded-2xl bg-violet-500/5 border border-violet-500/15 p-6">
-                <div className="flex items-center mb-5">
-                  <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center mr-3">
-                    <span className="text-violet-300 font-bold">✅</span>
+              <div className="p-6 rounded-2xl bg-emerald-50/30 border border-emerald-100 flex flex-col">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    ✓
                   </div>
-                  <h3 className="text-xl font-bold text-violet-300">В модели участия</h3>
+                  <h3 className="font-bold text-gray-900">В модели участия</h3>
                 </div>
-                <ul className="space-y-3 text-gray-300">
+                <ul className="space-y-3">
                   {[
-                    "ИИ освобождает от рутины → больше свободного времени",
-                    "Автоматизация снижает цены → изобилие для всех",
-                    "Доходы от ИИ распределяются среди участников",
-                    "Люди фокусируются на творчестве и развитии",
-                    "Снижение рисков — система саморегулируется",
-                    "Технологии служат людям, а не наоборот"
+                    "ИИ освобождает от рутины",
+                    "Автоматизация снижает цены для всех",
+                    "Доходы распределяются среди участников",
+                    "Технологии служат человеку"
                   ].map((item, i) => (
-                    <li key={i} className="flex items-start">
-                      <span className="text-violet-400 mr-2 mt-1">•</span>
+                    <li key={i} className="flex gap-2 text-sm text-gray-600 leading-snug">
+                      <span className="text-emerald-400">•</span>
                       {item}
                     </li>
                   ))}
@@ -484,67 +335,55 @@ export default function FinancePage() {
               </div>
             </div>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="mt-10 p-6 rounded-2xl bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 text-center"
-            >
-              <p className="text-xl md:text-2xl font-bold text-violet-200">
-                ИИ не уничтожает работу — он уничтожает <span className="text-red-300 line-through">старую модель</span>, чтобы раскрыть потенциал новой.
+            <div className="mt-8 p-6 rounded-2xl bg-indigo-50 border border-indigo-100 text-center">
+              <p className="text-lg font-bold text-indigo-900">
+                ИИ не уничтожает работу — он уничтожает <span className="text-red-500 line-through">старую модель</span>
               </p>
-              <p className="mt-3 text-lg text-gray-300">
+              <p className="mt-2 text-sm text-indigo-700">
                 В экономике участия технологии делают нас лучше, свободнее и счастливее.
               </p>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Core Principle */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20 text-center"
-        >
-          <div className="inline-block rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 p-8">
-            <h3 className="text-2xl font-bold text-gray-200 mb-6">Суть трансформации</h3>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-              <div className="text-center">
-                <div className="text-4xl mb-3">📉👤💸 → 🏢 → 📛</div>
-                <p className="text-gray-400">Вы отдаёте деньги навсегда — богатеет кто-то другой</p>
+        {/* Action Section */}
+        <div className="mt-16 text-center space-y-8">
+          <div className="inline-flex flex-col items-center bg-gray-50 p-8 rounded-3xl border border-gray-100 w-full max-w-2xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-6">Главное отличие одним взглядом</h3>
+            <div className="flex flex-col md:flex-row items-center gap-10">
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-3xl">👤 ➔ 💰 ➔ 🏢</div>
+                <span className="text-xs text-red-500 font-bold uppercase tracking-widest">Прощайте, деньги</span>
               </div>
-              <div className="text-3xl hidden md:block">⇄</div>
-              <div className="text-center">
-                <div className="text-4xl mb-3">🔄📈👤 ⇄ 💰 ⇄ 🏢</div>
-                <p className="text-gray-400">Вы участвуете — деньги возвращаются многократно</p>
+              <div className="hidden md:block text-2xl text-gray-300">➔</div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-3xl text-emerald-600">👤 🔄 💰 🔄 🏢</div>
+                <span className="text-xs text-emerald-600 font-bold uppercase tracking-widest">Деньги возвращаются</span>
               </div>
             </div>
           </div>
 
           <motion.div
-            whileHover={{ scale: 1.03 }}
-            className="mt-12 max-w-3xl mx-auto p-6 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20"
+            whileHover={{ scale: 1.02 }}
+            className="max-w-xl mx-auto space-y-6"
           >
-            <p className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-300">
-              Каждый покупатель — это Бенефициар.<br />
-              Каждая покупка — это инвестиция в будущее.
-            </p>
-            <p className="mt-6 text-xl text-gray-300">
-              У вас есть свобода решать — не отдавайте её.
-            </p>
+            <h4 className="text-xl md:text-2xl font-extrabold text-gray-900">
+              Вы в праве решать, в какую экономику вкладывать свою жизнь.
+            </h4>
             <motion.button
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.back()}
-              className="mt-6 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-full shadow-lg"
+              className="w-full sm:w-auto px-10 py-5 bg-gray-900 text-white font-bold rounded-2xl shadow-xl hover:bg-black transition-colors flex items-center justify-center gap-3"
             >
-              Покупайте у себя! 🌐
+              <span>Покупайте у себя!</span>
+              <Globe className="w-5 h-5" />
             </motion.button>
           </motion.div>
-        </motion.div>
+        </div>
       </main>
 
-      <footer className="py-8 border-t border-white/5 text-center text-gray-500 text-sm">
-        <p>Экономика участия — когда технологии служат человечеству, а не наоборот</p>
+      <footer className="py-12 border-t border-gray-100 text-center text-gray-400 text-xs">
+        <p>© 2024 Abundance Effect. Экономика участия — когда технологии служат человечеству.</p>
       </footer>
     </div>
   );
