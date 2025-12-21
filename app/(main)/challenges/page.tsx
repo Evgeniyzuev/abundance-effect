@@ -213,41 +213,46 @@ export default function ChallengesPage() {
     );
 
     return (
-        <div className="pb-20 px-4 pt-safe">
-            {/* Page Header */}
-            <div className="pt-4 pb-4 flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">{t('challenges.page_title')}</h1>
-                <button
-                    onClick={() => fetchChallenges()}
-                    className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
-                    title="Refresh challenges"
-                >
-                    <RotateCcw className="w-5 h-5" />
-                </button>
-            </div>
+        <div className="flex flex-col h-full bg-gray-50">
+            <ChallengesProjectsNav />
 
-            {/* Challenge Sections */}
-            <div className="space-y-4">
-                <ChallengeSection
-                    title={getSectionTitle('available', availableChallenges.length)}
-                    count={availableChallenges.length}
-                    section="available"
-                    challenges={availableChallenges}
-                />
+            {/* Main content area */}
+            <div className="flex-1 overflow-y-auto pt-16 pb-20 px-4">
+                {/* Page Header */}
+                <div className="pb-4 flex items-center justify-between">
+                    <h1 className="text-2xl font-bold text-gray-900">{t('challenges.page_title')}</h1>
+                    <button
+                        onClick={() => fetchChallenges()}
+                        className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                        title="Refresh challenges"
+                    >
+                        <RotateCcw className="w-5 h-5" />
+                    </button>
+                </div>
 
-                <ChallengeSection
-                    title={getSectionTitle('accepted', acceptedChallenges.length)}
-                    count={acceptedChallenges.length}
-                    section="accepted"
-                    challenges={acceptedChallenges}
-                />
+                {/* Challenge Sections */}
+                <div className="space-y-4">
+                    <ChallengeSection
+                        title={getSectionTitle('available', availableChallenges.length)}
+                        count={availableChallenges.length}
+                        section="available"
+                        challenges={availableChallenges}
+                    />
 
-                <ChallengeSection
-                    title={getSectionTitle('completed', completedChallenges.length)}
-                    count={completedChallenges.length}
-                    section="completed"
-                    challenges={completedChallenges}
-                />
+                    <ChallengeSection
+                        title={getSectionTitle('accepted', acceptedChallenges.length)}
+                        count={acceptedChallenges.length}
+                        section="accepted"
+                        challenges={acceptedChallenges}
+                    />
+
+                    <ChallengeSection
+                        title={getSectionTitle('completed', completedChallenges.length)}
+                        count={completedChallenges.length}
+                        section="completed"
+                        challenges={completedChallenges}
+                    />
+                </div>
             </div>
 
             {/* Completion Modal */}
