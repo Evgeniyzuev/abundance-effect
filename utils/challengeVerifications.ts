@@ -2,13 +2,13 @@ import { createClient } from '@/utils/supabase/server';
 
 export interface ChallengeVerification {
   description: string;
-  verify: (userId: string, challengeData: any, supabase: any) => Promise<boolean>;
+  verify: (userId: string, challengeData: any, supabase: any, progressData?: any) => Promise<boolean>;
 }
 
 export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
   'has_wish': {
     description: 'Check if user has at least one wish',
-    verify: async (userId: string, challengeData: any, supabase: any) => {
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
       try {
         const { count, error } = await supabase
           .from('user_wishes')
@@ -24,7 +24,7 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
 
   'completed_tasks': {
     description: 'Check if user completed minimum number of tasks',
-    verify: async (userId: string, challengeData: any, supabase: any) => {
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
       try {
         const minTasks = challengeData?.verification_params?.min_tasks || 1;
         const { count, error } = await supabase
@@ -42,7 +42,7 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
 
   'user_level': {
     description: 'Check if user reached minimum level',
-    verify: async (userId: string, challengeData: any, supabase: any) => {
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
       try {
         const minLevel = challengeData?.verification_params?.min_level || 1;
         const { data: userLevel, error } = await supabase
@@ -59,10 +59,9 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
   },
   'calculate_time_to_goal': {
     description: 'Check if user used the goal calculator',
-    verify: async (userId: string, challengeData: any, supabase: any) => {
-      // For this challenge, we trust the client-side trigger that marks it as completed
-      // The server action updateParticipationAction will call this verify function.
-      return true;
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
+      // Check for calculation proof from client
+      return !!progressData?.calculated;
     }
   }
 };

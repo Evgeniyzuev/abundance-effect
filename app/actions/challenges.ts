@@ -128,7 +128,7 @@ export async function updateParticipationAction(
 ) {
     try {
         logger.info('updateParticipationAction called:', { challengeId, status });
-        
+
         const supabase = await createClient();
 
         const { data: user } = await supabase.auth.getUser();
@@ -168,7 +168,8 @@ export async function updateParticipationAction(
             const isVerified = await executeVerification(verificationKey, {
                 userId: user.user.id,
                 challengeData: challenge,
-                supabase
+                supabase,
+                progressData: progressData || participation.progress_data
             });
 
             logger.info('Verification result:', isVerified);
@@ -215,6 +216,7 @@ async function executeVerification(verificationKey: string, context: {
     userId: string;
     challengeData: any;
     supabase: any;
+    progressData?: any;
 }) {
     try {
         logger.info('executeVerification called:', {
@@ -231,7 +233,12 @@ async function executeVerification(verificationKey: string, context: {
 
         logger.info('Running verification:', verification.description);
 
-        const result = await verification.verify(context.userId, context.challengeData, context.supabase);
+        const result = await verification.verify(
+            context.userId,
+            context.challengeData,
+            context.supabase,
+            context.progressData
+        );
 
         logger.info('Verification result:', result);
         return result;
