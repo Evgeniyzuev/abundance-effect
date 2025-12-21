@@ -189,8 +189,8 @@ export default function CoreTab({ coreBalance, reinvestPercentage, userId, onTra
         );
 
         if (challengeToComplete) {
-            console.log('Completing calculate_time_to_goal challenge...');
-            await updateParticipation(challengeToComplete.id, 'completed', { calculated: true });
+            console.log('Recording progress for calculate_time_to_goal challenge...');
+            await updateParticipation(challengeToComplete.id, 'active', { calculated: true });
         }
     }
 
