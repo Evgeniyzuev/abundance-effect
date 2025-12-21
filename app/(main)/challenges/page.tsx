@@ -7,6 +7,7 @@ import { getChallengeTitle, getChallengeOwnerName, formatChallengeReward, getCha
 import { CheckCircle, Users, Trophy, Atom, Loader2, RotateCcw } from 'lucide-react';
 import { ChallengeCompletionModal } from '@/components/ChallengesCompletionModal';
 import { ChallengeDetailModal } from '@/components/ChallengeDetailModal';
+import ChallengesProjectsNav from '@/components/ChallengesProjectsNav';
 
 type ChallengeSection = 'available' | 'accepted' | 'completed';
 

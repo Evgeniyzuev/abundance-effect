@@ -58,6 +58,17 @@ export type TranslationKey =
     | 'challenges.check'
     | 'challenges.checking'
     | 'challenges.no_challenges_yet'
+    // Projects page
+    | 'projects.title'
+    | 'projects.no_projects'
+    | 'projects.apply'
+    | 'projects.applied'
+    | 'projects.pending'
+    | 'projects.approved'
+    | 'projects.rejected'
+    | 'projects.application_message'
+    | 'projects.send_application'
+    | 'projects.no_projects_yet'
     // Challenges completion modal
     | 'challenges.completed_title'
     | 'challenges.your_reward'
