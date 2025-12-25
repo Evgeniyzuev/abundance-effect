@@ -382,11 +382,42 @@ export default function FinancePage() {
             </motion.button>
           </motion.div>
         </div>
+
+        {/* Manifesto/Choice Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mt-20 mb-10 max-w-3xl mx-auto text-center space-y-8 px-4"
+        >
+          <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-50/50 to-purple-50/50 border border-indigo-100/50 backdrop-blur-sm">
+            <p className="text-lg md:text-xl text-gray-700 leading-relaxed font-medium">
+              {t('finance.bottom_text_1')}
+            </p>
+
+            <div className="w-16 h-px bg-indigo-200 mx-auto my-6"></div>
+
+            <p className="text-lg md:text-xl text-indigo-900 font-bold">
+              {t('finance.bottom_text_2')}
+            </p>
+
+            <div className="w-16 h-px bg-indigo-200 mx-auto my-6"></div>
+
+            <div className="space-y-4">
+              <p className="text-gray-600 italic">
+                "{t('finance.bottom_text_3')}"
+              </p>
+              <p className="text-gray-900 font-bold text-lg uppercase tracking-wide">
+                {t('finance.bottom_text_4')}
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </main>
 
       <footer className="py-12 border-t border-gray-100 text-center text-gray-400 text-xs">
         <p>{t('finance.footer_text')}</p>
       </footer>
-    </div>
+    </div >
   );
 }

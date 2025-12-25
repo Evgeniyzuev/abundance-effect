@@ -329,6 +329,10 @@ export type TranslationKey =
     | 'finance.money_returns'
     | 'finance.cta_title'
     | 'finance.buy_at_home'
+    | 'finance.bottom_text_1'
+    | 'finance.bottom_text_2'
+    | 'finance.bottom_text_3'
+    | 'finance.bottom_text_4'
     | 'finance.footer_text';
 
 /**

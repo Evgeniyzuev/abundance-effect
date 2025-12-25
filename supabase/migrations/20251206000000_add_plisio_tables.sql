@@ -28,3 +28,21 @@ CREATE TABLE IF NOT EXISTS public.plisio_callbacks (
 );
 
 CREATE INDEX idx_plisio_callbacks_invoice ON public.plisio_callbacks(invoice_id);
+
+-- Enable RLS
+ALTER TABLE public.plisio_invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.plisio_callbacks ENABLE ROW LEVEL SECURITY;
+
+-- Policies for plisio_invoices
+CREATE POLICY "Users can view their own invoices"
+  ON public.plisio_invoices
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own invoices"
+  ON public.plisio_invoices
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- No public policies for plisio_callbacks (service_role only)
+
