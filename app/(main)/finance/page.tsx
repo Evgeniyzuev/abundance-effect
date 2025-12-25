@@ -375,7 +375,7 @@ export default function FinancePage() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => router.back()}
-              className="w-full sm:w-auto px-10 py-5 bg-gray-900 text-white font-bold rounded-2xl shadow-xl hover:bg-black transition-colors flex items-center justify-center gap-3"
+              className="w-full sm:w-auto px-10 py-5 bg-emerald-600 text-white font-bold rounded-2xl shadow-xl hover:bg-emerald-700 transition-colors flex items-center justify-center gap-3"
             >
               <span>{t('finance.buy_at_home')}</span>
               <Globe className="w-5 h-5" />
