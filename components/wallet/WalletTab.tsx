@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, ArrowUp, ArrowDown, ArrowRightLeft, Send, Sparkles, Wallet, ScanLine, MoreHorizontal, ArrowLeftRight } from "lucide-react"
+import { Plus, ArrowUp, ArrowDown, ArrowRightLeft, Send, Sparkles, Wallet, ScanLine, MoreHorizontal, ArrowLeftRight, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
 import { useLanguage } from "@/context/LanguageContext"
@@ -19,17 +19,18 @@ interface WalletTabProps {
     error?: string | null
 }
 
-const MOCK_ASSETS = [
-    { id: 'usdt', name: 'Dollars', symbol: 'USDT', price: 1.00, change: 0.01, balance: 153.17, color: '#22c55e' }, // Green
-    { id: 'ton', name: 'Toncoin', symbol: 'TON', price: 2.15, change: 2.96, balance: 144.876, color: '#0098EA' }, // Blue
-    { id: 'btc', name: 'Bitcoin', symbol: 'BTC', price: 96890.00, change: -1.23, balance: 0.01104, color: '#F7931A' }, // Orange
-    { id: 'eth', name: 'Ethereum', symbol: 'ETH', price: 3500.00, change: 0.54, balance: 0.45, color: '#627EEA' }, // Purple-Blue
-    { id: 'gold', name: 'Gold', symbol: 'XAU', price: 2045.50, change: 0.07, balance: 0.05, color: '#FFD700' }, // Gold
+const BASE_ASSETS = [
+    { id: 'usdt', name: 'Dollars', symbol: 'USDT', price: 1.00, change: 0.00, balance: 0, color: '#22c55e' }, // Green
+    { id: 'ton', name: 'Toncoin', symbol: 'TON', price: 2.15, change: 0.00, balance: 0, color: '#0098EA' }, // Blue
+    { id: 'btc', name: 'Bitcoin', symbol: 'BTC', price: 96890.00, change: 0.00, balance: 0, color: '#F7931A' }, // Orange
+    { id: 'eth', name: 'Ethereum', symbol: 'ETH', price: 3500.00, change: 0.00, balance: 0, color: '#627EEA' }, // Purple-Blue
+    { id: 'gold', name: 'Gold', symbol: 'XAU', price: 2045.50, change: 0.00, balance: 0, color: '#FFD700' }, // Gold
 ]
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, onWithdraw, userId, loading, error }: WalletTabProps) {
     const { t } = useLanguage()
-    const [activeTab, setActiveTab] = useState<'crypto' | 'ton'>('crypto')
+    const [activeTab, setActiveTab] = useState<'wallet' | 'core'>('wallet')
+    const [showAllAssets, setShowAllAssets] = useState(false)
 
     // Handlers for new buttons
     const handleTransfer = () => {
@@ -48,47 +49,40 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
         }
     }, [error])
 
+    // Update assets with real balance for USDT
+    const currentAssets = BASE_ASSETS.map(asset => {
+        if (asset.id === 'usdt') {
+            return { ...asset, balance: walletBalance }
+        }
+        return asset
+    })
+
+    const visibleAssets = showAllAssets ? currentAssets : [currentAssets[0]]
+
     return (
         <div className="w-full bg-[#F2F2F7] min-h-screen pb-24">
-            {/* Header */}
-            <div className="sticky top-0 z-10 bg-[#F2F2F7]/95 backdrop-blur-md pt-4 pb-2 px-4">
-                <div className="flex justify-between items-center mb-4">
-                    <button className="text-blue-500 font-medium text-lg">Close</button>
-                    <div className="flex items-center space-x-1">
-                        <span className="font-semibold text-lg">Wallet</span>
-                        <div className="bg-blue-500 rounded-full p-0.5">
-                            <span className="text-white text-[10px] font-bold px-1">✓</span>
-                        </div>
-                    </div>
-                    <button className="text-blue-500">
-                        <MoreHorizontal className="w-6 h-6" />
+            {/* Header: Top Switcher [Wallet | Core] */}
+            <div className="sticky top-0 z-10 bg-[#F2F2F7]/95 backdrop-blur-md pt-4 pb-2 px-4 flex justify-center">
+                <div className="bg-gray-200/80 p-0.5 rounded-lg flex space-x-1 w-64">
+                    <button
+                        onClick={() => setActiveTab('wallet')}
+                        className={`flex-1 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'wallet' ? 'bg-white shadow-sm text-black' : 'text-gray-500'}`}
+                    >
+                        Wallet
                     </button>
-                </div>
-
-                {/* Segmented Control */}
-                <div className="flex justify-center mb-6">
-                    <div className="bg-gray-200/80 p-0.5 rounded-lg flex space-x-1">
-                        <button
-                            onClick={() => setActiveTab('crypto')}
-                            className={`px-6 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'crypto' ? 'bg-white shadow-sm text-black' : 'text-gray-500'}`}
-                        >
-                            Crypto
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('ton')}
-                            className={`px-6 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'ton' ? 'bg-white shadow-sm text-black' : 'text-gray-500'}`}
-                        >
-                            TON Space
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => setActiveTab('core')}
+                        className={`flex-1 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'core' ? 'bg-white shadow-sm text-black' : 'text-gray-500'}`}
+                    >
+                        Core
+                    </button>
                 </div>
             </div>
 
             {/* Main Balance */}
-            <div className="flex flex-col items-center justify-center py-6 space-y-1">
-                <p className="text-gray-400 text-sm font-medium tracking-wide">Total Balance</p>
+            <div className="flex flex-col items-center justify-center py-8 space-y-1">
                 <h1 className="text-5xl font-bold text-black tracking-tight flex items-start">
-                    <span className="text-3xl mt-1 text-gray-400 mr-1">$</span>
+                    <span className="text-3xl mt-2 text-gray-400 mr-1">$</span>
                     {loading ? "..." : walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h1>
             </div>
@@ -96,52 +90,52 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
             {/* Action Buttons Grid */}
             <div className="grid grid-cols-4 gap-3 px-4 mb-8">
                 {/* Transfer (New) */}
-                <div className="flex flex-col items-center space-y-2">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleTransfer}
-                        className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20"
-                    >
-                        <Send className="h-6 w-6 -ml-0.5 mt-0.5" />
-                    </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleTransfer}
+                    className="bg-white rounded-2xl py-3 flex flex-col items-center justify-center shadow-sm space-y-2 h-[88px]"
+                >
+                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <Send className="h-4 w-4 -ml-0.5 mt-0.5" />
+                    </div>
                     <span className="text-[11px] font-medium text-blue-500">Transfer</span>
-                </div>
+                </motion.button>
 
                 {/* Deposit (Old TopUp) */}
-                <div className="flex flex-col items-center space-y-2">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={onTopUp}
-                        className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20"
-                    >
-                        <Plus className="h-7 w-7" />
-                    </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onTopUp}
+                    className="bg-white rounded-2xl py-3 flex flex-col items-center justify-center shadow-sm space-y-2 h-[88px]"
+                >
+                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <Plus className="h-5 w-5" />
+                    </div>
                     <span className="text-[11px] font-medium text-blue-500">Deposit</span>
-                </div>
+                </motion.button>
 
                 {/* Withdraw (Old Send) */}
-                <div className="flex flex-col items-center space-y-2">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={onSend}
-                        className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20"
-                    >
-                        <ArrowUp className="h-7 w-7" />
-                    </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onSend}
+                    className="bg-white rounded-2xl py-3 flex flex-col items-center justify-center shadow-sm space-y-2 h-[88px]"
+                >
+                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <ArrowUp className="h-5 w-5" />
+                    </div>
                     <span className="text-[11px] font-medium text-blue-500">Withdraw</span>
-                </div>
+                </motion.button>
 
                 {/* Exchange (New) */}
-                <div className="flex flex-col items-center space-y-2">
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleExchange}
-                        className="w-14 h-14 rounded-full bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20"
-                    >
-                        <ArrowLeftRight className="h-6 w-6" />
-                    </motion.button>
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleExchange}
+                    className="bg-white rounded-2xl py-3 flex flex-col items-center justify-center shadow-sm space-y-2 h-[88px]"
+                >
+                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                        <ArrowLeftRight className="h-5 w-5" />
+                    </div>
                     <span className="text-[11px] font-medium text-blue-500">Exchange</span>
-                </div>
+                </motion.button>
             </div>
 
             {/* Core Button (Distinct) */}
@@ -170,12 +164,12 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
             <div className="bg-white rounded-t-3xl min-h-[300px] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-10">
                 <div className="p-4 flex justify-between items-center border-b border-gray-100">
                     <h2 className="text-lg font-bold text-gray-800">Assets</h2>
-                    <span className="text-sm text-gray-400">Total: $1,212.91</span>
+                    {/* <span className="text-sm text-gray-400">Total: ${walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span> */}
                 </div>
 
                 <div className="flex flex-col">
                     {/* Dynamic Mock Assets */}
-                    {MOCK_ASSETS.map((asset) => (
+                    {visibleAssets.map((asset) => (
                         <WalletAssetRow
                             key={asset.id}
                             name={asset.name}
@@ -187,15 +181,22 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                         />
                     ))}
 
-                    <button className="w-full py-4 text-center text-blue-500 font-medium text-sm hover:bg-gray-50 transition-colors">
-                        More assets ▾
-                    </button>
+                    {!showAllAssets && (
+                        <button
+                            onClick={() => setShowAllAssets(true)}
+                            className="w-full py-4 flex items-center justify-center text-blue-500 font-medium text-sm hover:bg-gray-50 transition-colors space-x-1"
+                        >
+                            <span>More assets</span>
+                            <ChevronDown className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
             </div>
 
-            {/* History Section (Old functionality) */}
+            {/* History Section (Old functionality) - Only visible on Wallet tab? Or both? */}
+            {/* For now, keep it at bottom */}
             {userId && (
-                <div className="mt-4 px-4">
+                <div className="mt-4 px-4 bg-transparent">
                     <h3 className="text-gray-500 font-medium mb-2 pl-2">Recent Activity</h3>
                     <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
                         <WalletHistory userId={userId} />
