@@ -52,6 +52,8 @@ export type TranslationKey =
     // AI page
     | 'ai.title'
     | 'ai.coming_soon'
+    | 'ai.greeting'
+    | 'ai.input_placeholder'
     // Challenges page details
     | 'challenges.page_title'
     | 'challenges.join'

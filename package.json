@@ -11,6 +11,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@orbs-network/ton-access": "^2.3.3",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.84.0",

@@ -58,6 +58,8 @@
     "projects.no_projects_yet": "No projects yet",
     "ai.title": "AI Assistant",
     "ai.coming_soon": "AI Squad coming soon.",
+    "ai.greeting": "Hello! I am your Abundance Coordinator. I see your goals and financial status. How can I help you grow today?",
+    "ai.input_placeholder": "Ask for advice...",
     "wallet.title": "Wallet",
     "wallet.wallet_balance": "Wallet Balance",
     "wallet.core_balance": "Core Balance",

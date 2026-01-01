@@ -58,6 +58,8 @@
     "projects.no_projects_yet": "Пока нет проектов",
     "ai.title": "AI Ассистент",
     "ai.coming_soon": "AI Команда скоро.",
+    "ai.greeting": "Привет! Я твой Координатор Изобилия. Я вижу твои цели и финансовый статус. Чем могу помочь тебе сегодня?",
+    "ai.input_placeholder": "Спроси совет...",
     "wallet.title": "Кошелёк",
     "wallet.wallet_balance": "Баланс Кошелька",
     "wallet.core_balance": "Баланс Ядра",
