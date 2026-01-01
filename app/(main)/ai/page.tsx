@@ -19,7 +19,7 @@ export default function AiPage() {
     const { user } = useUser();
 
     // Context Data Hooks
-    const { userWishes } = useGoals();
+    const { userWishes, loadFromCache, fetchWishes } = useGoals();
     const { coreBalance, walletBalance } = useWalletBalancesNoCache(user?.id || null);
 
     // Chat State
@@ -27,12 +27,43 @@ export default function AiPage() {
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    // Load Chat History & Hydrate
+    useEffect(() => {
+        setIsClient(true);
+        if (typeof window !== 'undefined') {
+            const saved = window.localStorage.getItem('app-ai-chat-history');
+            if (saved) {
+                try {
+                    setMessages(JSON.parse(saved));
+                } catch (e) {
+                    console.error("Failed to parse chat history", e);
+                }
+            }
+        }
+    }, []);
+
+    // Save Chat History
+    useEffect(() => {
+        if (isClient && messages.length > 0) {
+            window.localStorage.setItem('app-ai-chat-history', JSON.stringify(messages));
+        }
+    }, [messages, isClient]);
+
+    // Ensure Goals are Loaded
+    useEffect(() => {
+        if (user) {
+            loadFromCache();
+            fetchWishes();
+        }
+    }, [user, loadFromCache, fetchWishes]);
+
     // Initial Greeting
     useEffect(() => {
-        if (messages.length === 0) {
+        if (isClient && messages.length === 0) {
             setMessages([
                 {
                     role: 'model',
@@ -40,7 +71,7 @@ export default function AiPage() {
                 }
             ]);
         }
-    }, [t, messages.length]);
+    }, [t, messages.length, isClient]);
 
     // Auto-scroll to bottom
     const scrollToBottom = () => {

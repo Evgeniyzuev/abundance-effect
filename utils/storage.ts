@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
     GAME_ITEMS_CACHE: 'app-game-items-cache',
     WALLET_BALANCES: 'app-wallet-balances-cache',
     CHALLENGES_CACHE: 'app-challenges-cache',
+    AI_CHAT_HISTORY: 'app-ai-chat-history',
 } as const;
 
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
