@@ -189,6 +189,7 @@ export type TranslationKey =
     // Common
     | 'common.loading'
     | 'common.error'
+    | 'common.coming_soon'
     | 'common.create'
     | 'common.delete'
     | 'common.save'
