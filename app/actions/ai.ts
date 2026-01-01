@@ -22,7 +22,8 @@ export async function chatWithAI(
 
     try {
         // 2. Configure Model
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        // "gemini-pro" is legacy. Using "gemini-2.5-flash" (2026 standard) for best performance.
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         // 3. Construct System Prompt / Context
         // Since Gemini Pro (v1) handles system prompts best within the chat context or at the start,
