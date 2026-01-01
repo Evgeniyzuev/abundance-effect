@@ -29,7 +29,7 @@ const BASE_ASSETS = [
 
 export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, onWithdraw, userId, loading, error }: WalletTabProps) {
     const { t } = useLanguage()
-    const [activeTab, setActiveTab] = useState<'wallet' | 'core'>('wallet')
+
     const [showAllAssets, setShowAllAssets] = useState(false)
 
     // Handlers for new buttons
@@ -61,23 +61,7 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
 
     return (
         <div className="w-full bg-[#F2F2F7] min-h-screen pb-24">
-            {/* Header: Top Switcher [Wallet | Core] */}
-            <div className="sticky top-0 z-10 bg-[#F2F2F7]/95 backdrop-blur-md pt-4 pb-2 px-4 flex justify-center">
-                <div className="bg-gray-200/80 p-0.5 rounded-lg flex space-x-1 w-64">
-                    <button
-                        onClick={() => setActiveTab('wallet')}
-                        className={`flex-1 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'wallet' ? 'bg-white shadow-sm text-black' : 'text-gray-500'}`}
-                    >
-                        Wallet
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('core')}
-                        className={`flex-1 py-1.5 rounded-md text-sm font-semibold transition-all ${activeTab === 'core' ? 'bg-white shadow-sm text-black' : 'text-gray-500'}`}
-                    >
-                        Core
-                    </button>
-                </div>
-            </div>
+
 
             {/* Main Balance */}
             <div className="flex flex-col items-center justify-center py-8 space-y-1">
@@ -181,15 +165,13 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
                         />
                     ))}
 
-                    {!showAllAssets && (
-                        <button
-                            onClick={() => setShowAllAssets(true)}
-                            className="w-full py-4 flex items-center justify-center text-blue-500 font-medium text-sm hover:bg-gray-50 transition-colors space-x-1"
-                        >
-                            <span>More assets</span>
-                            <ChevronDown className="w-4 h-4" />
-                        </button>
-                    )}
+                    <button
+                        onClick={() => setShowAllAssets(!showAllAssets)}
+                        className="w-full py-4 flex items-center justify-center text-blue-500 font-medium text-sm hover:bg-gray-50 transition-colors space-x-1"
+                    >
+                        <span>{showAllAssets ? 'Less assets' : 'More assets'}</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform ${showAllAssets ? 'rotate-180' : ''}`} />
+                    </button>
                 </div>
             </div>
 

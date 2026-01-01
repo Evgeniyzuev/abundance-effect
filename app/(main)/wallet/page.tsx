@@ -39,45 +39,24 @@ export default function WalletPage() {
         <div className="flex flex-col h-full bg-white">
             {/* Icon Tabs */}
             <div className="fixed top-0 left-0 right-0 z-[30] bg-white border-b border-gray-100 pt-safe">
-                <div className="flex justify-around items-center h-12">
-                    <button
-                        onClick={() => setActiveTab("wallet")}
-                        className={`flex items-center justify-center w-full h-full transition-all duration-300 ${activeTab === "wallet" ? "text-black" : "text-gray-300 hover:text-gray-500"
-                            }`}
-                    >
-                        <Wallet size={24} strokeWidth={activeTab === "wallet" ? 2 : 1.5} />
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("core")}
-                        className={`flex items-center justify-center w-full h-full transition-all duration-500 ${activeTab === "core" ? "text-blue-600" : "text-blue-400/60 hover:text-blue-500"
-                            }`}
-                    >
-                        <motion.div
-                            animate={{
-                                rotate: 360,
-                                scale: activeTab === "core" ? [1, 1.15, 1] : [1, 1.05, 1],
-                                opacity: activeTab === "core" ? 1 : 0.8,
-                                filter: activeTab === "core" ? [
-                                    "drop-shadow(0 0 2px rgba(59, 130, 246, 0.4))",
-                                    "drop-shadow(0 0 10px rgba(59, 130, 246, 0.8))",
-                                    "drop-shadow(0 0 2px rgba(59, 130, 246, 0.4))"
-                                ] : "drop-shadow(0 0 4px rgba(59, 130, 246, 0.15))"
-                            }}
-                            transition={{
-                                rotate: { duration: activeTab === "core" ? 8 : 20, repeat: Infinity, ease: "linear" },
-                                scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                                filter: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                                opacity: { duration: 0.5 }
-                            }}
-                            className="flex items-center justify-center"
+                <div className="flex justify-center items-center h-14 pb-2">
+                    <div className="bg-gray-100 p-1 rounded-xl flex space-x-1 w-48 relative">
+                        {/* Sliding Background (Optional, but simple active class is easier) */}
+                        <button
+                            onClick={() => setActiveTab("wallet")}
+                            className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === "wallet" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-900"
+                                }`}
                         >
-                            <Atom
-                                size={24}
-                                strokeWidth={activeTab === "core" ? 2.5 : 2}
-                                className="text-blue-500"
-                            />
-                        </motion.div>
-                    </button>
+                            Wallet
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("core")}
+                            className={`flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 ${activeTab === "core" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-900"
+                                }`}
+                        >
+                            Core
+                        </button>
+                    </div>
                 </div>
             </div>
 
