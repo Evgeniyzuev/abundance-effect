@@ -80,13 +80,18 @@ export default function AiPage() {
 
         try {
             // Convert history for API (exclude the very last user message which is sent as 'message')
-            // Actually Server Action takes (message, history, context).
-            // History should be previous messages.
+            // Additionally, Google Gemini requires history to start with 'user'.
+            // If the first message is the 'model' greeting, we must exclude it.
 
-            const apiHistory = newHistory.slice(0, -1).map(m => ({
+            let apiHistory = newHistory.slice(0, -1).map(m => ({
                 role: m.role,
                 parts: m.text
             }));
+
+            // Filter out leading model messages until we hit a user message or empty
+            while (apiHistory.length > 0 && apiHistory[0].role === 'model') {
+                apiHistory.shift();
+            }
 
             const result = await chatWithAI(userMsg, apiHistory, userContext);
 

@@ -60,13 +60,38 @@ Guidelines:
 `;
 
         // 4. Start Chat
-        // We construct the history for the model.
-        // Note: Gemini expects roles 'user' and 'model'.
+        // We ensure history is valid for Google Generative AI:
+        // - Must start with 'user' role
+        // - Must alternate user/model
+
+        const cleanHistory = history.map(h => ({
+            role: h.role,
+            parts: [{ text: h.parts }]
+        }));
+
+        // Remove leading model messages
+        while (cleanHistory.length > 0 && cleanHistory[0].role === 'model') {
+            cleanHistory.shift();
+        }
+
+        // Merge consecutive messages of the same role to ensure alternation
+        const sanitizedHistory = [];
+        for (const msg of cleanHistory) {
+            if (sanitizedHistory.length === 0) {
+                sanitizedHistory.push(msg);
+            } else {
+                const last = sanitizedHistory[sanitizedHistory.length - 1];
+                if (last.role === msg.role) {
+                    // Merge text parts
+                    last.parts[0].text += "\n\n" + msg.parts[0].text;
+                } else {
+                    sanitizedHistory.push(msg);
+                }
+            }
+        }
+
         const chat = model.startChat({
-            history: history.map(h => ({
-                role: h.role,
-                parts: [{ text: h.parts }]
-            })),
+            history: sanitizedHistory,
             generationConfig: {
                 maxOutputTokens: 1000,
             },
