@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useUser } from '@/context/UserContext';
 import { useGoals } from '@/hooks/useGoals';
 import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
+import { useChallenges } from '@/hooks/useChallenges';
 import { chatWithAI } from '@/app/actions/ai';
 import { Send, Sparkles, User, Bot, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,6 +22,7 @@ export default function AiPage() {
     // Context Data Hooks
     const { userWishes, loadFromCache, fetchWishes } = useGoals();
     const { coreBalance, walletBalance } = useWalletBalancesNoCache(user?.id || null);
+    const { challengesWithParticipation, updateParticipation } = useChallenges();
 
     // Chat State
     const [messages, setMessages] = useState<Message[]>([]);
@@ -155,6 +157,16 @@ export default function AiPage() {
                 }
             } else if (result.text) {
                 setMessages(prev => [...prev, { role: 'model', text: result.text }]);
+
+                // Auto-complete AI recommendation challenge if user has active participation
+                const aiChallenge = challengesWithParticipation.find(
+                    c => c.verification_logic === 'ai_message_sent' &&
+                         c.userParticipation?.status === 'active'
+                );
+                if (aiChallenge && user?.id) {
+                    // Mark challenge as completed with progress data
+                    updateParticipation(aiChallenge.id, 'completed', { message_sent: true });
+                }
             }
 
         } catch (err) {

@@ -63,5 +63,13 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
       // Check for calculation proof from client
       return !!progressData?.calculated;
     }
+  },
+
+  'ai_message_sent': {
+    description: 'Check if user sent a message to AI assistant',
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
+      // Check for AI interaction proof from client
+      return !!progressData?.message_sent;
+    }
   }
 };
