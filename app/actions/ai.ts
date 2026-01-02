@@ -147,6 +147,17 @@ Financial State:
 - Wallet Balance: $${userContext.walletBalance?.toFixed(2) || '0.00'}
 - Level: ${userContext.level || 1}
 
+Level Requirements:
+- Level 1-5: $2 → $32 (Getting Started)
+- Level 6-10: $64 → $1,000 (Building Momentum)
+- Level 11-15: $2,000 → $32,000 (Growing Wealth)
+- Level 16-20: $64,000 → $1,000,000 (Significant Progress)
+- Level 21-25: $2M → $32M (Wealth Building)
+- Level 26-30: $64M → $1B (Major Milestones)
+- Level 31-35: $2B → $32B (High Net Worth)
+- Level 36-40: $64B → $1T (Elite Status)
+- *Each level requires ~2x more Core than the previous*
+
 Goals / Wishes:
 ${userContext.wishes?.length > 0
             ? userContext.wishes.map((w: any) => `- ${w.title} ($${w.estimated_cost})`).join('\n')
@@ -160,6 +171,7 @@ Guidelines:
 5. **Language**: Reply in the language matching the user's preference or input.
 6. **Proactive**: Ask follow-up questions.
 7. **Recommendations**: Suggest checking "Challenges" tab and "Projects".
+8. **Level Guidance**: Help users understand how much Core they need for next level.
 [/SYSTEM CONTEXT]
 `;
 }
