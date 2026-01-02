@@ -158,14 +158,14 @@ export default function AiPage() {
             } else if (result.text) {
                 setMessages(prev => [...prev, { role: 'model', text: result.text }]);
 
-                // Auto-complete AI recommendation challenge if user has active participation
+                // Record progress for AI recommendation challenge if user has active participation
                 const aiChallenge = challengesWithParticipation.find(
                     c => c.verification_logic === 'ai_message_sent' &&
                          c.userParticipation?.status === 'active'
                 );
                 if (aiChallenge && user?.id) {
-                    // Mark challenge as completed with progress data
-                    updateParticipation(aiChallenge.id, 'completed', { message_sent: true });
+                    // Save progress data for later verification (like "Calculate Time to Goal")
+                    updateParticipation(aiChallenge.id, 'active', { message_sent: true });
                 }
             }
 
