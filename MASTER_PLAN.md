@@ -117,6 +117,7 @@
     *   [x] Подключить базовый чат на вкладке Ai.
         *   [x] Создать план внедрения (docs/AI_Implementation_Plan.md)
         *   [x] Создать Server Action для Gemini API
+        *   [x] Поддержка Multi-LLM (Gemini + Groq)
         *   [x] Реализовать UI чата
         *   [x] Интегрировать контекст (Wishes, Balance)
 

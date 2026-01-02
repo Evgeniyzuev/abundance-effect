@@ -67,3 +67,9 @@ It is free for low/medium usage.
 ```env
 GOOGLE_GENERATIVE_AI_KEY=AIzaSy...
 ```
+
+### Optional: Groq (Llama 3)
+To use Llama 3 (very fast), get a key from [console.groq.com](https://console.groq.com).
+```env
+GROQ_API_KEY=gsk_...
+```

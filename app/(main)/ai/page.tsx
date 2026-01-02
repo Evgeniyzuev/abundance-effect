@@ -28,6 +28,8 @@ export default function AiPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isClient, setIsClient] = useState(false);
+    // AI Provider State
+    const [provider, setProvider] = useState<'gemini' | 'groq'>('gemini');
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +47,23 @@ export default function AiPage() {
             }
         }
     }, []);
+
+    // Load Provider Preference
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedProvider = window.localStorage.getItem('app-ai-provider');
+            if (savedProvider === 'gemini' || savedProvider === 'groq') {
+                setProvider(savedProvider);
+            }
+        }
+    }, []);
+
+    const handleProviderChange = (newProvider: 'gemini' | 'groq') => {
+        setProvider(newProvider);
+        if (typeof window !== 'undefined') {
+            window.localStorage.setItem('app-ai-provider', newProvider);
+        }
+    };
 
     // Save Chat History
     useEffect(() => {
@@ -124,7 +143,8 @@ export default function AiPage() {
                 apiHistory.shift();
             }
 
-            const result = await chatWithAI(userMsg, apiHistory, userContext);
+            // Pass provider to server action
+            const result = await chatWithAI(userMsg, apiHistory, userContext, provider);
 
             if (result.error) {
                 // If specific setup error
@@ -161,6 +181,28 @@ export default function AiPage() {
                         <Sparkles size={18} />
                     </div>
                     <h1 className="font-bold text-lg text-gray-900">Abundance AI</h1>
+                </div>
+
+                {/* Model Selector */}
+                <div className="flex bg-gray-100 rounded-lg p-1 text-xs font-medium">
+                    <button
+                        onClick={() => handleProviderChange('gemini')}
+                        className={`px-3 py-1.5 rounded-md transition-all ${provider === 'gemini'
+                                ? 'bg-white text-blue-600 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Gemini
+                    </button>
+                    <button
+                        onClick={() => handleProviderChange('groq')}
+                        className={`px-3 py-1.5 rounded-md transition-all ${provider === 'groq'
+                                ? 'bg-white text-orange-600 shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
+                            }`}
+                    >
+                        Groq
+                    </button>
                 </div>
             </header>
 
