@@ -13,17 +13,19 @@ const groqKey = process.env.GROQ_API_KEY;
 const groq = groqKey ? new Groq({ apiKey: groqKey }) : null;
 
 export type AIProvider = 'gemini' | 'groq';
+export type GroqModel = 'llama-3.3-70b-versatile' | 'moonshotai/kimi-k2-instruct-0905';
 
 export async function chatWithAI(
     message: string,
     history: { role: 'user' | 'model'; parts: string }[],
     userContext: any,
-    provider: AIProvider = 'gemini'
+    provider: AIProvider = 'gemini',
+    groqModel?: GroqModel
 ) {
     if (provider === 'gemini') {
         return chatWithGemini(message, history, userContext);
     } else if (provider === 'groq') {
-        return chatWithGroq(message, history, userContext);
+        return chatWithGroq(message, history, userContext, groqModel);
     } else {
         return { error: 'Invalid provider', text: 'Selected AI provider is not available.' };
     }
@@ -91,7 +93,8 @@ async function chatWithGemini(
 async function chatWithGroq(
     message: string,
     history: { role: 'user' | 'model'; parts: string }[],
-    userContext: any
+    userContext: any,
+    groqModel?: GroqModel
 ) {
     if (!groqKey || !groq) {
         return {
@@ -116,7 +119,7 @@ async function chatWithGroq(
 
         const completion = await groq.chat.completions.create({
             messages: messages,
-            model: 'llama3-70b-8192', // High performance open model
+            model: groqModel || 'llama-3.3-70b-versatile',
             temperature: 0.7,
             max_tokens: 1024,
         });

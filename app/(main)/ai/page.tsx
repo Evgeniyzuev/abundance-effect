@@ -6,8 +6,8 @@ import { useUser } from '@/context/UserContext';
 import { useGoals } from '@/hooks/useGoals';
 import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
 import { useChallenges } from '@/hooks/useChallenges';
-import { chatWithAI } from '@/app/actions/ai';
-import { Send, Sparkles, User, Bot, Loader2 } from 'lucide-react';
+import { chatWithAI, GroqModel } from '@/app/actions/ai';
+import { Send, Sparkles, User, Bot, Loader2, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Message = {
@@ -32,6 +32,8 @@ export default function AiPage() {
     const [isClient, setIsClient] = useState(false);
     // AI Provider State
     const [provider, setProvider] = useState<'gemini' | 'groq'>('gemini');
+    const [groqModel, setGroqModel] = useState<GroqModel>('llama-3.3-70b-versatile');
+    const [showModelSelector, setShowModelSelector] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -50,12 +52,16 @@ export default function AiPage() {
         }
     }, []);
 
-    // Load Provider Preference
+    // Load Provider and Model Preferences
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedProvider = window.localStorage.getItem('app-ai-provider');
             if (savedProvider === 'gemini' || savedProvider === 'groq') {
                 setProvider(savedProvider);
+            }
+            const savedModel = window.localStorage.getItem('app-ai-groq-model');
+            if (savedModel === 'llama-3.3-70b-versatile' || savedModel === 'moonshotai/kimi-k2-instruct-0905') {
+                setGroqModel(savedModel);
             }
         }
     }, []);
@@ -145,8 +151,8 @@ export default function AiPage() {
                 apiHistory.shift();
             }
 
-            // Pass provider to server action
-            const result = await chatWithAI(userMsg, apiHistory, userContext, provider);
+            // Pass provider and groq model to server action
+            const result = await chatWithAI(userMsg, apiHistory, userContext, provider, groqModel);
 
             if (result.error) {
                 // If specific setup error
@@ -196,25 +202,76 @@ export default function AiPage() {
                 </div>
 
                 {/* Model Selector */}
-                <div className="flex bg-gray-100 rounded-lg p-1 text-xs font-medium">
-                    <button
-                        onClick={() => handleProviderChange('gemini')}
-                        className={`px-3 py-1.5 rounded-md transition-all ${provider === 'gemini'
-                                ? 'bg-white text-blue-600 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Gemini
-                    </button>
-                    <button
-                        onClick={() => handleProviderChange('groq')}
-                        className={`px-3 py-1.5 rounded-md transition-all ${provider === 'groq'
-                                ? 'bg-white text-orange-600 shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700'
-                            }`}
-                    >
-                        Groq
-                    </button>
+                <div className="flex items-center space-x-2">
+                    <div className="flex bg-gray-100 rounded-lg p-1 text-xs font-medium">
+                        <button
+                            onClick={() => handleProviderChange('gemini')}
+                            className={`px-3 py-1.5 rounded-md transition-all ${provider === 'gemini'
+                                    ? 'bg-white text-blue-600 shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            Gemini
+                        </button>
+                        <button
+                            onClick={() => handleProviderChange('groq')}
+                            className={`px-3 py-1.5 rounded-md transition-all ${provider === 'groq'
+                                    ? 'bg-white text-orange-600 shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            Groq
+                        </button>
+                    </div>
+
+                    {/* Groq Model Selector */}
+                    {provider === 'groq' && (
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowModelSelector(!showModelSelector)}
+                                className="flex items-center space-x-1 bg-gray-100 text-gray-700 px-2 py-1 rounded-md text-xs hover:bg-gray-200 transition-colors"
+                            >
+                                <span>
+                                    {groqModel === 'llama-3.3-70b-versatile' ? 'Llama 3.3' :
+                                     groqModel === 'moonshotai/kimi-k2-instruct-0905' ? 'Moonshot Kimi' : groqModel}
+                                </span>
+                                <ChevronDown size={12} />
+                            </button>
+
+                            {showModelSelector && (
+                                <div className="absolute top-full mt-1 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-20 min-w-[160px]">
+                                    <button
+                                        onClick={() => {
+                                            setGroqModel('llama-3.3-70b-versatile');
+                                            setShowModelSelector(false);
+                                            if (typeof window !== 'undefined') {
+                                                window.localStorage.setItem('app-ai-groq-model', 'llama-3.3-70b-versatile');
+                                            }
+                                        }}
+                                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${
+                                            groqModel === 'llama-3.3-70b-versatile' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                                        }`}
+                                    >
+                                        Llama 3.3 70B
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setGroqModel('moonshotai/kimi-k2-instruct-0905');
+                                            setShowModelSelector(false);
+                                            if (typeof window !== 'undefined') {
+                                                window.localStorage.setItem('app-ai-groq-model', 'moonshotai/kimi-k2-instruct-0905');
+                                            }
+                                        }}
+                                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${
+                                            groqModel === 'moonshotai/kimi-k2-instruct-0905' ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
+                                        }`}
+                                    >
+                                        Moonshot Kimi K2
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </header>
 
