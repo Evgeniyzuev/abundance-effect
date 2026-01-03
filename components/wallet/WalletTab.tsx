@@ -11,7 +11,8 @@ import WalletAssetRow from "./WalletAssetRow"
 interface WalletTabProps {
     walletBalance: number
     onTopUp: () => void
-    onTransfer: () => void
+    onCoreTransfer: () => void
+    onP2PTransfer: () => void
     onSend: () => void
     onWithdraw: () => void
     userId: string | null
@@ -27,14 +28,14 @@ const BASE_ASSETS = [
     { id: 'gold', name: 'Gold', symbol: 'XAU', price: 2045.50, change: 0.00, balance: 0, color: '#FFD700' }, // Gold
 ]
 
-export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, onWithdraw, userId, loading, error }: WalletTabProps) {
+export default function WalletTab({ walletBalance, onTopUp, onCoreTransfer, onP2PTransfer, onSend, onWithdraw, userId, loading, error }: WalletTabProps) {
     const { t } = useLanguage()
 
     const [showAllAssets, setShowAllAssets] = useState(false)
 
     // Handlers for new buttons
     const handleTransfer = () => {
-        alert(t('common.coming_soon') || "Internal transfers coming soon!")
+        onP2PTransfer()
     }
 
     const handleExchange = () => {
@@ -126,7 +127,7 @@ export default function WalletTab({ walletBalance, onTopUp, onTransfer, onSend, 
             <div className="px-4 mb-6">
                 <motion.button
                     whileTap={{ scale: 0.98 }}
-                    onClick={onTransfer}
+                    onClick={onCoreTransfer}
                     className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-4 flex items-center justify-between shadow-lg text-white"
                 >
                     <div className="flex items-center space-x-3">

@@ -337,7 +337,9 @@ export type TranslationKey =
     | 'finance.bottom_text_2'
     | 'finance.bottom_text_3'
     | 'finance.bottom_text_4'
-    | 'finance.footer_text';
+    | 'finance.footer_text'
+    // Contacts
+    | 'contacts.search_placeholder';
 
 /**
  * Helper to interpolate variables into translation strings.

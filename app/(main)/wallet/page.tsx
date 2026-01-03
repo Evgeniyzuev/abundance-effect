@@ -11,6 +11,7 @@ import TopUpModal from '@/components/wallet/TopUpModal';
 import TransferModal from '@/components/wallet/TransferModal';
 import SendTonModal from '@/components/wallet/SendTonModal';
 import WithdrawModal from '@/components/wallet/WithdrawModal';
+import P2PTransferModal from '@/components/wallet/P2PTransferModal';
 
 export default function WalletPage() {
     const { user, refreshUser } = useUser();
@@ -18,6 +19,7 @@ export default function WalletPage() {
     const [activeTab, setActiveTab] = useState<"wallet" | "core">("wallet");
     const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+    const [isP2PTransferModalOpen, setIsP2PTransferModalOpen] = useState(false);
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
@@ -27,6 +29,11 @@ export default function WalletPage() {
     };
 
     const handleTransferSuccess = async (newWalletBalance: number, newCoreBalance: number) => {
+        await refreshBalances();
+        await refreshUser();
+    };
+
+    const handleP2PTransferSuccess = async () => {
         await refreshBalances();
         await refreshUser();
     };
@@ -68,7 +75,8 @@ export default function WalletPage() {
                         <WalletTab
                             walletBalance={walletBalance}
                             onTopUp={() => setIsTopUpModalOpen(true)}
-                            onTransfer={() => setIsTransferModalOpen(true)}
+                            onCoreTransfer={() => setIsTransferModalOpen(true)}
+                            onP2PTransfer={() => setIsP2PTransferModalOpen(true)}
                             onSend={() => setIsSendModalOpen(true)}
                             onWithdraw={() => setIsWithdrawModalOpen(true)}
                             userId={user?.id || null}
@@ -121,6 +129,13 @@ export default function WalletPage() {
                         onSuccess={handleTopUpSuccess}
                         userId={user.id}
                         currentBalance={walletBalance}
+                    />
+
+                    <P2PTransferModal
+                        isOpen={isP2PTransferModalOpen}
+                        onClose={() => setIsP2PTransferModalOpen(false)}
+                        currentBalance={walletBalance}
+                        onSuccess={handleP2PTransferSuccess}
                     />
                 </>
             )}
