@@ -7,7 +7,7 @@ interface CoreOperation {
     id: string
     user_id: string
     amount: number
-    type: 'interest' | 'transfer' | 'reinvest'
+    type: 'interest' | 'transfer' | 'reinvest' | 'referral_bonus'
     created_at: string
 }
 
@@ -63,6 +63,8 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
                 return '↔️'
             case 'reinvest':
                 return '🔄'
+            case 'referral_bonus':
+                return '👥'
             default:
                 return '📝'
         }
@@ -76,6 +78,8 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
                 return t('wallet.transfer')
             case 'reinvest':
                 return t('wallet.reinvest')
+            case 'referral_bonus':
+                return t('wallet.referral_bonus')
             default:
                 return t('wallet.operation')
         }
@@ -108,9 +112,8 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
                                 return (
                                     <div
                                         key={op.id}
-                                        className={`flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl shadow-sm ${
-                                            isTransferToCore ? 'operation--transfer-to-core' : ''
-                                        }`}
+                                        className={`flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl shadow-sm ${isTransferToCore ? 'operation--transfer-to-core' : ''
+                                            }`}
                                     >
                                         <div className="flex items-center space-x-3">
                                             <span className="text-xl">{getOperationIcon(op.type)}</span>
@@ -129,18 +132,17 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
                                         </div>
                                         <div className="flex items-center space-x-1">
                                             {isTransferToCore && (
-                                                <ArrowUp 
-                                                    className="h-3 w-3" 
+                                                <ArrowUp
+                                                    className="h-3 w-3"
                                                     style={{ color: '#2563EB' }}
                                                     aria-label="Transfer to core - increased power"
                                                 />
                                             )}
-                                            <span 
-                                                className={`font-bold text-sm ${
-                                                    isTransferToCore 
-                                                        ? 'text-[#2563EB]' 
+                                            <span
+                                                className={`font-bold text-sm ${isTransferToCore
+                                                        ? 'text-[#2563EB]'
                                                         : op.amount >= 0 ? 'text-green-600' : 'text-red-600'
-                                                }`}
+                                                    }`}
                                                 aria-label={`Amount: ${op.amount >= 0 ? '+' : ''}${op.amount.toFixed(8)}${isTransferToCore ? ' (Transfer to core)' : ''}`}
                                             >
                                                 {op.amount >= 0 ? '+' : ''}{op.amount.toFixed(8)}

@@ -105,6 +105,7 @@ export type TranslationKey =
     | 'wallet.interest_earned'
     | 'wallet.transfer'
     | 'wallet.reinvest_op'
+    | 'wallet.referral_bonus'
     | 'wallet.operation'
     // Profile/Social page
     | 'profile.title'
