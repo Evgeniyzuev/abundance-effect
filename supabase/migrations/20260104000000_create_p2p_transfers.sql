@@ -43,8 +43,14 @@ SECURITY DEFINER
 AS $$
 DECLARE
     sender_balance numeric;
+    sender_name text;
+    receiver_name text;
 BEGIN
-    -- 1. Check sender's balance
+    -- 0. Fetch names for history
+    SELECT COALESCE(TRIM(first_name || ' ' || COALESCE(last_name, '')), username, 'User') INTO sender_name FROM public.users WHERE id = p_sender_id;
+    SELECT COALESCE(TRIM(first_name || ' ' || COALESCE(last_name, '')), username, 'User') INTO receiver_name FROM public.users WHERE id = p_receiver_id;
+
+    -- 1. Check sender's balance (Locking for update)
     SELECT wallet_balance INTO sender_balance FROM public.users WHERE id = p_sender_id FOR UPDATE;
     
     IF sender_balance < p_amount THEN
@@ -67,12 +73,12 @@ BEGIN
 
     -- 5. Add records to wallet_operations for history consistency
     -- Sender side (outflow)
-    INSERT INTO public.wallet_operations (user_id, amount, type, description)
-    VALUES (p_sender_id, -p_amount, 'send', COALESCE(p_comment, 'P2P Transfer out'));
+    INSERT INTO public.wallet_operations (user_id, amount, type, description, status)
+    VALUES (p_sender_id, -p_amount, 'send', 'To ' || receiver_name || COALESCE(': ' || p_comment, ''), 'completed');
 
     -- Receiver side (inflow)
-    INSERT INTO public.wallet_operations (user_id, amount, type, description)
-    VALUES (p_receiver_id, p_amount, 'transfer', COALESCE(p_comment, 'P2P Transfer in'));
+    INSERT INTO public.wallet_operations (user_id, amount, type, description, status)
+    VALUES (p_receiver_id, p_amount, 'transfer', 'From ' || sender_name || COALESCE(': ' || p_comment, ''), 'completed');
 
 END;
 $$;

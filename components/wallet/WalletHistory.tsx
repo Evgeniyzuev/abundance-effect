@@ -73,7 +73,11 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
     }
 
     const getOperationLabel = (op: WalletOperation) => {
-        if (op.description && op.description.toLowerCase().includes('p2p')) {
+        if (op.description && (
+            op.description.toLowerCase().includes('p2p') ||
+            op.description.startsWith('From ') ||
+            op.description.startsWith('To ')
+        )) {
             return op.description;
         }
         switch (op.type) {
