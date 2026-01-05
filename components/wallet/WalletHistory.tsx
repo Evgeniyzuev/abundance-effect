@@ -57,8 +57,11 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
         setIsExpanded(!isExpanded)
     }
 
-    const getOperationIcon = (type: string) => {
-        switch (type) {
+    const getOperationIcon = (op: WalletOperation) => {
+        if (op.description && op.description.startsWith('Payment ')) {
+            return '🧾'
+        }
+        switch (op.type) {
             case 'topup':
                 return '💰'
             case 'transfer':
@@ -76,7 +79,8 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
         if (op.description && (
             op.description.toLowerCase().includes('p2p') ||
             op.description.startsWith('From ') ||
-            op.description.startsWith('To ')
+            op.description.startsWith('To ') ||
+            op.description.startsWith('Payment ')
         )) {
             return op.description;
         }
@@ -152,7 +156,7 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
                                     >
                                         <div className="flex items-center space-x-3">
                                             <div className="relative">
-                                                <span className="text-xl">{getOperationIcon(op.type)}</span>
+                                                <span className="text-xl">{getOperationIcon(op)}</span>
                                                 <span className="absolute -top-1 -right-1 text-xs">{getStatusIcon(op.status)}</span>
                                             </div>
                                             <div>
