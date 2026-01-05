@@ -155,47 +155,57 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
 
     useEffect(() => {
-        const getTelegramWebApp = async () => {
-            if (typeof window === 'undefined') return null;
-            const getWebApp = () => (window as any).Telegram?.WebApp;
-            let webApp = getWebApp();
-            if (webApp) return webApp;
-
-            const hasTelegramWebAppData = window.location.hash.includes('tgWebAppData');
-            const userAgent = window.navigator.userAgent;
-            const isTelegramBot = userAgent.includes('TelegramBot') || userAgent.includes('tg://');
-
-            if (hasTelegramWebAppData || isTelegramBot) {
-                for (let i = 0; i < 20; i++) {
-                    await new Promise(r => setTimeout(r, 50));
-                    webApp = getWebApp();
-                    if (webApp) return webApp;
-                }
-            }
-            return null;
-        };
-
         const init = async () => {
+            // Step 1: Load from cache immediately for instant UI
             const cachedUser = loadUserFromCache();
             if (cachedUser) {
+                console.log('Loaded user from cache:', cachedUser);
                 setUser(cachedUser);
-                setIsLoading(false);
+                setIsLoading(false); // Show UI immediately
             }
 
             try {
-                const [webApp, sessionResult] = await Promise.all([
-                    getTelegramWebApp(),
-                    supabase.auth.getSession()
-                ]);
+                // Step 2: Check if we're in Telegram WebApp
+                // Only proceed with Telegram detection if we have strong indicators
+                const getTelegramWebApp = async () => {
+                    if (typeof window === 'undefined') return null;
 
-                let currentSession = sessionResult.data.session;
-                setSession(currentSession);
+                    // Helper to check existence
+                    const getWebApp = () => (window as any).Telegram?.WebApp;
+
+                    let webApp = getWebApp();
+                    if (webApp) return webApp;
+
+                    // More strict Telegram environment detection
+                    // Only poll if we have clear Telegram indicators
+                    const hasTelegramWebAppData = window.location.hash.includes('tgWebAppData');
+                    const userAgent = window.navigator.userAgent;
+                    const isTelegramBot = userAgent.includes('TelegramBot') || userAgent.includes('tg://');
+
+                    // Only check for Telegram if we have specific indicators
+                    if (hasTelegramWebAppData || isTelegramBot) {
+                        console.log('Strong Telegram environment detected, polling for WebApp...');
+                        for (let i = 0; i < 20; i++) { // Wait up to 2 seconds
+                            await new Promise(r => setTimeout(r, 100));
+                            webApp = getWebApp();
+                            if (webApp) return webApp;
+                        }
+                    }
+
+                    return null;
+                };
+
+                const webApp = await getTelegramWebApp();
 
                 if (webApp) {
                     webApp.ready();
                     const tgUser = webApp.initDataUnsafe?.user;
+                    const startParam = webApp.initDataUnsafe?.start_param;
 
                     if (tgUser) {
+                        console.log('Telegram user detected:', tgUser, 'start_param:', startParam);
+
+                        // Save Telegram init data to cache
                         const tgCache: TelegramInitDataCache = {
                             initData: webApp.initData,
                             user: tgUser,
@@ -203,10 +213,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         };
                         storage.set(STORAGE_KEYS.TELEGRAM_INIT_DATA, tgCache);
 
-                        if (!currentSession) {
-                            console.log('Detected Telegram user, performing auto-login...');
-                            const referrerId = webApp.initDataUnsafe?.start_param || storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
+                        // Get referrer code - try startParam first, then localStorage
+                        let referrerId = startParam;
+                        if (!referrerId) {
+                            const storedReferral = storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
+                            if (storedReferral) {
+                                referrerId = storedReferral;
+                                console.log('Using stored referral code:', referrerId);
+                            }
+                        }
 
+                        console.log('Authenticating Telegram user with referrerId:', referrerId);
+
+                        try {
+                            // Try to authenticate via our API
                             const response = await fetch('/api/auth/telegram-user', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -217,67 +237,104 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                                 }),
                             });
 
-                            if (response.ok) {
-                                const result = await response.json();
-                                if (result.success && result.password) {
-                                    const { data: authData } = await supabase.auth.signInWithPassword({
-                                        email: `telegram_${tgUser.id}@abundance-effect.app`,
-                                        password: result.password,
-                                    });
-                                    currentSession = authData.session;
-                                    setSession(currentSession);
-                                }
+                            // Check if response is valid before parsing JSON
+                            if (!response.ok) {
+                                console.error('Telegram auth API returned error:', response.status, response.statusText);
+                                return;
                             }
+
+                            const result = await response.json();
+
+                            // Check if result is valid before accessing properties
+                            if (!result) {
+                                console.error('Empty response from Telegram auth API');
+                                return;
+                            }
+
+                            if (result.success && result.password) {
+                                // Sign in to Supabase
+                                const { error } = await supabase.auth.signInWithPassword({
+                                    email: `telegram_${tgUser.id}@abundance-effect.app`,
+                                    password: result.password,
+                                });
+
+                                if (error) {
+                                    console.error('Error signing in with Telegram:', error);
+                                    // Clear cache on auth error
+                                    storage.clearAuthCache();
+                                    setUser(null);
+                                }
+                            } else if (result.error) {
+                                console.error('Telegram auth API error:', result.error);
+                            } else {
+                                console.error('Unexpected Telegram auth response:', result);
+                            }
+                        } catch (authError) {
+                            console.error('Error during Telegram authentication:', authError);
+                            // Don't throw - continue with normal auth flow for non-Telegram users
                         }
                     }
                 }
 
+                // Step 3: Check normal session (this runs in background if cache was loaded)
+                const { data: { session: currentSession } } = await supabase.auth.getSession()
+                setSession(currentSession)
+
                 if (currentSession?.user) {
-                    const dbUser = await fetchDbUser(currentSession.user.id);
+                    const dbUser = await fetchDbUser(currentSession.user.id)
                     if (dbUser) {
-                        setUser(dbUser);
-                        saveUserToCache(dbUser);
+                        setUser(dbUser)
+                        saveUserToCache(dbUser)
                     } else {
+                        // Auth session exists but no DB user - clear cache
                         storage.clearAuthCache();
                         setUser(null);
                     }
-                } else if (!cachedUser) {
-                    setUser(null);
+                } else {
+                    // No session - clear cache if it exists
+                    if (cachedUser) {
+                        console.log('No session found, clearing cache');
+                        storage.clearAuthCache();
+                        setUser(null);
+                    }
                 }
             } catch (error) {
-                console.error('Error initializing auth:', error);
+                console.error('Error initializing auth:', error)
+                // Clear cache on error
+                storage.clearAuthCache();
+                setUser(null);
             } finally {
-                setIsLoading(false);
+                setIsLoading(false)
             }
-        };
 
-        init();
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession: Session | null) => {
+                console.log('Auth state changed:', event);
+                setSession(newSession)
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession: Session | null) => {
-            try {
-                setSession(newSession);
                 if (event === 'SIGNED_OUT') {
                     storage.clearAuthCache();
                     setUser(null);
                 } else if (newSession?.user) {
-                    const dbUser = await fetchDbUser(newSession.user.id);
+                    const dbUser = await fetchDbUser(newSession.user.id)
                     if (dbUser) {
-                        setUser(dbUser);
-                        saveUserToCache(dbUser);
+                        setUser(dbUser)
+                        saveUserToCache(dbUser)
                     }
                 } else {
-                    setUser(null);
+                    setUser(null)
                 }
-                setIsLoading(false);
-            } catch (err) {
-                console.error('Error in onAuthStateChange:', err);
-            }
-        });
+                setIsLoading(false)
+            })
 
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, []);
+            return () => {
+                subscription.unsubscribe()
+            }
+        }
+
+        init()
+
+        // Visibility change handler removed as we now use Server Actions for robust data operations
+    }, [])
 
     return (
         <UserContext.Provider value={{ user, session, isLoading, refreshUser, logout }}>
