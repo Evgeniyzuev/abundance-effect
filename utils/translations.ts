@@ -51,6 +51,9 @@ export type TranslationKey =
     | 'challenges.completed'
     // AI page
     | 'ai.title'
+    | 'ai.assistant'
+    | 'ai.vision'
+    | 'ai.vision_subtitle'
     | 'ai.coming_soon'
     | 'ai.greeting'
     | 'ai.input_placeholder'
