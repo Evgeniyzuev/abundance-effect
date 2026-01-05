@@ -350,3 +350,64 @@ export async function updateUserReinvest(userId: string, reinvestPercentage: num
         return { success: false, error: error.message }
     }
 }
+
+export async function getWalletOperations(userId: string): Promise<ActionResponse<any[]>> {
+    try {
+        const supabase = await createClient()
+        const user = await ensureAuthenticatedUser(supabase)
+
+        if (!user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        // Only allow users to fetch their own history (security check)
+        if (user.id !== userId) {
+            console.warn(`User ${user.id} tried to access operations for ${userId}`);
+            return { success: false, error: 'Access denied' }
+        }
+
+        const { data, error } = await supabase
+            .from('wallet_operations')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+
+        if (error) throw error
+
+        return { success: true, data: data || [] }
+    } catch (error: any) {
+        console.error('Error fetching wallet operations:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+export async function getCoreOperations(userId: string): Promise<ActionResponse<any[]>> {
+    try {
+        const supabase = await createClient()
+        const user = await ensureAuthenticatedUser(supabase)
+
+        if (!user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        if (user.id !== userId) {
+            return { success: false, error: 'Access denied' }
+        }
+
+        const { data, error } = await supabase
+            .from('core_operations')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(50)
+
+        if (error) throw error
+
+        return { success: true, data: data || [] }
+    } catch (error: any) {
+        console.error('Error fetching core operations:', error)
+        return { success: false, error: error.message }
+    }
+}
+

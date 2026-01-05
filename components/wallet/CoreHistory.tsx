@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { ChevronDown, ChevronUp, ArrowUp } from "lucide-react"
-import { createClient } from "@/utils/supabase/client"
 import { useLanguage } from "@/context/LanguageContext"
 
 interface CoreOperation {
@@ -20,40 +19,45 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
     const [isExpanded, setIsExpanded] = useState(false)
     const [operations, setOperations] = useState<CoreOperation[]>([])
     const [isLoading, setIsLoading] = useState(false)
-    const supabase = createClient()
+    const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
 
     const loadOperations = async () => {
-        if (!isExpanded) return
+        if (!isExpanded || !userId) return
 
         setIsLoading(true)
         try {
-            const { data, error } = await supabase
-                .from('core_operations')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
-                .limit(50)
+            // Using server action for more reliable data fetching with re-auth handling
+            const { getCoreOperations } = await import("@/app/actions/finance")
+            const result = await getCoreOperations(userId)
 
-            if (error) {
-                console.error('Error loading operations:', error)
-                throw error
+            if (result.success && result.data) {
+                setOperations(result.data)
+                setHasLoadedOnce(true)
+            } else {
+                console.error('Error loading core operations:', result.error)
             }
-
-            setOperations(data || [])
         } catch (error) {
-            console.error('Error loading operations:', error)
+            console.error('Error loading core operations:', error)
         } finally {
             setIsLoading(false)
         }
     }
 
     useEffect(() => {
-        loadOperations()
-    }, [isExpanded])
+        if (isExpanded) {
+            loadOperations()
+        }
+    }, [isExpanded, userId])
 
     const toggleExpand = () => {
-        setIsExpanded(!isExpanded)
+        const nextState = !isExpanded
+        if (nextState) {
+            // Optional: clear operations on expand to show fresh loading
+            // setOperations([]) 
+        }
+        setIsExpanded(nextState)
     }
+
 
     const getOperationIcon = (type: string) => {
         switch (type) {
@@ -140,8 +144,8 @@ export default function CoreHistory({ userId }: CoreHistoryProps) {
                                             )}
                                             <span
                                                 className={`font-bold text-sm ${isTransferToCore
-                                                        ? 'text-[#2563EB]'
-                                                        : op.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                                                    ? 'text-[#2563EB]'
+                                                    : op.amount >= 0 ? 'text-green-600' : 'text-red-600'
                                                     }`}
                                                 aria-label={`Amount: ${op.amount >= 0 ? '+' : ''}${op.amount.toFixed(8)}${isTransferToCore ? ' (Transfer to core)' : ''}`}
                                             >

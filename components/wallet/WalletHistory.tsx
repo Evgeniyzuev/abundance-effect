@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { ChevronDown, ChevronUp, ArrowUp } from "lucide-react"
-import { createClient } from "@/utils/supabase/client"
 import { useLanguage } from "@/context/LanguageContext"
 
 interface WalletOperation {
@@ -22,26 +21,23 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
     const [isExpanded, setIsExpanded] = useState(false)
     const [operations, setOperations] = useState<WalletOperation[]>([])
     const [isLoading, setIsLoading] = useState(false)
-    const supabase = createClient()
+    const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
 
     const loadOperations = async () => {
         if (!isExpanded || !userId) return
 
         setIsLoading(true)
         try {
-            const { data, error } = await supabase
-                .from('wallet_operations')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false })
-                .limit(50)
+            // Using server action for more reliable data fetching with re-auth handling
+            const { getWalletOperations } = await import("@/app/actions/finance")
+            const result = await getWalletOperations(userId)
 
-            if (error) {
-                console.error('Error loading wallet operations:', error)
-                throw error
+            if (result.success && result.data) {
+                setOperations(result.data)
+                setHasLoadedOnce(true)
+            } else {
+                console.error('Error loading wallet operations:', result.error)
             }
-
-            setOperations(data || [])
         } catch (error) {
             console.error('Error loading wallet operations:', error)
         } finally {
@@ -50,11 +46,18 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
     }
 
     useEffect(() => {
-        loadOperations()
+        if (isExpanded) {
+            loadOperations()
+        }
     }, [isExpanded, userId])
 
     const toggleExpand = () => {
-        setIsExpanded(!isExpanded)
+        const nextState = !isExpanded
+        if (nextState) {
+            // Optional: clear operations on expand to show fresh loading
+            // setOperations([]) 
+        }
+        setIsExpanded(nextState)
     }
 
     const getOperationIcon = (op: WalletOperation) => {
