@@ -13,3 +13,13 @@ export type DbUser = {
     reinvest_setup: number;
     referrer_id: string | null;
 };
+
+export type AvatarSettings = {
+    user_id: string;
+    base_type: string | null;
+    style: string;
+    avatar_photo_url: string | null;
+    avatar_wallet: number;
+    created_at: string;
+    updated_at: string;
+};
