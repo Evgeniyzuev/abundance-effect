@@ -12,6 +12,7 @@ import TransferModal from '@/components/wallet/TransferModal';
 import SendTonModal from '@/components/wallet/SendTonModal';
 import WithdrawModal from '@/components/wallet/WithdrawModal';
 import P2PTransferModal from '@/components/wallet/P2PTransferModal';
+import CreateInvoiceModal from '@/components/wallet/CreateInvoiceModal';
 
 export default function WalletPage() {
     const { user, refreshUser } = useUser();
@@ -22,6 +23,7 @@ export default function WalletPage() {
     const [isP2PTransferModalOpen, setIsP2PTransferModalOpen] = useState(false);
     const [isSendModalOpen, setIsSendModalOpen] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
     const handleTopUpSuccess = async (newBalance: number) => {
         await refreshBalances();
@@ -79,6 +81,7 @@ export default function WalletPage() {
                             onP2PTransfer={() => setIsP2PTransferModalOpen(true)}
                             onSend={() => setIsSendModalOpen(true)}
                             onWithdraw={() => setIsWithdrawModalOpen(true)}
+                            onInvoice={() => setIsInvoiceModalOpen(true)}
                             userId={user?.id || null}
                             loading={loading}
                             error={error}
@@ -136,6 +139,11 @@ export default function WalletPage() {
                         onClose={() => setIsP2PTransferModalOpen(false)}
                         currentBalance={walletBalance}
                         onSuccess={handleP2PTransferSuccess}
+                    />
+
+                    <CreateInvoiceModal
+                        isOpen={isInvoiceModalOpen}
+                        onClose={() => setIsInvoiceModalOpen(false)}
                     />
                 </>
             )}

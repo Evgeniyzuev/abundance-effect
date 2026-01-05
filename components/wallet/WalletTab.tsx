@@ -15,6 +15,7 @@ interface WalletTabProps {
     onP2PTransfer: () => void
     onSend: () => void
     onWithdraw: () => void
+    onInvoice: () => void // New prop
     userId: string | null
     loading?: boolean
     error?: string | null
@@ -28,7 +29,7 @@ const BASE_ASSETS = [
     { id: 'gold', name: 'Gold', symbol: 'XAU', price: 2045.50, change: 0.00, balance: 0, color: '#FFD700' }, // Gold
 ]
 
-export default function WalletTab({ walletBalance, onTopUp, onCoreTransfer, onP2PTransfer, onSend, onWithdraw, userId, loading, error }: WalletTabProps) {
+export default function WalletTab({ walletBalance, onTopUp, onCoreTransfer, onP2PTransfer, onSend, onWithdraw, onInvoice, userId, loading, error }: WalletTabProps) {
     const { t } = useLanguage()
 
     const [showAllAssets, setShowAllAssets] = useState(false)
@@ -110,16 +111,16 @@ export default function WalletTab({ walletBalance, onTopUp, onCoreTransfer, onP2
                     <span className="text-[11px] font-medium text-blue-500">Withdraw</span>
                 </motion.button>
 
-                {/* Exchange (New) */}
+                {/* Invoice (New) */}
                 <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleExchange}
+                    onClick={onInvoice}
                     className="bg-white rounded-2xl py-3 flex flex-col items-center justify-center shadow-sm space-y-2 h-[88px]"
                 >
                     <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                        <ArrowLeftRight className="h-5 w-5" />
+                        <ScanLine className="h-5 w-5" />
                     </div>
-                    <span className="text-[11px] font-medium text-blue-500">Exchange</span>
+                    <span className="text-[11px] font-medium text-blue-500">Invoice</span>
                 </motion.button>
             </div>
 
