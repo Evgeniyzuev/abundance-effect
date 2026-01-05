@@ -25,7 +25,7 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
     const supabase = createClient()
 
     const loadOperations = async () => {
-        if (!isExpanded) return
+        if (!isExpanded || !userId) return
 
         setIsLoading(true)
         try {
@@ -51,7 +51,7 @@ export default function WalletHistory({ userId }: WalletHistoryProps) {
 
     useEffect(() => {
         loadOperations()
-    }, [isExpanded])
+    }, [isExpanded, userId])
 
     const toggleExpand = () => {
         setIsExpanded(!isExpanded)
