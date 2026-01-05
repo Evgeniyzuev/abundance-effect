@@ -161,13 +161,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             let webApp = getWebApp();
             if (webApp) return webApp;
 
-            // Strict Telegram environment detection
             const hasTelegramWebAppData = window.location.hash.includes('tgWebAppData');
             const userAgent = window.navigator.userAgent;
             const isTelegramBot = userAgent.includes('TelegramBot') || userAgent.includes('tg://');
 
             if (hasTelegramWebAppData || isTelegramBot) {
-                // Faster polling: 20 checks every 50ms (total 1s instead of 2s)
                 for (let i = 0; i < 20; i++) {
                     await new Promise(r => setTimeout(r, 50));
                     webApp = getWebApp();
@@ -178,37 +176,26 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         };
 
         const init = async () => {
-            // Step 1: Load from cache immediately for instant UI
             const cachedUser = loadUserFromCache();
             if (cachedUser) {
-                console.log('Loaded user from cache:', cachedUser);
                 setUser(cachedUser);
-                setIsLoading(false); // Show UI immediately
+                setIsLoading(false);
             }
 
             try {
-                // Parallelize initial checks to save time
-                const [webApp, { data: { session: currentSession } }] = await Promise.all([
+                const [webApp, sessionResult] = await Promise.all([
                     getTelegramWebApp(),
                     supabase.auth.getSession()
                 ]);
 
-                setSession(currentSession)
-
-                // If we have a session or we're ready to show the UI, stop loading
-                if (currentSession || !webApp) {
-                    setIsLoading(false)
-                }
+                let currentSession = sessionResult.data.session;
+                setSession(currentSession);
 
                 if (webApp) {
                     webApp.ready();
                     const tgUser = webApp.initDataUnsafe?.user;
-                    const startParam = webApp.initDataUnsafe?.start_param;
 
                     if (tgUser) {
-                        console.log('Telegram user detected:', tgUser);
-
-                        // Save Telegram init data
                         const tgCache: TelegramInitDataCache = {
                             initData: webApp.initData,
                             user: tgUser,
@@ -216,84 +203,81 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                         };
                         storage.set(STORAGE_KEYS.TELEGRAM_INIT_DATA, tgCache);
 
-                        // Try background authentication
-                        const referrerId = startParam || storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
+                        if (!currentSession) {
+                            console.log('Detected Telegram user, performing auto-login...');
+                            const referrerId = webApp.initDataUnsafe?.start_param || storage.get<string>(STORAGE_KEYS.REFERRAL_CODE);
 
-                        fetch('/api/auth/telegram-user', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                telegramUser: tgUser,
-                                initData: webApp.initData,
-                                referrerId: referrerId || null,
-                            }),
-                        }).then(async (response) => {
+                            const response = await fetch('/api/auth/telegram-user', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    telegramUser: tgUser,
+                                    initData: webApp.initData,
+                                    referrerId: referrerId || null,
+                                }),
+                            });
+
                             if (response.ok) {
                                 const result = await response.json();
                                 if (result.success && result.password) {
-                                    await supabase.auth.signInWithPassword({
+                                    const { data: authData } = await supabase.auth.signInWithPassword({
                                         email: `telegram_${tgUser.id}@abundance-effect.app`,
                                         password: result.password,
                                     });
+                                    currentSession = authData.session;
+                                    setSession(currentSession);
                                 }
                             }
-                        }).catch(err => console.error('Telegram background auth error:', err));
-                    }
-                } else if (currentSession?.user) {
-                    // Update user data in background without blocking
-                    fetchDbUser(currentSession.user.id).then(dbUser => {
-                        if (dbUser) {
-                            setUser(dbUser)
-                            saveUserToCache(dbUser)
-                        } else {
-                            storage.clearAuthCache();
-                            setUser(null);
                         }
-                    });
-                } else {
-                    // No session - clear cache if it was optimistic
-                    if (cachedUser) {
+                    }
+                }
+
+                if (currentSession?.user) {
+                    const dbUser = await fetchDbUser(currentSession.user.id);
+                    if (dbUser) {
+                        setUser(dbUser);
+                        saveUserToCache(dbUser);
+                    } else {
                         storage.clearAuthCache();
                         setUser(null);
                     }
+                } else if (!cachedUser) {
+                    setUser(null);
                 }
             } catch (error) {
-                console.error('Error initializing auth:', error)
-                storage.clearAuthCache();
-                setUser(null);
+                console.error('Error initializing auth:', error);
             } finally {
-                // Ensure loading is stopped
-                setIsLoading(false)
+                setIsLoading(false);
             }
+        };
 
-            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession: Session | null) => {
-                console.log('Auth state changed:', event);
-                setSession(newSession)
+        init();
 
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, newSession: Session | null) => {
+            try {
+                setSession(newSession);
                 if (event === 'SIGNED_OUT') {
                     storage.clearAuthCache();
                     setUser(null);
                 } else if (newSession?.user) {
-                    const dbUser = await fetchDbUser(newSession.user.id)
+                    const dbUser = await fetchDbUser(newSession.user.id);
                     if (dbUser) {
-                        setUser(dbUser)
-                        saveUserToCache(dbUser)
+                        setUser(dbUser);
+                        saveUserToCache(dbUser);
                     }
                 } else {
-                    setUser(null)
+                    setUser(null);
                 }
-                setIsLoading(false)
-            })
-
-            return () => {
-                subscription.unsubscribe()
+                setIsLoading(false);
+            } catch (err) {
+                console.error('Error in onAuthStateChange:', err);
             }
-        }
+        });
 
-        init()
-
-        // Visibility change handler removed as we now use Server Actions for robust data operations
-    }, [])
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
 
     return (
         <UserContext.Provider value={{ user, session, isLoading, refreshUser, logout }}>
