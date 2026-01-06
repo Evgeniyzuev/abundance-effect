@@ -36,7 +36,11 @@ export async function fetchResultsAction(): Promise<ActionResponse<UserResults>>
                 data: {
                     user_id: user.id,
                     inventory: [],
-                    knowledge: [],
+                    knowledge: [
+                        { slot: 0, itemId: 'onboarding_guide', count: 1 },
+                        { slot: 1, itemId: 'finance_participation', count: 1 },
+                        { slot: 2, itemId: 'core_creation', count: 1 }
+                    ],
                     stash: [],
                     unlocked_achievements: [],
                     selected_base_id: null,
