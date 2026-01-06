@@ -330,5 +330,20 @@
     "contacts.no_results": "No users found for your query",
     "contacts.min_chars": "Enter at least 3 characters to search",
     "social.my_team_title": "My Team",
-    "social.my_team_desc": "Grow together"
+    "social.my_team_desc": "Grow together",
+    "challenges.app_testing.explore_sections": "Explore all sections",
+    "challenges.app_testing.all_tabs_visited": "All tabs visited",
+    "challenges.app_testing.tested_functions": "What functions were tested? *",
+    "challenges.app_testing.tested_functions_placeholder": "e.g. Adding wishes, transfer to core, AI chat...",
+    "challenges.app_testing.errors_found": "Any errors or bugs found?",
+    "challenges.app_testing.errors_found_placeholder": "Describe if something works wrong...",
+    "challenges.app_testing.suggestions": "Suggestions for improvements",
+    "challenges.app_testing.suggestions_placeholder": "What should be improved or added?",
+    "challenges.app_testing.ai_thoughts": "How will AI development help people improve their lives?",
+    "challenges.app_testing.ai_thoughts_placeholder": "Thoughts on solving problems, fulfilling wishes with AI...",
+    "challenges.app_testing.personal_needs": "What do you personally need to use this in your life?",
+    "challenges.app_testing.personal_needs_placeholder": "Conditions for daily use...",
+    "challenges.app_testing.submitting": "Submitting...",
+    "challenges.app_testing.submit_and_check": "Submit feedback and check",
+    "challenges.app_testing.visit_all_tabs": "Visit all tabs"
 }

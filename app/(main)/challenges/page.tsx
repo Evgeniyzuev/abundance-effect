@@ -268,10 +268,10 @@ export default function ChallengesPage() {
                 onClose={() => setSelectedChallengeId(null)}
                 challenge={selectedChallenge}
                 actionLoading={selectedChallengeId ? checkingChallenges.has(selectedChallengeId) : false}
-                onAction={async () => {
+                onAction={async (progressData?: any) => {
                     if (!selectedChallengeId) return;
                     if (selectedChallenge?.userParticipation) {
-                        await updateParticipation(selectedChallengeId, 'completed');
+                        await updateParticipation(selectedChallengeId, 'completed', progressData);
                     } else {
                         await joinChallenge(selectedChallengeId);
                     }

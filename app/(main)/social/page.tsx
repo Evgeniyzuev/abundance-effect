@@ -9,7 +9,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import NotificationBell from '@/components/NotificationBell';
 import Image from 'next/image';
 import Link from 'next/link';
-import { User as UserIcon, Settings, LogOut, ChevronRight, Share2, Instagram, Globe, MessageCircle, Edit2, Shield, Users } from 'lucide-react';
+import { User as UserIcon, Settings, LogOut, ChevronRight, Share2, Instagram, Globe, MessageCircle, Edit2, Shield, Users, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getUserProfileAction } from '@/app/actions/profile';
 import { UserProfile } from '@/types';
@@ -185,6 +185,25 @@ export default function SocialPage() {
                                         </div>
                                     </div>
                                     <ChevronRight size={24} className="text-white/40 group-hover:text-white transition-colors" />
+                                </button>
+                            </div>
+
+                            {/* Reviews Link */}
+                            <div className="px-4 mb-6">
+                                <button
+                                    onClick={() => router.push('/social/reviews')}
+                                    className="w-full group bg-white border border-gray-100 rounded-3xl p-5 shadow-sm flex items-center justify-between active:scale-[0.98] transition-all"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+                                            <MessageSquare size={24} className="text-blue-500" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-bold text-lg leading-tight text-gray-900">Отзывы пользователей</h3>
+                                            <p className="text-gray-400 text-xs">Идеи и предложения сообщества</p>
+                                        </div>
+                                    </div>
+                                    <ChevronRight size={24} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
                                 </button>
                             </div>
 

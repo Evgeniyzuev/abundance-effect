@@ -11,12 +11,13 @@ import {
     getVerificationTypeName
 } from '@/utils/challengeTranslations';
 import { motion, AnimatePresence } from 'framer-motion';
+import AppTestingForm from './challenges/AppTestingForm';
 
 interface ChallengeDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
     challenge: any;
-    onAction?: () => void;
+    onAction?: (progressData?: any) => void;
     actionLoading?: boolean;
 }
 
@@ -36,6 +37,7 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
     const challengeLevel = challenge.level || 1;
     const isCompleted = challenge.userParticipation?.status === 'completed';
     const isActive = challenge.userParticipation?.status === 'active';
+    const isAppTesting = challenge.verification_logic === 'app_testing';
 
     return (
         <AnimatePresence>
@@ -98,16 +100,25 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
                             </div>
                         )}
 
-                        {/* Description */}
-                        <section className="bg-white p-4 rounded-2xl shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 text-blue-600">
-                                <Info className="w-5 h-5" />
-                                <h3 className="font-semibold">{t('goals.wish_description')}</h3>
-                            </div>
-                            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
-                                {getChallengeDescription(challenge, language)}
-                            </p>
-                        </section>
+                        {/* Special App Testing Form */}
+                        {isActive && isAppTesting ? (
+                            <section className="bg-white p-4 rounded-2xl shadow-sm">
+                                <AppTestingForm onSuccess={(progressData) => onAction?.(progressData)} />
+                            </section>
+                        ) : (
+                            <>
+                                {/* Description */}
+                                <section className="bg-white p-4 rounded-2xl shadow-sm">
+                                    <div className="flex items-center gap-2 mb-2 text-blue-600">
+                                        <Info className="w-5 h-5" />
+                                        <h3 className="font-semibold">{t('goals.wish_description')}</h3>
+                                    </div>
+                                    <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
+                                        {getChallengeDescription(challenge, language)}
+                                    </p>
+                                </section>
+                            </>
+                        )}
 
                         {/* Requirements if available */}
                         {requirements && (
@@ -129,7 +140,7 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
                         )}
 
                         {/* Instructions if available */}
-                        {instructions && (
+                        {!isAppTesting && instructions && (
                             <section className="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-blue-500">
                                 <h3 className="font-semibold text-gray-900 mb-2">{t('challenges.instructions')}</h3>
                                 <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
@@ -167,35 +178,37 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
 
                     {/* Footer Action */}
                     <div className="p-4 bg-white border-t border-gray-100 sticky bottom-0">
-                        <button
-                            onClick={onAction}
-                            disabled={isCompleted || actionLoading}
-                            className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 ${isCompleted
+                        {(!isActive || !isAppTesting) && (
+                            <button
+                                onClick={() => onAction?.()}
+                                disabled={isCompleted || actionLoading}
+                                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 ${isCompleted
                                     ? 'bg-green-100 text-green-700'
                                     : isActive
                                         ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200'
                                         : 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-200'
-                                } disabled:opacity-70`}
-                        >
-                            {actionLoading ? (
-                                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : isCompleted ? (
-                                <>
-                                    <ListChecks className="w-5 h-5" />
-                                    {t('tasks.completed')}
-                                </>
-                            ) : isActive ? (
-                                <>
-                                    {t('challenges.check')}
-                                    <ArrowRight className="w-5 h-5" />
-                                </>
-                            ) : (
-                                <>
-                                    {t('challenges.join')}
-                                    <ArrowRight className="w-5 h-5" />
-                                </>
-                            )}
-                        </button>
+                                    } disabled:opacity-70`}
+                            >
+                                {actionLoading ? (
+                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : isCompleted ? (
+                                    <>
+                                        <ListChecks className="w-5 h-5" />
+                                        {t('tasks.completed')}
+                                    </>
+                                ) : isActive ? (
+                                    <>
+                                        {t('challenges.check')}
+                                        <ArrowRight className="w-5 h-5" />
+                                    </>
+                                ) : (
+                                    <>
+                                        {t('challenges.join')}
+                                        <ArrowRight className="w-5 h-5" />
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </motion.div>
             </div>

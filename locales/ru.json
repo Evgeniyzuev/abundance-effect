@@ -330,5 +330,20 @@
     "contacts.no_results": "Никого не нашли по вашему запросу",
     "contacts.min_chars": "Введите минимум 3 символа для поиска",
     "social.my_team_title": "Моя команда",
-    "social.my_team_desc": "Развивайтесь вместе"
+    "social.my_team_desc": "Развивайтесь вместе",
+    "challenges.app_testing.explore_sections": "Прокликайте все разделы",
+    "challenges.app_testing.all_tabs_visited": "Все разделы посещены",
+    "challenges.app_testing.tested_functions": "Какие функции приложения проверены? *",
+    "challenges.app_testing.tested_functions_placeholder": "Например: Добавление желаний, перевод в ядро, чат с ИИ...",
+    "challenges.app_testing.errors_found": "Обнаружены ли ошибки или баги?",
+    "challenges.app_testing.errors_found_placeholder": "Опишите, если что-то работает не так...",
+    "challenges.app_testing.suggestions": "Предложения по доработкам",
+    "challenges.app_testing.suggestions_placeholder": "Что стоит улучшить или добавить?",
+    "challenges.app_testing.ai_thoughts": "Как развитие ИИ поможет людям делать их жизнь лучше?",
+    "challenges.app_testing.ai_thoughts_placeholder": "Мысли о решении проблем, исполнении желаний с помощью ИИ...",
+    "challenges.app_testing.personal_needs": "Что нужно, чтобы лично вы использовали это в жизни?",
+    "challenges.app_testing.personal_needs_placeholder": "Условия для ежедневного использования...",
+    "challenges.app_testing.submitting": "Отправка...",
+    "challenges.app_testing.submit_and_check": "Отправить отзыв и проверить",
+    "challenges.app_testing.visit_all_tabs": "Посетите все вкладки"
 }

@@ -66,14 +66,22 @@ To trigger progress or completion from the UI:
 3.  **Step 2: Manual Verification**:
     The user returns to the **Challenges** tab and clicks "Check". The `ChallengesPage` component calls the same `updateParticipationAction` but with status `'completed'`. The server then runs the verification logic.
 
-## 4. Manual Peer Review (Future)
-For challenges with `verification_type: 'manual_peer'`:
-- The user will upload a "proof" (text or image) which is stored in `verification_data`.
-- Other users (Peers) will be able to view these proofs and vote/verify.
-- Once a threshold is reached, the challenge is marked as completed.
+## 4. Specialized Challenge Forms
+For complex challenges (like "App Testing"), you may need to collect specific data from the user.
 
-## 5. Deployment Checklist
+1.  **Create a Form Component**: Place it in `components/challenges/`.
+2.  **Integrate with Modal**: Update `components/ChallengeDetailModal.tsx` to render your form based on `verification_logic`.
+3.  **Server Action**: Create a dedicated server action to store the form data in its own table.
+4.  **Verification**: The `CHALLENGE_VERIFICATIONS` handler should check for the existence of this data.
+
+## 5. UI Session Tracking
+If a challenge requires visiting multiple pages:
+- Use `localStorage` to track progress during the session.
+- Pass the tracked data to `updateParticipation` or directly during the "Check" verification via `progress_data`.
+
+## 6. Deployment Checklist
 - [ ] SQL migration applied (`npx supabase db push`).
 - [ ] Verification logic added to `utils/challengeVerifications.ts`.
 - [ ] UI triggers implemented in relevant components.
+- [ ] Specialized forms (if any) integrated into `ChallengeDetailModal.tsx`.
 - [ ] Multi-language strings for title/description verified.

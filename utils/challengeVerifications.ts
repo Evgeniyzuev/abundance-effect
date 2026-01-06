@@ -71,5 +71,30 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
       // Check for AI interaction proof from client
       return !!progressData?.message_sent;
     }
+  },
+  'app_testing': {
+    description: 'Check if user visited all tabs and submitted a review',
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
+      try {
+        // 1. Check if user has submitted a review
+        const { count, error } = await supabase
+          .from('app_reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId);
+
+        if (error || !count || count === 0) return false;
+
+        // 2. Check if all 5 tabs were visited (passed from client)
+        // Expected tabs: goals, challenges, ai, wallet, social
+        const visitedTabs = progressData?.visited_tabs || [];
+        const requiredTabs = ['/goals', '/challenges', '/ai', '/wallet', '/social'];
+        const allVisited = requiredTabs.every(tab => visitedTabs.includes(tab));
+
+        return allVisited;
+      } catch (error) {
+        console.error('Error verifying app_testing:', error);
+        return false;
+      }
+    }
   }
 };
