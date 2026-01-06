@@ -31,7 +31,7 @@ function Modal({ open, onClose, title, children }: ModalProps) {
 }
 
 export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
-    const { results, gameItems, loadFromCache, fetchResults, updateInventory, updateKnowledge, updateStash, setBase, setCharacter } = useResults();
+    const { results, gameItems, loadFromCache, fetchResults, saveResults, updateInventory, updateKnowledge, updateStash, setBase, setCharacter } = useResults();
 
     const ACHIEVEMENTS = gameItems.filter(i => i.type === 'achievement');
     const INVENTORY_ITEMS = gameItems.filter(i => i.type === 'item');
@@ -263,15 +263,20 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
                                     const newSlots = [...inventorySlots];
                                     newSlots[slotIndex] = newSlot;
                                     setInventorySlots(newSlots);
-                                    updateInventory(newSlots.filter(s => s !== null) as InventorySlot[]);
+                                    saveResults({
+                                        inventory: newSlots.filter(s => s !== null) as any,
+                                        stash: newStash as any
+                                    });
                                 } else {
                                     const newSlots = [...knowledgeSlots];
                                     newSlots[slotIndex] = newSlot;
                                     setKnowledgeSlots(newSlots);
-                                    updateKnowledge(newSlots.filter(s => s !== null) as InventorySlot[]);
+                                    saveResults({
+                                        knowledge: newSlots.filter(s => s !== null) as any,
+                                        stash: newStash as any
+                                    });
                                 }
 
-                                updateStash(newStash);
                                 setModalOpen(false);
                             }}
                             className="flex items-center justify-center aspect-square bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all"
@@ -304,20 +309,24 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             newStash.push({ itemId: slot.itemId, count: 1 });
         }
 
-        // 2. Remove from slot
+        // 2. Remove from slot and BATCH update
         if (type === 'inventory') {
             const newSlots = [...inventorySlots];
             newSlots[slotIndex] = null;
             setInventorySlots(newSlots);
-            updateInventory(newSlots.filter(s => s !== null) as InventorySlot[]);
+            saveResults({
+                inventory: newSlots.filter(s => s !== null) as any,
+                stash: newStash as any
+            });
         } else {
             const newSlots = [...knowledgeSlots];
             newSlots[slotIndex] = null;
             setKnowledgeSlots(newSlots);
-            updateKnowledge(newSlots.filter(s => s !== null) as InventorySlot[]);
+            saveResults({
+                knowledge: newSlots.filter(s => s !== null) as any,
+                stash: newStash as any
+            });
         }
-
-        updateStash(newStash);
     };
 
     const unlockedAchievements = (results?.unlocked_achievements as string[]) || [];

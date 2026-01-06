@@ -74,7 +74,6 @@ export const useResults = () => {
 
             if (!result.success) {
                 console.error('Error saving results:', result.error);
-                // Revert on error (optional, or just let next fetch fix it)
             }
         } catch (error) {
             console.error('Unexpected error saving results:', error);
@@ -114,6 +113,7 @@ export const useResults = () => {
         isLoading,
         loadFromCache,
         fetchResults,
+        saveResults,
         updateInventory,
         updateKnowledge,
         updateStash,
