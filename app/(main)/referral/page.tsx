@@ -2,6 +2,7 @@
 
 import { useUser } from '@/context/UserContext';
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { DbUser } from '@/types';
 import { fetchHierarchyAction, broadcastToTeamAction } from '@/app/actions/hierarchy';
@@ -15,6 +16,7 @@ type HierarchyData = {
 
 export default function ReferralPage() {
     const { user } = useUser();
+    const router = useRouter();
     const [hierarchy, setHierarchy] = useState<HierarchyData>({ lead: null, team: [] });
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState<'telegram' | 'web' | null>(null);
@@ -112,7 +114,10 @@ export default function ReferralPage() {
             {/* Stage 1: My Lead */}
             <div className="px-4 mt-6">
                 <h2 className="px-2 mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Мой Лид</h2>
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
+                <div
+                    onClick={() => hierarchy.lead && router.push(`/profile/${hierarchy.lead.id}`)}
+                    className={`bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 ${hierarchy.lead ? 'cursor-pointer active:scale-[0.98] transition-all' : ''}`}
+                >
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md relative group overflow-hidden">
                         {hierarchy.lead?.avatar_url ? (
                             <img src={hierarchy.lead.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -279,7 +284,11 @@ export default function ReferralPage() {
                 ) : (
                     <div className="space-y-3">
                         {hierarchy.team.map((member) => (
-                            <div key={member.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-4">
+                            <div
+                                key={member.id}
+                                onClick={() => router.push(`/profile/${member.id}`)}
+                                className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-all"
+                            >
                                 <div className="w-12 h-12 bg-gray-100 rounded-full flex-shrink-0 overflow-hidden border border-gray-50">
                                     {member.avatar_url ? (
                                         <img src={member.avatar_url} alt="" className="w-full h-full object-cover" />

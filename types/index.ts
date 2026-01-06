@@ -23,3 +23,11 @@ export type AvatarSettings = {
     created_at: string;
     updated_at: string;
 };
+
+export type UserProfile = {
+    user_id: string;
+    bio: string | null;
+    social_links: Record<string, string>;
+    photos: string[];
+    updated_at: string;
+};
