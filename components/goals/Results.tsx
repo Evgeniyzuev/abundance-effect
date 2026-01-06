@@ -31,7 +31,7 @@ function Modal({ open, onClose, title, children }: ModalProps) {
 }
 
 export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
-    const { results, gameItems, loadFromCache, fetchResults, updateInventory, updateKnowledge, setBase, setCharacter } = useResults();
+    const { results, gameItems, loadFromCache, fetchResults, updateInventory, updateKnowledge, updateStash, setBase, setCharacter } = useResults();
 
     const ACHIEVEMENTS = gameItems.filter(i => i.type === 'achievement');
     const INVENTORY_ITEMS = gameItems.filter(i => i.type === 'item');
@@ -228,44 +228,83 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
     };
 
     const openItemPicker = (slotIndex: number, type: 'inventory' | 'knowledge') => {
-        const availableItems = type === 'inventory' ? INVENTORY_ITEMS : KNOWLEDGE_ITEMS;
+        const stash = (results?.stash as any[]) || [];
+        const availableItemsInStash = gameItems.filter(gi =>
+            gi.type === (type === 'inventory' ? 'item' : 'book') &&
+            stash.some(s => s.itemId === gi.id && s.count > 0)
+        );
+
         setModalTitle(`Choose ${type === 'inventory' ? 'item' : 'knowledge'}`);
         setModalContent(
             <div className="grid grid-cols-5 sm:grid-cols-6 gap-3 p-1 max-h-96 overflow-y-auto">
-                {availableItems.map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => {
-                            const newSlot: InventorySlot = { slot: slotIndex, itemId: item.id, count: 1 };
-                            if (type === 'inventory') {
-                                const newSlots = [...inventorySlots];
-                                newSlots[slotIndex] = newSlot;
-                                setInventorySlots(newSlots);
-                                updateInventory(newSlots.filter(s => s !== null) as InventorySlot[]);
-                            } else {
-                                const newSlots = [...knowledgeSlots];
-                                newSlots[slotIndex] = newSlot;
-                                setKnowledgeSlots(newSlots);
-                                updateKnowledge(newSlots.filter(s => s !== null) as InventorySlot[]);
-                            }
-                            setModalOpen(false);
-                        }}
-                        className="flex items-center justify-center aspect-square bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all"
-                        title={item.title}
-                    >
-                        {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
-                            <img src={item.image} alt={item.title} className="w-8 h-8 object-cover rounded" />
-                        ) : (
-                            <span className="text-2xl">{item.image}</span>
-                        )}
-                    </button>
-                ))}
+                {availableItemsInStash.length === 0 ? (
+                    <div className="col-span-full py-8 text-center text-gray-500">
+                        No items in stash
+                    </div>
+                ) : (
+                    availableItemsInStash.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => {
+                                // 1. Remove from stash
+                                const newStash = [...stash];
+                                const stashIndex = newStash.findIndex(s => s.itemId === item.id);
+                                if (stashIndex !== -1) {
+                                    if (newStash[stashIndex].count > 1) {
+                                        newStash[stashIndex] = { ...newStash[stashIndex], count: newStash[stashIndex].count - 1 };
+                                    } else {
+                                        newStash.splice(stashIndex, 1);
+                                    }
+                                }
+
+                                // 2. Add to slot
+                                const newSlot: InventorySlot = { slot: slotIndex, itemId: item.id, count: 1 };
+                                if (type === 'inventory') {
+                                    const newSlots = [...inventorySlots];
+                                    newSlots[slotIndex] = newSlot;
+                                    setInventorySlots(newSlots);
+                                    updateInventory(newSlots.filter(s => s !== null) as InventorySlot[]);
+                                } else {
+                                    const newSlots = [...knowledgeSlots];
+                                    newSlots[slotIndex] = newSlot;
+                                    setKnowledgeSlots(newSlots);
+                                    updateKnowledge(newSlots.filter(s => s !== null) as InventorySlot[]);
+                                }
+
+                                updateStash(newStash);
+                                setModalOpen(false);
+                            }}
+                            className="flex items-center justify-center aspect-square bg-gray-50 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all"
+                            title={item.title}
+                        >
+                            {typeof item.image === 'string' && /^https?:\/\//.test(item.image) ? (
+                                <img src={item.image} alt={item.title} className="w-8 h-8 object-cover rounded" />
+                            ) : (
+                                <span className="text-2xl">{item.image}</span>
+                            )}
+                        </button>
+                    ))
+                )}
             </div>
         );
         setModalOpen(true);
     };
 
     const removeItem = (slotIndex: number, type: 'inventory' | 'knowledge') => {
+        const slot = type === 'inventory' ? inventorySlots[slotIndex] : knowledgeSlots[slotIndex];
+        if (!slot) return;
+
+        // 1. Return to stash
+        const stash = (results?.stash as any[]) || [];
+        const newStash = [...stash];
+        const stashIndex = newStash.findIndex(s => s.itemId === slot.itemId);
+        if (stashIndex !== -1) {
+            newStash[stashIndex] = { ...newStash[stashIndex], count: newStash[stashIndex].count + 1 };
+        } else {
+            newStash.push({ itemId: slot.itemId, count: 1 });
+        }
+
+        // 2. Remove from slot
         if (type === 'inventory') {
             const newSlots = [...inventorySlots];
             newSlots[slotIndex] = null;
@@ -277,6 +316,8 @@ export default function Results({ menuOpen = true }: { menuOpen?: boolean }) {
             setKnowledgeSlots(newSlots);
             updateKnowledge(newSlots.filter(s => s !== null) as InventorySlot[]);
         }
+
+        updateStash(newStash);
     };
 
     const unlockedAchievements = (results?.unlocked_achievements as string[]) || [];

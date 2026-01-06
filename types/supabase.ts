@@ -207,6 +207,7 @@ export interface Database {
                     user_id: string
                     inventory: Json
                     knowledge: Json
+                    stash: Json
                     unlocked_achievements: Json
                     selected_base_id: string | null
                     selected_character_id: string | null
@@ -216,6 +217,7 @@ export interface Database {
                     user_id: string
                     inventory?: Json
                     knowledge?: Json
+                    stash?: Json
                     unlocked_achievements?: Json
                     selected_base_id?: string | null
                     selected_character_id?: string | null
@@ -225,6 +227,7 @@ export interface Database {
                     user_id?: string
                     inventory?: Json
                     knowledge?: Json
+                    stash?: Json
                     unlocked_achievements?: Json
                     selected_base_id?: string | null
                     selected_character_id?: string | null

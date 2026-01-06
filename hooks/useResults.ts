@@ -89,6 +89,10 @@ export const useResults = () => {
         saveResults({ knowledge: slots as any });
     };
 
+    const updateStash = (stash: any[]) => {
+        saveResults({ stash: stash as any });
+    };
+
     const unlockAchievement = (achievementId: string) => {
         const current = (results?.unlocked_achievements as string[]) || [];
         if (!current.includes(achievementId)) {
@@ -112,6 +116,7 @@ export const useResults = () => {
         fetchResults,
         updateInventory,
         updateKnowledge,
+        updateStash,
         unlockAchievement,
         setBase,
         setCharacter

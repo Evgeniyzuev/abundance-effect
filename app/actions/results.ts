@@ -37,6 +37,7 @@ export async function fetchResultsAction(): Promise<ActionResponse<UserResults>>
                     user_id: user.id,
                     inventory: [],
                     knowledge: [],
+                    stash: [],
                     unlocked_achievements: [],
                     selected_base_id: null,
                     selected_character_id: null,
