@@ -328,5 +328,7 @@
     "contacts.remove_confirm": "Удалить контакт из списка?",
     "contacts.searching": "Ищем пользователей...",
     "contacts.no_results": "Никого не нашли по вашему запросу",
-    "contacts.min_chars": "Введите минимум 3 символа для поиска"
+    "contacts.min_chars": "Введите минимум 3 символа для поиска",
+    "social.my_team_title": "Моя команда",
+    "social.my_team_desc": "Развивайтесь вместе"
 }

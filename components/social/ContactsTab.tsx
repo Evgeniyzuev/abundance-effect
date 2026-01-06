@@ -148,6 +148,25 @@ export default function ContactsTab({ userId }: ContactsTabProps) {
                 </button>
             </div>
 
+            {/* My Team Navigation Card */}
+            <div className="px-6 py-2">
+                <button
+                    onClick={() => router.push('/referral')}
+                    className="w-full group bg-gradient-to-br from-blue-600/90 to-indigo-700/90 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl p-4 shadow-lg shadow-blue-500/10 flex items-center justify-between active:scale-[0.98] transition-all"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
+                            <Users size={20} className="text-white" />
+                        </div>
+                        <div className="text-left">
+                            <h3 className="font-bold text-sm leading-tight">{t('social.my_team_title')}</h3>
+                            <p className="text-white/60 text-[10px]">{t('social.my_team_desc')}</p>
+                        </div>
+                    </div>
+                    <ChevronRight size={18} className="text-white/40 group-hover:text-white transition-colors" />
+                </button>
+            </div>
+
             <div className="flex-1 space-y-2 pb-24">
                 {/* Lead Section */}
                 {hierarchy.lead && !searchTerm && (

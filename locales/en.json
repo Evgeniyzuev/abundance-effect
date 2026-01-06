@@ -328,5 +328,7 @@
     "contacts.remove_confirm": "Remove contact from list?",
     "contacts.searching": "Searching for users...",
     "contacts.no_results": "No users found for your query",
-    "contacts.min_chars": "Enter at least 3 characters to search"
+    "contacts.min_chars": "Enter at least 3 characters to search",
+    "social.my_team_title": "My Team",
+    "social.my_team_desc": "Grow together"
 }

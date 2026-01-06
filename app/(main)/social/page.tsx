@@ -169,6 +169,25 @@ export default function SocialPage() {
                                 </div>
                             </div>
 
+                            {/* My Team Section */}
+                            <div className="px-4 mb-6">
+                                <button
+                                    onClick={() => router.push('/referral')}
+                                    className="w-full group bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl p-5 shadow-xl shadow-blue-500/10 flex items-center justify-between active:scale-[0.98] transition-all"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                                            <UserIcon size={24} className="text-white" />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-bold text-lg leading-tight">{t('social.my_team_title')}</h3>
+                                            <p className="text-white/60 text-xs">{t('social.my_team_desc')}</p>
+                                        </div>
+                                    </div>
+                                    <ChevronRight size={24} className="text-white/40 group-hover:text-white transition-colors" />
+                                </button>
+                            </div>
+
                             {/* Photo Gallery */}
                             {profile?.photos && profile.photos.length > 0 && (
                                 <div className="px-6 mb-8">
