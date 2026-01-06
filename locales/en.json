@@ -328,9 +328,5 @@
     "contacts.remove_confirm": "Remove contact from list?",
     "contacts.searching": "Searching for users...",
     "contacts.no_results": "No users found for your query",
-    "contacts.min_chars": "Enter at least 3 characters to search",
-    "social.invite_title": "Invite Friends",
-    "social.invite_desc": "Grow the system together and get bonuses for your team's growth",
-    "social.invite_button": "Invite",
-    "social.share_text": "Join Abundance Effect! 🎯 Grow with me in the app for goal achievement and financial well-being."
+    "contacts.min_chars": "Enter at least 3 characters to search"
 }

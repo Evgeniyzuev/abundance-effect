@@ -357,11 +357,7 @@ export type TranslationKey =
     | 'contacts.remove_confirm'
     | 'contacts.searching'
     | 'contacts.no_results'
-    | 'contacts.min_chars'
-    | 'social.invite_title'
-    | 'social.invite_desc'
-    | 'social.invite_button'
-    | 'social.share_text';
+    | 'contacts.min_chars';
 
 /**
  * Helper to interpolate variables into translation strings.

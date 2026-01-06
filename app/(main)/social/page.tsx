@@ -41,35 +41,6 @@ export default function SocialPage() {
         loadProfile();
     }, [loadProfile]);
 
-    const shareLink = async () => {
-        const link = `https://t.me/AbundanceEffectBot/Abundance?startapp=${user?.id}`;
-        const shareText = t('social.share_text');
-        const webApp = (typeof window !== 'undefined' && (window as any).Telegram?.WebApp);
-
-        if (webApp) {
-            try {
-                const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
-                webApp.openLink(shareUrl);
-            } catch (err) {
-                console.error('Telegram share failed:', err);
-            }
-        } else if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Abundance Effect',
-                    text: shareText,
-                    url: link,
-                });
-            } catch (err) {
-                console.error('Share failed:', err);
-            }
-        } else {
-            // Fallback: Copy to clipboard? Or just alert.
-            navigator.clipboard.writeText(link);
-            alert('Ссылка скопирована в буфер обмена');
-        }
-    };
-
     const handleLogout = async () => {
         await logout();
         router.push('/login');
@@ -194,27 +165,6 @@ export default function SocialPage() {
                                                 <Globe size={20} />
                                             </a>
                                         )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Invite Section */}
-                            <div className="px-4 mb-6">
-                                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 shadow-xl shadow-blue-500/20 text-white relative overflow-hidden">
-                                    <div className="relative z-10">
-                                        <h3 className="text-xl font-black mb-2">{t('social.invite_title')}</h3>
-                                        <p className="text-sm text-blue-100/80 mb-6 leading-relaxed">
-                                            {t('social.invite_desc')}
-                                        </p>
-                                        <button
-                                            onClick={shareLink}
-                                            className="px-8 py-3 bg-white text-blue-600 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all"
-                                        >
-                                            {t('social.invite_button')}
-                                        </button>
-                                    </div>
-                                    <div className="absolute top-[-20%] right-[-10%] opacity-10">
-                                        <Users size={120} />
                                     </div>
                                 </div>
                             </div>
