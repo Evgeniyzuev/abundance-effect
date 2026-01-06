@@ -313,5 +313,20 @@
     "finance.bottom_text_3": "I will not allow corporations, advertising, governments, marketers, or anyone else to manipulate my emotions.",
     "finance.bottom_text_4": "I will not give away my freedom and I will not spend my future.",
     "finance.footer_text": "© 2025 Abundance Effect. Participation economy — when technology serves humanity.",
-    "contacts.search_placeholder": "Search contacts..."
+    "contacts.search_placeholder": "Search contacts...",
+    "social.profile": "Profile",
+    "social.contacts": "Contacts",
+    "contacts.title": "Contacts",
+    "contacts.add_contact": "Add Contact",
+    "contacts.search_user_placeholder": "Search by name or @username...",
+    "contacts.lead_section": "Your Lead",
+    "contacts.team_section": "Team",
+    "contacts.manual_section": "Your Contacts",
+    "contacts.empty_title": "Contact list is empty",
+    "contacts.empty_desc": "Add your first users or grow your team!",
+    "contacts.find_people": "Find People",
+    "contacts.remove_confirm": "Remove contact from list?",
+    "contacts.searching": "Searching for users...",
+    "contacts.no_results": "No users found for your query",
+    "contacts.min_chars": "Enter at least 3 characters to search"
 }

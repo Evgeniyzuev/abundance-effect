@@ -342,7 +342,22 @@ export type TranslationKey =
     | 'finance.bottom_text_4'
     | 'finance.footer_text'
     // Contacts
-    | 'contacts.search_placeholder';
+    | 'contacts.search_placeholder'
+    | 'social.profile'
+    | 'social.contacts'
+    | 'contacts.title'
+    | 'contacts.add_contact'
+    | 'contacts.search_user_placeholder'
+    | 'contacts.lead_section'
+    | 'contacts.team_section'
+    | 'contacts.manual_section'
+    | 'contacts.empty_title'
+    | 'contacts.empty_desc'
+    | 'contacts.find_people'
+    | 'contacts.remove_confirm'
+    | 'contacts.searching'
+    | 'contacts.no_results'
+    | 'contacts.min_chars';
 
 /**
  * Helper to interpolate variables into translation strings.

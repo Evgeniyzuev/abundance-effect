@@ -313,5 +313,20 @@
     "finance.bottom_text_3": "Я не позволю манипулировать своими эмоциями корпорациям, рекламе, правительствам, маркетологам или кому-то еще.",
     "finance.bottom_text_4": "Я не отдам свою свободу и не потрачу свое будущее.",
     "finance.footer_text": "© 2025 Abundance Effect. Экономика участия — когда технологии служат человечеству.",
-    "contacts.search_placeholder": "Поиск контактов..."
+    "contacts.search_placeholder": "Поиск контактов...",
+    "social.profile": "Профиль",
+    "social.contacts": "Контакты",
+    "contacts.title": "Контакты",
+    "contacts.add_contact": "Добавить контакт",
+    "contacts.search_user_placeholder": "Поиск по имени или @username...",
+    "contacts.lead_section": "Ваш Лидер",
+    "contacts.team_section": "Команда",
+    "contacts.manual_section": "Ваши контакты",
+    "contacts.empty_title": "Список контактов пуст",
+    "contacts.empty_desc": "Добавьте первых пользователей или развивайте свою команду!",
+    "contacts.find_people": "Найти людей",
+    "contacts.remove_confirm": "Удалить контакт из списка?",
+    "contacts.searching": "Ищем пользователей...",
+    "contacts.no_results": "Никого не нашли по вашему запросу",
+    "contacts.min_chars": "Введите минимум 3 символа для поиска"
 }

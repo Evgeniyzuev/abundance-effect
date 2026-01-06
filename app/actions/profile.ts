@@ -134,3 +134,100 @@ export async function updateBasicInfoAction(data: { first_name?: string; last_na
         return { success: false, error: error.message };
     }
 }
+
+/**
+ * Searches for users by username or name.
+ */
+export async function searchUsersAction(query: string) {
+    const supabase = await createClient();
+
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, first_name, last_name, username, avatar_url, level')
+            .or(`username.ilike.%${query}%,first_name.ilike.%${query}%,last_name.ilike.%${query}%`)
+            .limit(10);
+
+        if (error) throw error;
+        return { success: true, data };
+    } catch (error: any) {
+        console.error('Error searching users:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Fetches manual contacts for the current user.
+ */
+export async function getContactsAction() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    try {
+        const { data, error } = await supabase
+            .from('user_contacts')
+            .select(`
+                contact_id,
+                users:contact_id (
+                    id, first_name, last_name, username, avatar_url, level
+                )
+            `)
+            .eq('owner_id', user.id);
+
+        if (error) throw error;
+
+        // Flatten the relationship result
+        const contacts = data.map((item: any) => item.users);
+        return { success: true, data: contacts };
+    } catch (error: any) {
+        console.error('Error fetching contacts:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Adds a contact to the current user's list.
+ */
+export async function addContactAction(contactId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    if (user.id === contactId) return { success: false, error: 'Cannot add yourself' };
+
+    try {
+        const { error } = await supabase
+            .from('user_contacts')
+            .insert({ owner_id: user.id, contact_id: contactId });
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error: any) {
+        console.error('Error adding contact:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Removes a contact from the current user's list.
+ */
+export async function removeContactAction(contactId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    try {
+        const { error } = await supabase
+            .from('user_contacts')
+            .delete()
+            .eq('owner_id', user.id)
+            .eq('contact_id', contactId);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error: any) {
+        console.error('Error removing contact:', error);
+        return { success: false, error: error.message };
+    }
+}
