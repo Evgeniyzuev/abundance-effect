@@ -43,6 +43,34 @@ export default function ContactsTab({ userId }: ContactsTabProps) {
         loadData();
     }, [loadData]);
 
+    const shareLink = async () => {
+        const link = `https://t.me/AbundanceEffectBot/Abundance?startapp=${userId}`;
+        const shareText = t('social.share_text');
+        const webApp = (typeof window !== 'undefined' && (window as any).Telegram?.WebApp);
+
+        if (webApp) {
+            try {
+                const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
+                webApp.openLink(shareUrl);
+            } catch (err) {
+                console.error('Telegram share failed:', err);
+            }
+        } else if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Abundance Effect',
+                    text: shareText,
+                    url: link,
+                });
+            } catch (err) {
+                console.error('Share failed:', err);
+            }
+        } else {
+            navigator.clipboard.writeText(link);
+            alert('Ссылка скопирована в буфер обмена');
+        }
+    };
+
     const handleRemoveContact = async (id: string) => {
         if (confirm(t('contacts.remove_confirm'))) {
             const result = await removeContactAction(id);
@@ -142,9 +170,28 @@ export default function ContactsTab({ userId }: ContactsTabProps) {
                 </div>
                 <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="w-11 h-11 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 active:scale-90 transition-all"
+                    className="w-11 h-11 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 active:scale-90 transition-all font-black text-2xl"
                 >
-                    <UserPlus size={20} />
+                    +
+                </button>
+            </div>
+
+            {/* Invite Button for Contacts */}
+            <div className="px-6 py-2">
+                <button
+                    onClick={shareLink}
+                    className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-2xl group transition-all"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <UserPlus size={18} />
+                        </div>
+                        <div className="text-left">
+                            <div className="font-bold text-gray-900 leading-tight">{t('social.invite_title')}</div>
+                            <div className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">{t('social.invite_button')}</div>
+                        </div>
+                    </div>
+                    <ChevronRight size={18} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
                 </button>
             </div>
 
