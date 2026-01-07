@@ -26,5 +26,16 @@ CREATE POLICY "Users can insert their own visions"
     ON public.avatar_visions FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+-- Add UPDATE policy
+CREATE POLICY "Users can update their own visions"
+    ON public.avatar_visions FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- Add DELETE policy
+CREATE POLICY "Users can delete their own visions"
+    ON public.avatar_visions FOR DELETE
+    USING (auth.uid() = user_id);
+
 -- Create index for performance
 CREATE INDEX IF NOT EXISTS idx_avatar_visions_user_id ON public.avatar_visions(user_id);
