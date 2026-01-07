@@ -12,9 +12,11 @@ import {
     generateVisionImageAction,
     getAvatarVisionsAction,
     deleteAvatarVisionAction,
-    refineVisionPromptAction
+    refineVisionPromptAction,
+    updateVisionUrlAction
 } from '@/app/actions/vision';
 import { AvatarVision } from '@/types';
+import { storage } from '@/utils/storage';
 
 const AVATAR_STYLES = [
     { id: 'realistic', name: 'Realism', emoji: '📸' },
@@ -56,6 +58,11 @@ export default function VisionTab() {
     const [isRefining, setIsRefining] = useState(false);
     const [refinedPrompt, setRefinedPrompt] = useState<string | null>(null);
     const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+
+    // Cloud Sync State
+    const [cloudSyncVisionId, setCloudSyncVisionId] = useState<string | null>(null);
+    const [cloudSyncUrl, setCloudSyncUrl] = useState('');
+    const [isSavingUrl, setIsSavingUrl] = useState(false);
 
     const loadVisions = useCallback(async () => {
         if (!user?.id) return;
@@ -119,6 +126,7 @@ export default function VisionTab() {
             const result = await deleteAvatarVisionAction(id);
             if (result.success) {
                 setVisions(prev => prev.filter(v => v.id !== id));
+                storage.removeVisionImage(id); // Clean up local storage
             } else {
                 alert(result.error || 'Не удалось удалить изображение');
             }
@@ -126,6 +134,47 @@ export default function VisionTab() {
             console.error(err);
             alert('Произошла ошибка при удалении');
         }
+    };
+
+    const downloadAndSaveImage = async (url: string, visionId: string) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64 = reader.result as string;
+                storage.saveVisionImage(visionId, base64);
+            };
+            reader.readAsDataURL(blob);
+        } catch (err) {
+            console.error('Failed to download image:', err);
+        }
+    };
+
+    const handleCloudSync = async () => {
+        if (!cloudSyncVisionId || !cloudSyncUrl.trim()) return;
+        setIsSavingUrl(true);
+        try {
+            const result = await updateVisionUrlAction(cloudSyncVisionId, cloudSyncUrl.trim());
+            if (result.success) {
+                setVisions(prev => prev.map(v =>
+                    v.id === cloudSyncVisionId ? { ...v, image_url: cloudSyncUrl.trim() } : v
+                ));
+                setCloudSyncVisionId(null);
+                setCloudSyncUrl('');
+            } else {
+                alert(result.error || 'Не удалось сохранить ссылку');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSavingUrl(false);
+        }
+    };
+
+    const getVisionImageSrc = (vision: AvatarVision): string => {
+        const localImage = storage.getVisionImage(vision.id);
+        return localImage || vision.image_url;
     };
 
     const handleGenerate = async () => {
@@ -142,6 +191,8 @@ export default function VisionTab() {
             const result = await generateVisionImageAction(selectedWishId, undefined, refinedPrompt || undefined);
             if (result.success && result.data) {
                 setLastGeneratedImage(result.data.image_url);
+                // Download and save locally
+                await downloadAndSaveImage(result.data.image_url, result.data.id);
                 setIsWishModalOpen(false);
                 setSelectedWishId(null);
                 setRefinedPrompt(null);
@@ -347,16 +398,25 @@ export default function VisionTab() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group"
                             >
-                                <img src={vision.image_url} alt={vision.prompt} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                <img src={getVisionImageSrc(vision)} alt={vision.prompt} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                 <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-100 transition-opacity">
                                     <p className="text-[10px] text-white font-medium truncate">{vision.prompt}</p>
                                 </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleDeleteVision(vision.id); }}
-                                    className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm ring-1 ring-black/5"
-                                >
-                                    <X size={14} />
-                                </button>
+                                <div className="absolute top-2 right-2 flex gap-1">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setCloudSyncVisionId(vision.id); }}
+                                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full text-blue-500 hover:text-blue-700 transition-colors shadow-sm ring-1 ring-black/5"
+                                        title="Добавить публичную ссылку"
+                                    >
+                                        <Sparkles size={14} />
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleDeleteVision(vision.id); }}
+                                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm ring-1 ring-black/5"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
                             </motion.div>
                         ))
                     ) : (
@@ -536,6 +596,71 @@ export default function VisionTab() {
                                 {selectedWishId && avatarWallet < getWishCost(selectedWishId) && !isGenerating && (
                                     <p className="text-center text-[10px] text-red-500 font-bold uppercase">Недостаточно Future Wallet. Пополните основной кошелек!</p>
                                 )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Cloud Sync Modal */}
+            <AnimatePresence>
+                {cloudSyncVisionId && (
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                            onClick={() => { setCloudSyncVisionId(null); setCloudSyncUrl(''); }}
+                        />
+                        <motion.div
+                            initial={{ y: "100%" }}
+                            animate={{ y: 0 }}
+                            exit={{ y: "100%" }}
+                            className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 relative z-10 shadow-2xl pb-safe-offset"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold text-gray-900">☁️ Облачная Синхронизация</h3>
+                                <button onClick={() => { setCloudSyncVisionId(null); setCloudSyncUrl(''); }} className="p-2 text-gray-400 hover:text-gray-600">
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
+                                    <p className="text-xs text-blue-900 leading-relaxed">
+                                        💡 <strong>Совет:</strong> Загрузите изображение на <a href="https://postimg.cc" target="_blank" rel="noopener noreferrer" className="underline font-bold">PostImg</a> или <a href="https://imgur.com" target="_blank" rel="noopener noreferrer" className="underline font-bold">Imgur</a>, скопируйте прямую ссылку и вставьте сюда. Так ваши образы будут доступны с любого устройства!
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Публичная ссылка на изображение</label>
+                                    <input
+                                        type="url"
+                                        value={cloudSyncUrl}
+                                        onChange={(e) => setCloudSyncUrl(e.target.value)}
+                                        placeholder="https://i.postimg.cc/..."
+                                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={handleCloudSync}
+                                    disabled={!cloudSyncUrl.trim() || isSavingUrl}
+                                    className="w-full py-4 bg-blue-600 text-white rounded-3xl font-bold shadow-lg shadow-blue-200 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center space-x-2"
+                                >
+                                    {isSavingUrl ? (
+                                        <>
+                                            <Loader2 size={20} className="animate-spin" />
+                                            <span>Сохраняем...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles size={20} />
+                                            <span>Сохранить Ссылку</span>
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         </motion.div>
                     </div>

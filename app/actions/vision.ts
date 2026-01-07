@@ -143,6 +143,34 @@ export async function getAvatarVisionsAction(): Promise<ActionResponse<AvatarVis
 }
 
 /**
+ * Update vision image URL (for cloud sync)
+ */
+export async function updateVisionUrlAction(visionId: string, imageUrl: string): Promise<ActionResponse<boolean>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { error } = await supabase
+            .from('avatar_visions')
+            .update({ image_url: imageUrl })
+            .eq('id', visionId)
+            .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        revalidatePath('/ai');
+        return { success: true, data: true };
+    } catch (error: any) {
+        console.error('Error updating vision URL:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
  * Delete an avatar vision
  */
 export async function deleteAvatarVisionAction(visionId: string): Promise<ActionResponse<boolean>> {

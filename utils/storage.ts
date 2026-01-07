@@ -134,5 +134,34 @@ export const storage = {
         } catch (error) {
             console.warn('Error removing task image from localStorage:', error);
         }
+    },
+
+    // Vision image helpers
+    saveVisionImage: (id: string, base64: string): void => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.setItem(`vision_image_${id}`, base64);
+        } catch (error) {
+            console.warn('Error saving vision image to localStorage:', error);
+        }
+    },
+
+    getVisionImage: (id: string): string | null => {
+        if (typeof window === 'undefined') return null;
+        try {
+            return window.localStorage.getItem(`vision_image_${id}`);
+        } catch (error) {
+            console.warn('Error reading vision image from localStorage:', error);
+            return null;
+        }
+    },
+
+    removeVisionImage: (id: string): void => {
+        if (typeof window === 'undefined') return;
+        try {
+            window.localStorage.removeItem(`vision_image_${id}`);
+        } catch (error) {
+            console.warn('Error removing vision image from localStorage:', error);
+        }
     }
 };
