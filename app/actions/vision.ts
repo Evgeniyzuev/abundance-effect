@@ -276,9 +276,20 @@ export async function generateVisionImageAction(
         const wish = wishResult.data;
 
         // 3. Dynamic Cost Calculation (Min 100 FW)
+        // Check if this wish was already visualized to allow 100 FW regeneration
+        let isRegen = false;
+        if (wishId) {
+            const { count } = await supabase
+                .from('avatar_visions')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('wish_id', wishId);
+            isRegen = (count ?? 0) > 0;
+        }
+
         const cleanCostStr = wish?.estimated_cost?.replace(/[^0-9.]/g, '') || '0';
         const rawCost = parseFloat(cleanCostStr);
-        const COST = rawCost > 0 ? Math.max(100, Math.ceil(rawCost)) : 100;
+        const COST = isRegen ? 100 : (rawCost > 0 ? Math.max(100, Math.ceil(rawCost)) : 100);
 
         if (settings.avatar_wallet < COST) {
             return { success: false, error: `Insufficient virtual funds ($${COST.toLocaleString()} FW required)` }

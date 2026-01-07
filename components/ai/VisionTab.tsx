@@ -84,12 +84,17 @@ export default function VisionTab() {
 
     const getWishCost = useCallback((wishId: string | null) => {
         if (!wishId) return 100;
+
+        // Check if already in visions for regeneration discount
+        const isRegen = visions.some(v => v.wish_id === wishId);
+        if (isRegen) return 100;
+
         const wish = userWishes.find(w => w.id === wishId);
         if (!wish?.estimated_cost) return 100;
         const cleanStr = wish.estimated_cost.replace(/[^0-9.]/g, '');
         const cost = parseFloat(cleanStr);
         return isNaN(cost) || cost <= 0 ? 100 : Math.max(100, Math.ceil(cost));
-    }, [userWishes]);
+    }, [userWishes, visions]);
 
     const handleRefinePrompt = async () => {
         if (!selectedWishId || isRefining) return;
@@ -110,9 +115,16 @@ export default function VisionTab() {
 
     const handleDeleteVision = async (id: string) => {
         if (!confirm('Удалить изображение из галереи?')) return;
-        const result = await deleteAvatarVisionAction(id);
-        if (result.success) {
-            setVisions(prev => prev.filter(v => v.id !== id));
+        try {
+            const result = await deleteAvatarVisionAction(id);
+            if (result.success) {
+                setVisions(prev => prev.filter(v => v.id !== id));
+            } else {
+                alert(result.error || 'Не удалось удалить изображение');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Произошла ошибка при удалении');
         }
     };
 
@@ -133,6 +145,7 @@ export default function VisionTab() {
                 setIsWishModalOpen(false);
                 setSelectedWishId(null);
                 setRefinedPrompt(null);
+                setIsEditingPrompt(false);
                 // Refresh data
                 refreshSettings();
                 refreshBalances();
@@ -335,18 +348,19 @@ export default function VisionTab() {
                                 className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group"
                             >
                                 <img src={vision.image_url} alt={vision.prompt} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-100 transition-opacity">
                                     <p className="text-[10px] text-white font-medium truncate">{vision.prompt}</p>
                                 </div>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleDeleteVision(vision.id); }}
-                                    className="absolute top-2 right-2 p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-sm"
+                                    className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full text-red-500 hover:text-red-700 transition-colors shadow-sm ring-1 ring-black/5"
                                 >
-                                    <X size={12} />
+                                    <X size={14} />
                                 </button>
                             </motion.div>
                         ))
                     ) : (
+                        // ... same empty state ...
                         <>
                             <div className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100 text-gray-300">
                                 <ImageIcon size={32} />
@@ -372,7 +386,7 @@ export default function VisionTab() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                            onClick={() => { setIsWishModalOpen(false); setRefinedPrompt(null); }}
+                            onClick={() => { setIsWishModalOpen(false); setRefinedPrompt(null); setIsEditingPrompt(false); }}
                         />
                         <motion.div
                             initial={{ y: "100%" }}
@@ -382,7 +396,7 @@ export default function VisionTab() {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold text-gray-900">Визуализация</h3>
-                                <button onClick={() => { setIsWishModalOpen(false); setRefinedPrompt(null); }} className="p-2 text-gray-400 hover:text-gray-600">
+                                <button onClick={() => { setIsWishModalOpen(false); setRefinedPrompt(null); setIsEditingPrompt(false); }} className="p-2 text-gray-400 hover:text-gray-600">
                                     <X size={24} />
                                 </button>
                             </div>
@@ -397,25 +411,39 @@ export default function VisionTab() {
                                                     <p className="text-sm font-medium">Сначала добавьте желания</p>
                                                 </div>
                                             ) : (
-                                                userWishes.map(wish => (
-                                                    <button
-                                                        key={wish.id}
-                                                        onClick={() => setSelectedWishId(wish.id)}
-                                                        className={`w-full flex items-center p-4 rounded-3xl border-2 transition-all group
-                                                            ${selectedWishId === wish.id ? 'border-blue-600 bg-blue-50' : 'border-gray-50 bg-gray-50/50 hover:border-blue-200'}`}
-                                                    >
-                                                        <div className="w-12 h-12 bg-white rounded-2xl mr-4 flex-shrink-0 flex items-center justify-center text-xl overflow-hidden shadow-sm">
-                                                            {wish.image_url ? (
-                                                                <img src={wish.image_url} alt="" className="w-full h-full object-cover" />
-                                                            ) : '🎁'}
-                                                        </div>
-                                                        <div className="text-left flex-1 min-w-0">
-                                                            <div className="font-bold text-gray-700 truncate">{wish.title}</div>
-                                                            <div className="text-[10px] text-gray-400 font-bold uppercase">${getWishCost(wish.id).toLocaleString()} FW</div>
-                                                        </div>
-                                                        {selectedWishId === wish.id && <Check size={20} className="text-blue-600" />}
-                                                    </button>
-                                                ))
+                                                userWishes.map(wish => {
+                                                    const isAlreadyVisualized = visions.some(v => v.wish_id === wish.id);
+                                                    return (
+                                                        <button
+                                                            key={wish.id}
+                                                            onClick={() => setSelectedWishId(wish.id)}
+                                                            className={`w-full flex items-center p-4 rounded-3xl border-2 transition-all group relative
+                                                                ${selectedWishId === wish.id ? 'border-blue-600 bg-blue-50' : 'border-gray-50 bg-gray-50/50 hover:border-blue-200'}`}
+                                                        >
+                                                            <div className="w-12 h-12 bg-white rounded-2xl mr-4 flex-shrink-0 flex items-center justify-center text-xl overflow-hidden shadow-sm">
+                                                                {wish.image_url ? (
+                                                                    <img src={wish.image_url} alt="" className="w-full h-full object-cover" />
+                                                                ) : '🎁'}
+                                                            </div>
+                                                            <div className="text-left flex-1 min-w-0">
+                                                                <div className="font-bold text-gray-700 truncate flex items-center gap-2">
+                                                                    {wish.title}
+                                                                    {isAlreadyVisualized && (
+                                                                        <span className="bg-green-100 text-green-700 text-[8px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">Regen</span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-[10px] text-gray-400 font-bold uppercase">
+                                                                    {isAlreadyVisualized ? (
+                                                                        <span className="text-green-600">$100 FW (Скидка)</span>
+                                                                    ) : (
+                                                                        `$${getWishCost(wish.id).toLocaleString()} FW`
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            {selectedWishId === wish.id && <Check size={20} className="text-blue-600" />}
+                                                        </button>
+                                                    );
+                                                })
                                             )}
                                         </div>
                                     </div>
