@@ -171,6 +171,34 @@ export async function updateVisionUrlAction(visionId: string, imageUrl: string):
 }
 
 /**
+ * Clear vision image URL (after local storage)
+ */
+export async function clearVisionUrlAction(visionId: string): Promise<ActionResponse<boolean>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { error } = await supabase
+            .from('avatar_visions')
+            .update({ image_url: '' })
+            .eq('id', visionId)
+            .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        revalidatePath('/ai');
+        return { success: true, data: true };
+    } catch (error: any) {
+        console.error('Error clearing vision URL:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
  * Delete an avatar vision
  */
 export async function deleteAvatarVisionAction(visionId: string): Promise<ActionResponse<boolean>> {

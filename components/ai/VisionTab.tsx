@@ -13,7 +13,8 @@ import {
     getAvatarVisionsAction,
     deleteAvatarVisionAction,
     refineVisionPromptAction,
-    updateVisionUrlAction
+    updateVisionUrlAction,
+    clearVisionUrlAction
 } from '@/app/actions/vision';
 import { AvatarVision } from '@/types';
 import { storage } from '@/utils/storage';
@@ -64,6 +65,9 @@ export default function VisionTab() {
     const [cloudSyncUrl, setCloudSyncUrl] = useState('');
     const [isSavingUrl, setIsSavingUrl] = useState(false);
 
+    // Processing State
+    const [isProcessingImages, setIsProcessingImages] = useState(false);
+
     const loadVisions = useCallback(async () => {
         if (!user?.id) return;
         setVisionsLoading(true);
@@ -80,6 +84,13 @@ export default function VisionTab() {
             loadVisions();
         }
     }, [user?.id, fetchWishes, loadVisions]);
+
+    // Sequential image processing on mount
+    useEffect(() => {
+        if (visions.length > 0 && !isProcessingImages) {
+            processNextImage();
+        }
+    }, [visions]);
 
     // Avatar Economics (100x)
     const avatarCore = coreBalance * 100;
@@ -126,7 +137,7 @@ export default function VisionTab() {
             const result = await deleteAvatarVisionAction(id);
             if (result.success) {
                 setVisions(prev => prev.filter(v => v.id !== id));
-                storage.removeVisionImage(id); // Clean up local storage
+                storage.removeVisionImage(id);
             } else {
                 alert(result.error || 'Не удалось удалить изображение');
             }
@@ -136,18 +147,54 @@ export default function VisionTab() {
         }
     };
 
-    const downloadAndSaveImage = async (url: string, visionId: string) => {
+    const downloadAndSaveImage = async (url: string, visionId: string): Promise<boolean> => {
         try {
             const response = await fetch(url);
+            if (!response.ok) return false;
             const blob = await response.blob();
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64 = reader.result as string;
-                storage.saveVisionImage(visionId, base64);
-            };
-            reader.readAsDataURL(blob);
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result as string;
+                    storage.saveVisionImage(visionId, base64);
+                    resolve(true);
+                };
+                reader.onerror = () => resolve(false);
+                reader.readAsDataURL(blob);
+            });
         } catch (err) {
             console.error('Failed to download image:', err);
+            return false;
+        }
+    };
+
+    const processNextImage = async () => {
+        if (isProcessingImages) return;
+
+        // Find first vision with Pollinations URL and no local storage
+        const visionToProcess = visions.find(v =>
+            v.image_url &&
+            v.image_url.includes('pollinations.ai') &&
+            !storage.getVisionImage(v.id)
+        );
+
+        if (!visionToProcess) return;
+
+        setIsProcessingImages(true);
+        try {
+            const success = await downloadAndSaveImage(visionToProcess.image_url, visionToProcess.id);
+            if (success) {
+                // Clear Pollinations URL from DB
+                await clearVisionUrlAction(visionToProcess.id);
+                // Update local state
+                setVisions(prev => prev.map(v =>
+                    v.id === visionToProcess.id ? { ...v, image_url: '' } : v
+                ));
+            }
+        } catch (err) {
+            console.error('Error processing image:', err);
+        } finally {
+            setIsProcessingImages(false);
         }
     };
 
