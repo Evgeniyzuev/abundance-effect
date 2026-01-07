@@ -158,7 +158,7 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
             return { success: false, error: 'Unauthorized' }
         }
 
-        // 1. Fetch required context (Settings + Wish)
+        // 2. Fetch required context (Settings + Wish)
         const [settingsResult, wishResult] = await Promise.all([
             supabase.from('avatar_settings').select('*').eq('user_id', user.id).single(),
             wishId ? supabase.from('user_wishes').select('*').eq('id', wishId).single() : Promise.resolve({ data: null })
@@ -168,15 +168,17 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
         const settings = settingsResult.data;
         const wish = wishResult.data;
 
-        // 2. Check virtual balance (Cost: 1000 Virtual USD)
-        const COST = 1000;
+        // 3. Dynamic Cost Calculation
+        // Use the wish's estimated cost directly, or 0 if not specified
+        const rawCost = wish?.estimated_cost ? parseFloat(wish.estimated_cost) : 0;
+        const COST = rawCost > 0 ? Math.ceil(rawCost) : 0;
+
         if (settings.avatar_wallet < COST) {
-            return { success: false, error: 'Insufficient virtual funds ($1,000 FW required)' }
+            return { success: false, error: `Insufficient virtual funds ($${COST.toLocaleString()} FW required)` }
         }
 
-        // 3. Prompt Engineering with Gemini
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }); // Use fast model
-
+        // 3. Prompt Engineering with Gemini (with Groq Fallback)
+        let refinedPrompt = '';
         const baseTitle = wish?.title || customDescription || 'My Bright Future';
         const style = settings.style || 'realistic';
         const baseType = settings.base_type || 'man';
@@ -200,8 +202,35 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
             - Return ONLY the final prompt text without any explanations or quotes.
         `;
 
-        const geminiResult = await model.generateContent(promptRequest);
-        const refinedPrompt = geminiResult.response.text().trim();
+        try {
+            // Try Gemini 1.5 Flash (higher quota than 2.0)
+            const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            const geminiResult = await model.generateContent(promptRequest);
+            refinedPrompt = geminiResult.response.text().trim();
+        } catch (geminiError) {
+            console.error('Gemini Failed, trying Groq fallback:', geminiError);
+
+            // Fallback to Groq if configured
+            const groqKey = process.env.GROQ_API_KEY;
+            if (groqKey) {
+                try {
+                    const Groq = (await import('groq-sdk')).default;
+                    const groq = new Groq({ apiKey: groqKey });
+                    const completion = await groq.chat.completions.create({
+                        messages: [{ role: 'user', content: promptRequest }],
+                        model: 'llama-3.3-70b-versatile',
+                    });
+                    refinedPrompt = completion.choices[0]?.message?.content?.trim() || '';
+                } catch (groqError) {
+                    console.error('Groq Fallback also failed:', groqError);
+                }
+            }
+        }
+
+        // Final fallback to simple descriptive prompt if all AI failed
+        if (!refinedPrompt) {
+            refinedPrompt = `A high-quality ${style} style visualization of a successful ${baseType} enjoying ${baseTitle}, vibrant colors, abundance aesthetic, cinematic lighting, 8k resolution.`;
+        }
 
         // 4. Pollinations URL Construction
         const seed = Math.floor(Math.random() * 1000000);

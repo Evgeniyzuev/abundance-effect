@@ -73,8 +73,21 @@ export default function VisionTab() {
         await updateSettings(updates);
     };
 
+    const getWishCost = useCallback((wishId: string | null) => {
+        if (!wishId) return 0;
+        const wish = userWishes.find(w => w.id === wishId);
+        if (!wish?.estimated_cost) return 0;
+        const cost = parseFloat(wish.estimated_cost);
+        return isNaN(cost) || cost <= 0 ? 0 : Math.ceil(cost);
+    }, [userWishes]);
     const handleGenerate = async () => {
         if (isGenerating) return;
+
+        const currentCost = getWishCost(selectedWishId);
+        if (avatarWallet < currentCost) {
+            alert(`Недостаточно средств. Требуется $${currentCost.toLocaleString()} FW`);
+            return;
+        }
 
         setIsGenerating(true);
         try {
@@ -361,11 +374,13 @@ export default function VisionTab() {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between px-2 text-xs font-bold">
                                     <span className="text-gray-400 uppercase tracking-widest">Стоимость генерации:</span>
-                                    <span className="text-orange-600 bg-orange-50 px-3 py-1 rounded-full">$1,000 FW</span>
+                                    <span className="text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
+                                        ${getWishCost(selectedWishId).toLocaleString()} FW
+                                    </span>
                                 </div>
                                 <button
                                     onClick={handleGenerate}
-                                    disabled={!selectedWishId || isGenerating || avatarWallet < 1000}
+                                    disabled={!selectedWishId || isGenerating || avatarWallet < getWishCost(selectedWishId)}
                                     className={`w-full py-5 rounded-3xl font-bold shadow-xl transition-all flex items-center justify-center space-x-2
                                         ${isGenerating ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white shadow-blue-200 hover:scale-[1.02]'}`}
                                 >
@@ -381,7 +396,7 @@ export default function VisionTab() {
                                         </>
                                     )}
                                 </button>
-                                {avatarWallet < 1000 && !isGenerating && (
+                                {selectedWishId && avatarWallet < getWishCost(selectedWishId) && !isGenerating && (
                                     <p className="text-center text-[10px] text-red-500 font-bold uppercase">Недостаточно Future Wallet. Пополните основной кошелек!</p>
                                 )}
                             </div>
