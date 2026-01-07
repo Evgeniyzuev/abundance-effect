@@ -143,12 +143,40 @@ export async function getAvatarVisionsAction(): Promise<ActionResponse<AvatarVis
 }
 
 /**
- * Generate Vision Image
+ * Delete an avatar vision
  */
-export async function generateVisionImageAction(wishId?: string, customDescription?: string): Promise<ActionResponse<AvatarVision>> {
+export async function deleteAvatarVisionAction(visionId: string): Promise<ActionResponse<boolean>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        const { error } = await supabase
+            .from('avatar_visions')
+            .delete()
+            .eq('id', visionId)
+            .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        revalidatePath('/ai');
+        return { success: true, data: true };
+    } catch (error: any) {
+        console.error('Error deleting avatar vision:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Refine prompt for vision (preview only, no cost)
+ */
+export async function refineVisionPromptAction(wishId?: string, customDescription?: string): Promise<ActionResponse<string>> {
     try {
         if (!genAI) {
-            return { success: false, error: 'AI Generator not configured (Key missing)' }
+            return { success: false, error: 'AI Generator not configured' }
         }
 
         const supabase = await createClient()
@@ -158,30 +186,16 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
             return { success: false, error: 'Unauthorized' }
         }
 
-        // 2. Fetch required context (Settings + Wish)
         const [settingsResult, wishResult] = await Promise.all([
             supabase.from('avatar_settings').select('*').eq('user_id', user.id).single(),
             wishId ? supabase.from('user_wishes').select('*').eq('id', wishId).single() : Promise.resolve({ data: null })
         ]);
 
-        if (settingsResult.error) throw new Error('Settings not found. Please set up your avatar first.');
         const settings = settingsResult.data;
         const wish = wishResult.data;
-
-        // 3. Dynamic Cost Calculation
-        // Use the wish's estimated cost directly, or 0 if not specified
-        const rawCost = wish?.estimated_cost ? parseFloat(wish.estimated_cost) : 0;
-        const COST = rawCost > 0 ? Math.ceil(rawCost) : 0;
-
-        if (settings.avatar_wallet < COST) {
-            return { success: false, error: `Insufficient virtual funds ($${COST.toLocaleString()} FW required)` }
-        }
-
-        // 3. Prompt Engineering with Gemini (with Groq Fallback)
-        let refinedPrompt = '';
+        const style = settings?.style || 'realistic';
+        const baseType = settings?.base_type || 'man';
         const baseTitle = wish?.title || customDescription || 'My Bright Future';
-        const style = settings.style || 'realistic';
-        const baseType = settings.base_type || 'man';
 
         const promptRequest = `
             Task: Create a highly detailed Stable Diffusion prompt (English) to visualize a person's wish for the future.
@@ -202,15 +216,13 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
             - Return ONLY the final prompt text without any explanations or quotes.
         `;
 
+        let refinedPrompt = '';
         try {
-            // Try Gemini 1.5 Flash (higher quota than 2.0)
             const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-            const geminiResult = await model.generateContent(promptRequest);
-            refinedPrompt = geminiResult.response.text().trim();
-        } catch (geminiError) {
-            console.error('Gemini Failed, trying Groq fallback:', geminiError);
-
-            // Fallback to Groq if configured
+            const result = await model.generateContent(promptRequest);
+            refinedPrompt = result.response.text().trim();
+        } catch (e) {
+            // Groq fallback
             const groqKey = process.env.GROQ_API_KEY;
             if (groqKey) {
                 try {
@@ -221,18 +233,66 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
                         model: 'llama-3.3-70b-versatile',
                     });
                     refinedPrompt = completion.choices[0]?.message?.content?.trim() || '';
-                } catch (groqError) {
-                    console.error('Groq Fallback also failed:', groqError);
+                } catch (er) {
+                    console.error('Groq fallback error', er);
                 }
             }
         }
 
-        // Final fallback to simple descriptive prompt if all AI failed
         if (!refinedPrompt) {
-            refinedPrompt = `A high-quality ${style} style visualization of a successful ${baseType} enjoying ${baseTitle}, vibrant colors, abundance aesthetic, cinematic lighting, 8k resolution.`;
+            refinedPrompt = `A high-quality ${style} style visualization of ${baseTitle}, vibrant colors, abundance aesthetic, cinematic lighting, 8k.`;
         }
 
-        // 4. Pollinations URL Construction
+        return { success: true, data: refinedPrompt };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Generate Vision Image
+ */
+export async function generateVisionImageAction(
+    wishId?: string,
+    customDescription?: string,
+    predefinedPrompt?: string
+): Promise<ActionResponse<AvatarVision>> {
+    try {
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        // 2. Fetch context
+        const [settingsResult, wishResult] = await Promise.all([
+            supabase.from('avatar_settings').select('*').eq('user_id', user.id).single(),
+            wishId ? supabase.from('user_wishes').select('*').eq('id', wishId).single() : Promise.resolve({ data: null })
+        ]);
+
+        if (settingsResult.error) throw new Error('Settings not found');
+        const settings = settingsResult.data;
+        const wish = wishResult.data;
+
+        // 3. Dynamic Cost Calculation (Min 100 FW)
+        const cleanCostStr = wish?.estimated_cost?.replace(/[^0-9.]/g, '') || '0';
+        const rawCost = parseFloat(cleanCostStr);
+        const COST = rawCost > 0 ? Math.max(100, Math.ceil(rawCost)) : 100;
+
+        if (settings.avatar_wallet < COST) {
+            return { success: false, error: `Insufficient virtual funds ($${COST.toLocaleString()} FW required)` }
+        }
+
+        // 4. Use or Generate Prompt
+        let refinedPrompt = predefinedPrompt;
+        if (!refinedPrompt) {
+            const refineRes = await refineVisionPromptAction(wishId, customDescription);
+            if (!refineRes.success || !refineRes.data) throw new Error(refineRes.error || 'Failed to generate prompt');
+            refinedPrompt = refineRes.data;
+        }
+
+        // 5. Pollinations URL
         const seed = Math.floor(Math.random() * 1000000);
         const encodedPrompt = encodeURIComponent(refinedPrompt);
         const pollinationsKey = process.env.POLINATIONS_API_KEY;
@@ -240,22 +300,16 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
 
         const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=false&seed=${seed}&model=${imageModel}${pollinationsKey ? `&key=${pollinationsKey}` : ''}`;
 
-        // 5. Deduct Wallet & Save Record
-        const spendResult = await supabase.rpc('spend_avatar_wallet', {
-            p_user_id: user.id,
-            p_amount: COST
-        });
-
-        if (spendResult.error || !spendResult.data) {
-            throw new Error('Failed to deduct virtual funds');
-        }
+        // 6. Deduct and Save
+        const spendResult = await supabase.rpc('spend_avatar_wallet', { p_user_id: user.id, p_amount: COST });
+        if (spendResult.error || !spendResult.data) throw new Error('Payment failed');
 
         const { data: visionData, error: visionError } = await supabase
             .from('avatar_visions')
             .insert({
                 user_id: user.id,
                 wish_id: wishId || null,
-                prompt: baseTitle,
+                prompt: wish?.title || customDescription || 'My Future',
                 refined_prompt: refinedPrompt,
                 image_url: imageUrl
             })
@@ -268,7 +322,6 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
         return { success: true, data: visionData as AvatarVision };
 
     } catch (error: any) {
-        console.error('Error generating vision:', error)
         return { success: false, error: error.message }
     }
 }

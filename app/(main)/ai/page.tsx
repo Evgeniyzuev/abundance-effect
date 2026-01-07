@@ -51,11 +51,8 @@ export default function AiPage() {
                     console.error("Failed to parse chat history", e);
                 }
             }
-            // Load Active Tab
-            const savedTab = window.localStorage.getItem('app-ai-active-tab');
-            if (savedTab === 'chat' || savedTab === 'vision') {
-                setActiveTab(savedTab);
-            }
+            // Force default tab to chat on fresh entry
+            setActiveTab('chat');
         }
     }, []);
 

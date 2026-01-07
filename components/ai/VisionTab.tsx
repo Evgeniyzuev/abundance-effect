@@ -8,7 +8,12 @@ import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
 import { useVisionSettings } from '@/hooks/useVisionSettings';
 import { useGoals } from '@/hooks/useGoals';
 import { useState, useEffect, useCallback } from 'react';
-import { generateVisionImageAction, getAvatarVisionsAction } from '@/app/actions/vision';
+import {
+    generateVisionImageAction,
+    getAvatarVisionsAction,
+    deleteAvatarVisionAction,
+    refineVisionPromptAction
+} from '@/app/actions/vision';
 import { AvatarVision } from '@/types';
 
 const AVATAR_STYLES = [
@@ -26,10 +31,9 @@ const BASE_TYPES = [
 ];
 
 const IMAGE_MODELS = [
-    { id: 'flux', name: 'Flux Schnell', description: 'Fast, High Quality' },
-    { id: 'zimage', name: 'Z-Image Turbo', description: 'Ultra Fast' },
-    { id: 'turbo', name: 'SDXL Turbo', description: 'Classic Fast' },
-    { id: 'gptimage', name: 'GPT Image 1 Mini', description: 'DALL-E Style' },
+    { id: 'nanobanana', name: 'NanoBanana', description: 'Premium AI' },
+    { id: 'seedream-pro', name: 'Seedream 4.5 Pro', description: 'Pro Artistic' },
+    { id: 'kontext', name: 'FLUX.1 Kontext', description: 'Semantic Master' },
     { id: 'seedream', name: 'Seedream 4.0', description: 'Artistic' }
 ];
 
@@ -47,6 +51,11 @@ export default function VisionTab() {
     const [isWishModalOpen, setIsWishModalOpen] = useState(false);
     const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
     const [lastGeneratedImage, setLastGeneratedImage] = useState<string | null>(null);
+
+    // Prompt Preview State
+    const [isRefining, setIsRefining] = useState(false);
+    const [refinedPrompt, setRefinedPrompt] = useState<string | null>(null);
+    const [isEditingPrompt, setIsEditingPrompt] = useState(false);
 
     const loadVisions = useCallback(async () => {
         if (!user?.id) return;
@@ -74,14 +83,41 @@ export default function VisionTab() {
     };
 
     const getWishCost = useCallback((wishId: string | null) => {
-        if (!wishId) return 0;
+        if (!wishId) return 100;
         const wish = userWishes.find(w => w.id === wishId);
-        if (!wish?.estimated_cost) return 0;
-        const cost = parseFloat(wish.estimated_cost);
-        return isNaN(cost) || cost <= 0 ? 0 : Math.ceil(cost);
+        if (!wish?.estimated_cost) return 100;
+        const cleanStr = wish.estimated_cost.replace(/[^0-9.]/g, '');
+        const cost = parseFloat(cleanStr);
+        return isNaN(cost) || cost <= 0 ? 100 : Math.max(100, Math.ceil(cost));
     }, [userWishes]);
+
+    const handleRefinePrompt = async () => {
+        if (!selectedWishId || isRefining) return;
+        setIsRefining(true);
+        try {
+            const result = await refineVisionPromptAction(selectedWishId);
+            if (result.success && result.data) {
+                setRefinedPrompt(result.data);
+            } else {
+                alert(result.error || 'Ошибка уточнения промпта');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsRefining(false);
+        }
+    };
+
+    const handleDeleteVision = async (id: string) => {
+        if (!confirm('Удалить изображение из галереи?')) return;
+        const result = await deleteAvatarVisionAction(id);
+        if (result.success) {
+            setVisions(prev => prev.filter(v => v.id !== id));
+        }
+    };
+
     const handleGenerate = async () => {
-        if (isGenerating) return;
+        if (isGenerating || !selectedWishId) return;
 
         const currentCost = getWishCost(selectedWishId);
         if (avatarWallet < currentCost) {
@@ -91,11 +127,12 @@ export default function VisionTab() {
 
         setIsGenerating(true);
         try {
-            const result = await generateVisionImageAction(selectedWishId || undefined);
+            const result = await generateVisionImageAction(selectedWishId, undefined, refinedPrompt || undefined);
             if (result.success && result.data) {
                 setLastGeneratedImage(result.data.image_url);
                 setIsWishModalOpen(false);
                 setSelectedWishId(null);
+                setRefinedPrompt(null);
                 // Refresh data
                 refreshSettings();
                 refreshBalances();
@@ -301,6 +338,12 @@ export default function VisionTab() {
                                 <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                                     <p className="text-[10px] text-white font-medium truncate">{vision.prompt}</p>
                                 </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteVision(vision.id); }}
+                                    className="absolute top-2 right-2 p-1.5 bg-white/80 backdrop-blur-sm rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-sm"
+                                >
+                                    <X size={12} />
+                                </button>
                             </motion.div>
                         ))
                     ) : (
@@ -329,7 +372,7 @@ export default function VisionTab() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setIsWishModalOpen(false)}
+                            onClick={() => { setIsWishModalOpen(false); setRefinedPrompt(null); }}
                         />
                         <motion.div
                             initial={{ y: "100%" }}
@@ -338,64 +381,130 @@ export default function VisionTab() {
                             className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 relative z-10 shadow-2xl pb-safe-offset"
                         >
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold text-gray-900">Что визуализируем?</h3>
-                                <button onClick={() => setIsWishModalOpen(false)} className="p-2 text-gray-400 hover:text-gray-600">
+                                <h3 className="text-xl font-bold text-gray-900">Визуализация</h3>
+                                <button onClick={() => { setIsWishModalOpen(false); setRefinedPrompt(null); }} className="p-2 text-gray-400 hover:text-gray-600">
                                     <X size={24} />
                                 </button>
                             </div>
 
-                            <div className="max-h-[50vh] overflow-y-auto space-y-3 mb-8 pr-2 custom-scrollbar">
-                                {userWishes.length === 0 ? (
-                                    <div className="text-center py-10 text-gray-400">
-                                        <p>Сначала добавьте желания</p>
+                            <div className="max-h-[60vh] overflow-y-auto space-y-6 mb-8 pr-2 custom-scrollbar">
+                                {!refinedPrompt ? (
+                                    <div className="space-y-4">
+                                        <h4 className="px-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Выберите цель</h4>
+                                        <div className="space-y-2">
+                                            {userWishes.length === 0 ? (
+                                                <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-3xl">
+                                                    <p className="text-sm font-medium">Сначала добавьте желания</p>
+                                                </div>
+                                            ) : (
+                                                userWishes.map(wish => (
+                                                    <button
+                                                        key={wish.id}
+                                                        onClick={() => setSelectedWishId(wish.id)}
+                                                        className={`w-full flex items-center p-4 rounded-3xl border-2 transition-all group
+                                                            ${selectedWishId === wish.id ? 'border-blue-600 bg-blue-50' : 'border-gray-50 bg-gray-50/50 hover:border-blue-200'}`}
+                                                    >
+                                                        <div className="w-12 h-12 bg-white rounded-2xl mr-4 flex-shrink-0 flex items-center justify-center text-xl overflow-hidden shadow-sm">
+                                                            {wish.image_url ? (
+                                                                <img src={wish.image_url} alt="" className="w-full h-full object-cover" />
+                                                            ) : '🎁'}
+                                                        </div>
+                                                        <div className="text-left flex-1 min-w-0">
+                                                            <div className="font-bold text-gray-700 truncate">{wish.title}</div>
+                                                            <div className="text-[10px] text-gray-400 font-bold uppercase">${getWishCost(wish.id).toLocaleString()} FW</div>
+                                                        </div>
+                                                        {selectedWishId === wish.id && <Check size={20} className="text-blue-600" />}
+                                                    </button>
+                                                ))
+                                            )}
+                                        </div>
                                     </div>
                                 ) : (
-                                    userWishes.map(wish => (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="space-y-4"
+                                    >
+                                        <div className="flex items-center justify-between px-2">
+                                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Промпт Будущего</h4>
+                                            <button
+                                                onClick={() => setIsEditingPrompt(!isEditingPrompt)}
+                                                className="text-[10px] font-black text-blue-600 uppercase tracking-widest"
+                                            >
+                                                {isEditingPrompt ? 'Готово' : 'Изменить'}
+                                            </button>
+                                        </div>
+                                        <div className="bg-gray-50 rounded-[2rem] p-6 border border-gray-100">
+                                            {isEditingPrompt ? (
+                                                <textarea
+                                                    value={refinedPrompt}
+                                                    onChange={(e) => setRefinedPrompt(e.target.value)}
+                                                    className="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-700 leading-relaxed min-h-[120px]"
+                                                />
+                                            ) : (
+                                                <p className="text-sm text-gray-700 leading-relaxed italic">
+                                                    "{refinedPrompt}"
+                                                </p>
+                                            )}
+                                        </div>
                                         <button
-                                            key={wish.id}
-                                            onClick={() => setSelectedWishId(wish.id)}
-                                            className={`w-full flex items-center p-4 rounded-3xl border-2 transition-all group
-                                                ${selectedWishId === wish.id ? 'border-blue-600 bg-blue-50' : 'border-gray-50 bg-gray-50/50 hover:border-blue-200'}`}
+                                            onClick={() => setRefinedPrompt(null)}
+                                            className="w-full py-3 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-gray-600 transition-colors"
                                         >
-                                            <div className="w-12 h-12 bg-white rounded-2xl mr-4 flex-shrink-0 flex items-center justify-center text-xl overflow-hidden shadow-sm">
-                                                {wish.image_url ? (
-                                                    <img src={wish.image_url} alt="" className="w-full h-full object-cover" />
-                                                ) : '🎁'}
-                                            </div>
-                                            <div className="text-left font-bold text-gray-700 flex-1 truncate">
-                                                {wish.title}
-                                            </div>
-                                            {selectedWishId === wish.id && <Check size={20} className="text-blue-600" />}
+                                            ← Выбрать другую цель
                                         </button>
-                                    ))
+                                    </motion.div>
                                 )}
                             </div>
 
                             <div className="space-y-4">
-                                <div className="flex items-center justify-between px-2 text-xs font-bold">
-                                    <span className="text-gray-400 uppercase tracking-widest">Стоимость генерации:</span>
-                                    <span className="text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
-                                        ${getWishCost(selectedWishId).toLocaleString()} FW
-                                    </span>
-                                </div>
-                                <button
-                                    onClick={handleGenerate}
-                                    disabled={!selectedWishId || isGenerating || avatarWallet < getWishCost(selectedWishId)}
-                                    className={`w-full py-5 rounded-3xl font-bold shadow-xl transition-all flex items-center justify-center space-x-2
-                                        ${isGenerating ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white shadow-blue-200 hover:scale-[1.02]'}`}
-                                >
-                                    {isGenerating ? (
-                                        <>
-                                            <Loader2 size={24} className="animate-spin" />
-                                            <span>Создаем ваш образ...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles size={24} />
-                                            <span>Сгенерировать Будущее</span>
-                                        </>
-                                    )}
-                                </button>
+                                {!refinedPrompt ? (
+                                    <button
+                                        onClick={handleRefinePrompt}
+                                        disabled={!selectedWishId || isRefining}
+                                        className={`w-full py-5 rounded-3xl font-bold shadow-xl transition-all flex items-center justify-center space-x-2
+                                            ${isRefining ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white shadow-blue-200 hover:scale-[1.02]'}`}
+                                    >
+                                        {isRefining ? (
+                                            <>
+                                                <Loader2 size={24} className="animate-spin" />
+                                                <span>Уточняем детали...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles size={24} />
+                                                <span>Подготовить Промпт</span>
+                                            </>
+                                        )}
+                                    </button>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between px-2 text-xs font-bold">
+                                            <span className="text-gray-400 uppercase tracking-widest">К списанию:</span>
+                                            <span className="text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
+                                                ${getWishCost(selectedWishId).toLocaleString()} FW
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={handleGenerate}
+                                            disabled={isGenerating || avatarWallet < getWishCost(selectedWishId)}
+                                            className={`w-full py-5 rounded-3xl font-bold shadow-xl transition-all flex items-center justify-center space-x-2
+                                                ${isGenerating ? 'bg-gray-100 text-gray-400' : 'bg-purple-600 text-white shadow-purple-200 hover:scale-[1.02]'}`}
+                                        >
+                                            {isGenerating ? (
+                                                <>
+                                                    <Loader2 size={24} className="animate-spin" />
+                                                    <span>Генерируем образ...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Camera size={24} />
+                                                    <span>Сгенерировать Будущее</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
                                 {selectedWishId && avatarWallet < getWishCost(selectedWishId) && !isGenerating && (
                                     <p className="text-center text-[10px] text-red-500 font-bold uppercase">Недостаточно Future Wallet. Пополните основной кошелек!</p>
                                 )}
