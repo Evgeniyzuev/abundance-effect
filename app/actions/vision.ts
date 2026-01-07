@@ -145,7 +145,11 @@ export async function getAvatarVisionsAction(): Promise<ActionResponse<AvatarVis
 /**
  * Generate Vision Image
  */
-export async function generateVisionImageAction(wishId?: string, customDescription?: string): Promise<ActionResponse<AvatarVision>> {
+export async function generateVisionImageAction(
+    wishId?: string,
+    customDescription?: string,
+    modelId?: string
+): Promise<ActionResponse<AvatarVision>> {
     try {
         if (!genAI) {
             return { success: false, error: 'AI Generator not configured (Key missing)' }
@@ -169,9 +173,11 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
         const wish = wishResult.data;
 
         // 3. Dynamic Cost Calculation
-        // Use the wish's estimated cost directly, or 0 if not specified
-        const rawCost = wish?.estimated_cost ? parseFloat(wish.estimated_cost) : 0;
-        const COST = rawCost > 0 ? Math.ceil(rawCost) : 0;
+        // Use the wish's estimated cost directly with a minimum of 10 FW. 
+        // If not specified, the cost is 10 FW.
+        const cleanCostStr = wish?.estimated_cost?.replace(/[^0-9.]/g, '') || '0';
+        const rawCost = parseFloat(cleanCostStr);
+        const COST = rawCost > 0 ? Math.max(10, Math.ceil(rawCost)) : 10;
 
         if (settings.avatar_wallet < COST) {
             return { success: false, error: `Insufficient virtual funds ($${COST.toLocaleString()} FW required)` }
@@ -236,7 +242,7 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
         const seed = Math.floor(Math.random() * 1000000);
         const encodedPrompt = encodeURIComponent(refinedPrompt);
         const pollinationsKey = process.env.POLINATIONS_API_KEY;
-        const imageModel = settings.preferred_image_model || 'flux';
+        const imageModel = modelId || settings.preferred_image_model || 'flux';
 
         const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=false&seed=${seed}&model=${imageModel}${pollinationsKey ? `&key=${pollinationsKey}` : ''}`;
 

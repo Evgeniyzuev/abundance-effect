@@ -25,12 +25,16 @@ const BASE_TYPES = [
     { id: 'girl', label: 'Девушка', icon: '👧' }
 ];
 
-const IMAGE_MODELS = [
-    { id: 'flux', name: 'Flux Schnell', description: 'Fast, High Quality' },
-    { id: 'zimage', name: 'Z-Image Turbo', description: 'Ultra Fast' },
-    { id: 'turbo', name: 'SDXL Turbo', description: 'Classic Fast' },
-    { id: 'gptimage', name: 'GPT Image 1 Mini', description: 'DALL-E Style' },
-    { id: 'seedream', name: 'Seedream 4.0', description: 'Artistic' }
+const BASIC_MODELS = [
+    { id: 'flux', name: 'Flux Schnell', description: 'Fast, High Quality', icon: '⚡' },
+    { id: 'zimage', name: 'Z-Image Turbo', description: 'Ultra Fast', icon: '🚀' },
+    { id: 'turbo', name: 'SDXL Turbo', description: 'Classic Fast', icon: '🖼️' }
+];
+
+const PRO_MODELS = [
+    { id: 'nanobanana', name: 'NanoBanana', description: 'Premium AI', icon: '🍌' },
+    { id: 'seedream-pro', name: 'Seedream 4.5 Pro', description: 'Pro Artistic', icon: '✨' },
+    { id: 'kontext', name: 'FLUX.1 Kontext', description: 'Semantic Master', icon: '🧠' }
 ];
 
 export default function VisionTab() {
@@ -46,6 +50,7 @@ export default function VisionTab() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isWishModalOpen, setIsWishModalOpen] = useState(false);
     const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
+    const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
     const [lastGeneratedImage, setLastGeneratedImage] = useState<string | null>(null);
 
     const loadVisions = useCallback(async () => {
@@ -74,12 +79,15 @@ export default function VisionTab() {
     };
 
     const getWishCost = useCallback((wishId: string | null) => {
-        if (!wishId) return 0;
+        if (!wishId) return 10;
         const wish = userWishes.find(w => w.id === wishId);
-        if (!wish?.estimated_cost) return 0;
-        const cost = parseFloat(wish.estimated_cost);
-        return isNaN(cost) || cost <= 0 ? 0 : Math.ceil(cost);
+        if (!wish?.estimated_cost) return 10;
+        // Clean string from symbols like $ or ,
+        const cleanStr = wish.estimated_cost.replace(/[^0-9.]/g, '');
+        const cost = parseFloat(cleanStr);
+        return isNaN(cost) || cost <= 0 ? 10 : Math.max(10, Math.ceil(cost));
     }, [userWishes]);
+
     const handleGenerate = async () => {
         if (isGenerating) return;
 
@@ -91,11 +99,16 @@ export default function VisionTab() {
 
         setIsGenerating(true);
         try {
-            const result = await generateVisionImageAction(selectedWishId || undefined);
+            const result = await generateVisionImageAction(
+                selectedWishId || undefined,
+                undefined,
+                selectedModelId || undefined
+            );
             if (result.success && result.data) {
                 setLastGeneratedImage(result.data.image_url);
                 setIsWishModalOpen(false);
                 setSelectedWishId(null);
+                setSelectedModelId(null);
                 // Refresh data
                 refreshSettings();
                 refreshBalances();
@@ -166,21 +179,55 @@ export default function VisionTab() {
                 {/* Model Selection */}
                 <div className="space-y-4">
                     <h3 className="font-bold text-gray-900 px-2 text-sm uppercase tracking-wider text-gray-400">Модель Генерации</h3>
-                    <div className="space-y-2">
-                        {IMAGE_MODELS.map(model => (
-                            <button
-                                key={model.id}
-                                onClick={() => handleSaveSettings({ preferred_image_model: model.id })}
-                                className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between text-left
-                                    ${settings?.preferred_image_model === model.id ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-100 bg-white'}`}
-                            >
-                                <div>
-                                    <div className="text-sm font-bold text-gray-900">{model.name}</div>
-                                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{model.description}</div>
-                                </div>
-                                {settings?.preferred_image_model === model.id && <Check size={16} className="text-blue-600" />}
-                            </button>
-                        ))}
+
+                    <div className="space-y-6">
+                        {/* Basic Models */}
+                        <div className="space-y-2">
+                            <h4 className="px-2 text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">Базовые (до $500 FW)</h4>
+                            <div className="space-y-2">
+                                {BASIC_MODELS.map(model => (
+                                    <button
+                                        key={model.id}
+                                        onClick={() => handleSaveSettings({ preferred_image_model: model.id })}
+                                        className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between text-left
+                                            ${settings?.preferred_image_model === model.id ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-100 bg-white'}`}
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <span className="text-xl">{model.icon}</span>
+                                            <div>
+                                                <div className="text-sm font-bold text-gray-900">{model.name}</div>
+                                                <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{model.description}</div>
+                                            </div>
+                                        </div>
+                                        {settings?.preferred_image_model === model.id && <Check size={16} className="text-blue-600" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Pro Models */}
+                        <div className="space-y-2">
+                            <h4 className="px-2 text-[10px] font-black text-purple-400 uppercase tracking-[0.2em]">PRO (от $500 FW)</h4>
+                            <div className="space-y-2">
+                                {PRO_MODELS.map(model => (
+                                    <button
+                                        key={model.id}
+                                        onClick={() => handleSaveSettings({ preferred_image_model: model.id })}
+                                        className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between text-left
+                                            ${settings?.preferred_image_model === model.id ? 'border-purple-600 bg-purple-50 ring-2 ring-purple-100' : 'border-gray-100 bg-white'}`}
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <span className="text-xl">{model.icon}</span>
+                                            <div>
+                                                <div className="text-sm font-bold text-gray-900">{model.name}</div>
+                                                <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{model.description}</div>
+                                            </div>
+                                        </div>
+                                        {settings?.preferred_image_model === model.id && <Check size={16} className="text-purple-600" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -344,30 +391,81 @@ export default function VisionTab() {
                                 </button>
                             </div>
 
-                            <div className="max-h-[50vh] overflow-y-auto space-y-3 mb-8 pr-2 custom-scrollbar">
+                            <div className="max-h-[50vh] overflow-y-auto space-y-6 mb-8 pr-2 custom-scrollbar">
                                 {userWishes.length === 0 ? (
                                     <div className="text-center py-10 text-gray-400">
                                         <p>Сначала добавьте желания</p>
                                     </div>
                                 ) : (
-                                    userWishes.map(wish => (
-                                        <button
-                                            key={wish.id}
-                                            onClick={() => setSelectedWishId(wish.id)}
-                                            className={`w-full flex items-center p-4 rounded-3xl border-2 transition-all group
-                                                ${selectedWishId === wish.id ? 'border-blue-600 bg-blue-50' : 'border-gray-50 bg-gray-50/50 hover:border-blue-200'}`}
-                                        >
-                                            <div className="w-12 h-12 bg-white rounded-2xl mr-4 flex-shrink-0 flex items-center justify-center text-xl overflow-hidden shadow-sm">
-                                                {wish.image_url ? (
-                                                    <img src={wish.image_url} alt="" className="w-full h-full object-cover" />
-                                                ) : '🎁'}
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <h4 className="px-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">Выберите цель</h4>
+                                            <div className="space-y-2">
+                                                {userWishes.map(wish => (
+                                                    <button
+                                                        key={wish.id}
+                                                        onClick={() => {
+                                                            setSelectedWishId(wish.id);
+                                                            // Logic for auto-selecting model if tier changes
+                                                            const cost = getWishCost(wish.id);
+                                                            const isPro = cost >= 500;
+                                                            const currentIsPro = PRO_MODELS.some(m => m.id === selectedModelId);
+                                                            const currentIsBasic = BASIC_MODELS.some(m => m.id === selectedModelId);
+
+                                                            if (isPro && !currentIsPro) setSelectedModelId(PRO_MODELS[0].id);
+                                                            if (!isPro && !currentIsBasic) setSelectedModelId(BASIC_MODELS[0].id);
+                                                        }}
+                                                        className={`w-full flex items-center p-4 rounded-3xl border-2 transition-all group
+                                                            ${selectedWishId === wish.id ? 'border-blue-600 bg-blue-50' : 'border-gray-50 bg-gray-50/50 hover:border-blue-200'}`}
+                                                    >
+                                                        <div className="w-12 h-12 bg-white rounded-2xl mr-4 flex-shrink-0 flex items-center justify-center text-xl overflow-hidden shadow-sm">
+                                                            {wish.image_url ? (
+                                                                <img src={wish.image_url} alt="" className="w-full h-full object-cover" />
+                                                            ) : '🎁'}
+                                                        </div>
+                                                        <div className="flex-1 text-left min-w-0">
+                                                            <div className="font-bold text-gray-700 truncate">{wish.title}</div>
+                                                            <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">${wish.estimated_cost || '0'}</div>
+                                                        </div>
+                                                        {selectedWishId === wish.id && <Check size={20} className="text-blue-600" />}
+                                                    </button>
+                                                ))}
                                             </div>
-                                            <div className="text-left font-bold text-gray-700 flex-1 truncate">
-                                                {wish.title}
-                                            </div>
-                                            {selectedWishId === wish.id && <Check size={20} className="text-blue-600" />}
-                                        </button>
-                                    ))
+                                        </div>
+
+                                        {selectedWishId && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="space-y-3 pt-2"
+                                            >
+                                                <h4 className="px-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                    {getWishCost(selectedWishId) >= 500 ? '🔥 Доступные PRO Модели' : '✨ Доступные Модели'}
+                                                </h4>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {(getWishCost(selectedWishId) >= 500 ? PRO_MODELS : BASIC_MODELS).map(model => (
+                                                        <button
+                                                            key={model.id}
+                                                            onClick={() => setSelectedModelId(model.id)}
+                                                            className={`p-3 rounded-2xl border-2 transition-all flex items-center justify-between text-left
+                                                                ${selectedModelId === model.id
+                                                                    ? (getWishCost(selectedWishId) >= 500 ? 'border-purple-500 bg-purple-50' : 'border-blue-500 bg-blue-50')
+                                                                    : 'border-gray-100 bg-white'}`}
+                                                        >
+                                                            <div className="flex items-center space-x-3">
+                                                                <span className="text-xl">{model.icon}</span>
+                                                                <div>
+                                                                    <div className="text-sm font-bold text-gray-900">{model.name}</div>
+                                                                    <div className="text-[10px] text-gray-500 uppercase font-black">{model.description}</div>
+                                                                </div>
+                                                            </div>
+                                                            {selectedModelId === model.id && <Check size={16} className={getWishCost(selectedWishId) >= 500 ? 'text-purple-600' : 'text-blue-600'} />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </div>
                                 )}
                             </div>
 
