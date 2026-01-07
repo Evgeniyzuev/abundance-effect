@@ -108,10 +108,17 @@ export async function spendAvatarWalletAction(amount: number): Promise<ActionRes
     }
 }
 
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { AvatarVision } from '@/types'
+
+const genAI = process.env.GOOGLE_GENERATIVE_AI_KEY
+    ? new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_KEY)
+    : null;
+
 /**
- * Generate Vision Image (Stub for now)
+ * Fetch avatar visions (gallery) for current user
  */
-export async function generateVisionImageAction(wishId?: string, customDescription?: string): Promise<ActionResponse<{ imageUrl: string }>> {
+export async function getAvatarVisionsAction(): Promise<ActionResponse<AvatarVision[]>> {
     try {
         const supabase = await createClient()
         const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -120,25 +127,117 @@ export async function generateVisionImageAction(wishId?: string, customDescripti
             return { success: false, error: 'Unauthorized' }
         }
 
-        // 1. Check virtual balance (Cost: 1000 Virtual USD)
+        const { data, error } = await supabase
+            .from('avatar_visions')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        return { success: true, data: data as AvatarVision[] }
+    } catch (error: any) {
+        console.error('Error fetching avatar visions:', error)
+        return { success: false, error: error.message }
+    }
+}
+
+/**
+ * Generate Vision Image
+ */
+export async function generateVisionImageAction(wishId?: string, customDescription?: string): Promise<ActionResponse<AvatarVision>> {
+    try {
+        if (!genAI) {
+            return { success: false, error: 'AI Generator not configured (Key missing)' }
+        }
+
+        const supabase = await createClient()
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+        if (userError || !user) {
+            return { success: false, error: 'Unauthorized' }
+        }
+
+        // 1. Fetch required context (Settings + Wish)
+        const [settingsResult, wishResult] = await Promise.all([
+            supabase.from('avatar_settings').select('*').eq('user_id', user.id).single(),
+            wishId ? supabase.from('user_wishes').select('*').eq('id', wishId).single() : Promise.resolve({ data: null })
+        ]);
+
+        if (settingsResult.error) throw new Error('Settings not found. Please set up your avatar first.');
+        const settings = settingsResult.data;
+        const wish = wishResult.data;
+
+        // 2. Check virtual balance (Cost: 1000 Virtual USD)
         const COST = 1000;
-        const spendResult = await spendAvatarWalletAction(COST);
-        if (!spendResult.success) {
-            return { success: false, error: spendResult.error }
+        if (settings.avatar_wallet < COST) {
+            return { success: false, error: 'Insufficient virtual funds ($1,000 FW required)' }
         }
 
-        // 2. Fetch required data (Avatar settings + Wish)
-        // [WIP: Integration with Nano Banana or Replicate]
+        // 3. Prompt Engineering with Gemini
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' }); // Use fast model
 
-        // Mocking delay and result
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        const baseTitle = wish?.title || customDescription || 'My Bright Future';
+        const style = settings.style || 'realistic';
+        const baseType = settings.base_type || 'man';
 
-        return {
-            success: true,
-            data: {
-                imageUrl: 'https://images.unsplash.com/photo-1614728263952-84ea206f9c45?w=500&q=80'
-            }
+        const promptRequest = `
+            Task: Create a highly detailed Stable Diffusion prompt (English) to visualize a person's wish for the future.
+            
+            Context:
+            - Wish/Goal: "${baseTitle}"
+            - Person Type: "${baseType}"
+            - Visual Style: "${style}" (Options: realistic, cyberpunk, pixar, anime)
+            
+            Instructions:
+            - Describe a successful, happy ${baseType} enjoying their achieved goal: "${baseTitle}".
+            - The scene should be vibrant, inspiring, and full of "Abundance".
+            - Include specific lighting, environment, and architectural details matching the "${style}" style.
+            - Focus on the high-quality details, 8k, masterpiece, cinematic.
+            - If style is 'cyberpunk', add neon lights and futuristic tech.
+            - If style is 'pixar', add 3D cartoon charm and expressive emotions.
+            - If style is 'anime', add hand-drawn aesthetic and dramatic atmosphere.
+            - Return ONLY the final prompt text without any explanations or quotes.
+        `;
+
+        const geminiResult = await model.generateContent(promptRequest);
+        const refinedPrompt = geminiResult.response.text().trim();
+
+        // 4. Pollinations URL Construction
+        const seed = Math.floor(Math.random() * 1000000);
+        const encodedPrompt = encodeURIComponent(refinedPrompt);
+        const pollinationsKey = process.env.POLINATIONS_API_KEY;
+        const imageModel = settings.preferred_image_model || 'flux';
+
+        const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=false&seed=${seed}&model=${imageModel}${pollinationsKey ? `&key=${pollinationsKey}` : ''}`;
+
+        // 5. Deduct Wallet & Save Record
+        const spendResult = await supabase.rpc('spend_avatar_wallet', {
+            p_user_id: user.id,
+            p_amount: COST
+        });
+
+        if (spendResult.error || !spendResult.data) {
+            throw new Error('Failed to deduct virtual funds');
         }
+
+        const { data: visionData, error: visionError } = await supabase
+            .from('avatar_visions')
+            .insert({
+                user_id: user.id,
+                wish_id: wishId || null,
+                prompt: baseTitle,
+                refined_prompt: refinedPrompt,
+                image_url: imageUrl
+            })
+            .select()
+            .single();
+
+        if (visionError) throw visionError;
+
+        revalidatePath('/ai');
+        return { success: true, data: visionData as AvatarVision };
+
     } catch (error: any) {
         console.error('Error generating vision:', error)
         return { success: false, error: error.message }

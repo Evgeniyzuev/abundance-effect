@@ -17,11 +17,22 @@ export type DbUser = {
 export type AvatarSettings = {
     user_id: string;
     base_type: string | null;
-    style: string;
+    style: string | null;
     avatar_photo_url: string | null;
     avatar_wallet: number;
+    preferred_image_model: string | null;
     created_at: string;
     updated_at: string;
+};
+
+export type AvatarVision = {
+    id: string;
+    user_id: string;
+    wish_id: string | null;
+    prompt: string;
+    refined_prompt: string;
+    image_url: string;
+    created_at: string;
 };
 
 export type UserProfile = {

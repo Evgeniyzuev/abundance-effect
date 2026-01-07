@@ -7,8 +7,9 @@ import { useUser } from '@/context/UserContext';
 import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
 import { useVisionSettings } from '@/hooks/useVisionSettings';
 import { useGoals } from '@/hooks/useGoals';
-import { useState, useEffect } from 'react';
-import { generateVisionImageAction } from '@/app/actions/vision';
+import { useState, useEffect, useCallback } from 'react';
+import { generateVisionImageAction, getAvatarVisionsAction } from '@/app/actions/vision';
+import { AvatarVision } from '@/types';
 
 const AVATAR_STYLES = [
     { id: 'realistic', name: 'Realism', emoji: '📸' },
@@ -24,6 +25,14 @@ const BASE_TYPES = [
     { id: 'girl', label: 'Девушка', icon: '👧' }
 ];
 
+const IMAGE_MODELS = [
+    { id: 'flux', name: 'Flux Schnell', description: 'Fast, High Quality' },
+    { id: 'zimage', name: 'Z-Image Turbo', description: 'Ultra Fast' },
+    { id: 'turbo', name: 'SDXL Turbo', description: 'Classic Fast' },
+    { id: 'gptimage', name: 'GPT Image 1 Mini', description: 'DALL-E Style' },
+    { id: 'seedream', name: 'Seedream 4.0', description: 'Artistic' }
+];
+
 export default function VisionTab() {
     const { t } = useLanguage();
     const { user } = useUser();
@@ -31,15 +40,30 @@ export default function VisionTab() {
     const { coreBalance, walletBalance, refreshBalances } = useWalletBalancesNoCache(user?.id || null);
     const { settings, loading: settingsLoading, updateSettings, refreshSettings } = useVisionSettings(user?.id || null);
 
+    const [visions, setVisions] = useState<AvatarVision[]>([]);
+    const [visionsLoading, setVisionsLoading] = useState(true);
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isWishModalOpen, setIsWishModalOpen] = useState(false);
     const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
     const [lastGeneratedImage, setLastGeneratedImage] = useState<string | null>(null);
 
+    const loadVisions = useCallback(async () => {
+        if (!user?.id) return;
+        setVisionsLoading(true);
+        const result = await getAvatarVisionsAction();
+        if (result.success && result.data) {
+            setVisions(result.data);
+        }
+        setVisionsLoading(false);
+    }, [user?.id]);
+
     useEffect(() => {
-        if (user?.id) fetchWishes();
-    }, [user?.id, fetchWishes]);
+        if (user?.id) {
+            fetchWishes();
+            loadVisions();
+        }
+    }, [user?.id, fetchWishes, loadVisions]);
 
     // Avatar Economics (100x)
     const avatarCore = coreBalance * 100;
@@ -56,12 +80,13 @@ export default function VisionTab() {
         try {
             const result = await generateVisionImageAction(selectedWishId || undefined);
             if (result.success && result.data) {
-                setLastGeneratedImage(result.data.imageUrl);
+                setLastGeneratedImage(result.data.image_url);
                 setIsWishModalOpen(false);
                 setSelectedWishId(null);
-                // Refresh data to show updated wallet
+                // Refresh data
                 refreshSettings();
                 refreshBalances();
+                loadVisions();
             } else {
                 alert(result.error || 'Ошибка генерации');
             }
@@ -83,28 +108,33 @@ export default function VisionTab() {
     // Onboarding View
     if (!settings?.base_type || isOnboarding) {
         return (
-            <div className="p-6 space-y-8 pb-24">
+            <div className="p-6 space-y-8 pb-24 max-h-screen overflow-y-auto">
                 <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-bold text-gray-900">Создай свой Образ</h2>
-                    <p className="text-sm text-gray-500">Выберите тип аватара и стиль для визуализации вашего будущего</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Настройка Образа</h2>
+                    <p className="text-sm text-gray-500">Настройте свой аватар и выберите нейросеть для генерации</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    {BASE_TYPES.map(type => (
-                        <button
-                            key={type.id}
-                            onClick={() => handleSaveSettings({ base_type: type.id })}
-                            className={`p-4 rounded-3xl border-2 transition-all flex flex-col items-center space-y-2
-                                ${settings?.base_type === type.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100 bg-white'}`}
-                        >
-                            <span className="text-3xl">{type.icon}</span>
-                            <span className="text-sm font-bold">{type.label}</span>
-                        </button>
-                    ))}
-                </div>
-
+                {/* Base Type Selection */}
                 <div className="space-y-4">
-                    <h3 className="font-bold text-gray-900 px-2">Визуальный Стиль</h3>
+                    <h3 className="font-bold text-gray-900 px-2 text-sm uppercase tracking-wider text-gray-400">Кто вы?</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        {BASE_TYPES.map(type => (
+                            <button
+                                key={type.id}
+                                onClick={() => handleSaveSettings({ base_type: type.id })}
+                                className={`p-4 rounded-3xl border-2 transition-all flex flex-col items-center space-y-2
+                                    ${settings?.base_type === type.id ? 'border-blue-600 bg-blue-50' : 'border-gray-100 bg-white'}`}
+                            >
+                                <span className="text-3xl">{type.icon}</span>
+                                <span className="text-sm font-bold">{type.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Style Selection */}
+                <div className="space-y-4">
+                    <h3 className="font-bold text-gray-900 px-2 text-sm uppercase tracking-wider text-gray-400">Визуальный Стиль</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {AVATAR_STYLES.map(style => (
                             <button
@@ -120,12 +150,33 @@ export default function VisionTab() {
                     </div>
                 </div>
 
+                {/* Model Selection */}
+                <div className="space-y-4">
+                    <h3 className="font-bold text-gray-900 px-2 text-sm uppercase tracking-wider text-gray-400">Модель Генерации</h3>
+                    <div className="space-y-2">
+                        {IMAGE_MODELS.map(model => (
+                            <button
+                                key={model.id}
+                                onClick={() => handleSaveSettings({ preferred_image_model: model.id })}
+                                className={`w-full p-4 rounded-2xl border transition-all flex items-center justify-between text-left
+                                    ${settings?.preferred_image_model === model.id ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-100 bg-white'}`}
+                            >
+                                <div>
+                                    <div className="text-sm font-bold text-gray-900">{model.name}</div>
+                                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">{model.description}</div>
+                                </div>
+                                {settings?.preferred_image_model === model.id && <Check size={16} className="text-blue-600" />}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <button
                     onClick={() => setIsOnboarding(false)}
-                    disabled={!settings?.base_type}
-                    className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 disabled:opacity-50"
+                    disabled={!settings?.base_type || !settings?.preferred_image_model}
+                    className="w-full py-4 bg-blue-600 text-white rounded-3xl font-bold shadow-lg shadow-blue-200 disabled:opacity-50"
                 >
-                    Готово
+                    Сохранить и начать
                 </button>
             </div>
         );
@@ -213,7 +264,7 @@ export default function VisionTab() {
                 </button>
             </div>
 
-            {/* Gallery Placeholder */}
+            {/* Gallery Section */}
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-gray-900">Галерея Будущего</h3>
@@ -221,20 +272,38 @@ export default function VisionTab() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                    {lastGeneratedImage && (
-                        <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-md">
-                            <img src={lastGeneratedImage} alt="Future Vision" className="w-full h-full object-cover" />
-                        </motion.div>
+                    {visionsLoading ? (
+                        [1, 2, 3, 4].map(i => (
+                            <div key={i} className="aspect-square bg-gray-50 rounded-2xl animate-pulse" />
+                        ))
+                    ) : visions.length > 0 ? (
+                        visions.map((vision) => (
+                            <motion.div
+                                key={vision.id}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative group"
+                            >
+                                <img src={vision.image_url} alt={vision.prompt} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <p className="text-[10px] text-white font-medium truncate">{vision.prompt}</p>
+                                </div>
+                            </motion.div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100 text-gray-300">
+                                <ImageIcon size={32} />
+                            </div>
+                            <button
+                                onClick={() => setIsWishModalOpen(true)}
+                                className="aspect-square rounded-2xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center text-gray-400 hover:bg-blue-50 hover:border-blue-200 transition-all group"
+                            >
+                                <Plus size={32} className="group-hover:text-blue-500" />
+                                <span className="text-[10px] mt-2 font-bold group-hover:text-blue-600">Создать</span>
+                            </button>
+                        </>
                     )}
-                    {[1, 2, 3].map((i) => (
-                        <div key={i} className="aspect-square bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-100 text-gray-300">
-                            <ImageIcon size={32} />
-                        </div>
-                    ))}
-                    <button className="aspect-square rounded-2xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center text-gray-400 hover:bg-blue-50 hover:border-blue-200 transition-all group">
-                        <Plus size={32} className="group-hover:text-blue-500" />
-                        <span className="text-[10px] mt-2 font-bold group-hover:text-blue-600">Создать</span>
-                    </button>
                 </div>
             </div>
 
