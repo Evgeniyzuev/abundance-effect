@@ -367,7 +367,7 @@ export async function generateVisionImageAction(
 
         const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=false&seed=${seed}&model=${imageModel}${pollinationsKey ? `&key=${pollinationsKey}` : ''}`;
 
-        // 6. Deduct and Save
+        // 6. Deduct and Save (without Pollinations URL)
         const spendResult = await supabase.rpc('spend_avatar_wallet', { p_user_id: user.id, p_amount: COST });
         if (spendResult.error || !spendResult.data) throw new Error('Payment failed');
 
@@ -378,7 +378,7 @@ export async function generateVisionImageAction(
                 wish_id: wishId || null,
                 prompt: wish?.title || customDescription || 'My Future',
                 refined_prompt: refinedPrompt,
-                image_url: imageUrl
+                image_url: '' // Save empty, will be filled by user or kept local
             })
             .select()
             .single();
@@ -386,7 +386,8 @@ export async function generateVisionImageAction(
         if (visionError) throw visionError;
 
         revalidatePath('/ai');
-        return { success: true, data: visionData as AvatarVision };
+        // Return vision with temporary Pollinations URL for client download
+        return { success: true, data: { ...visionData, image_url: imageUrl } as AvatarVision };
 
     } catch (error: any) {
         return { success: false, error: error.message }

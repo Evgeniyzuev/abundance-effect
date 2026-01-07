@@ -220,8 +220,16 @@ export default function VisionTab() {
     };
 
     const getVisionImageSrc = (vision: AvatarVision): string => {
+        // Priority: 1) Public URL from DB, 2) Local storage, 3) Pollinations (shouldn't happen)
+        if (vision.image_url && vision.image_url.trim() !== '') {
+            return vision.image_url;
+        }
         const localImage = storage.getVisionImage(vision.id);
-        return localImage || vision.image_url;
+        if (localImage) {
+            return localImage;
+        }
+        // Fallback (shouldn't be reached with new logic)
+        return '/placeholder-vision.png';
     };
 
     const handleGenerate = async () => {
