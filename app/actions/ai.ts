@@ -46,7 +46,7 @@ async function chatWithGemini(
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
         const systemContext = buildSystemContext(userContext);
 
         const cleanHistory = history.map(h => ({
