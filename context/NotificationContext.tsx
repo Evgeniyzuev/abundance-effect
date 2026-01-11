@@ -23,6 +23,7 @@ interface NotificationContextType {
     markAsRead: (id: string) => Promise<void>;
     markAllAsRead: () => Promise<void>;
     deleteNotification: (id: string) => Promise<void>;
+    deleteAllNotifications: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -132,6 +133,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const deleteAllNotifications = async () => {
+        if (!user) return;
+
+        const { error } = await supabase.rpc('delete_all_notifications', {
+            target_user_id: user.id,
+        });
+
+        if (error) {
+            console.error('Error deleting all notifications:', error);
+        } else {
+            setNotifications([]);
+        }
+    };
+
     const unreadCount = notifications.filter((n) => !n.is_read).length;
 
     return (
@@ -144,6 +159,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 markAsRead,
                 markAllAsRead,
                 deleteNotification,
+                deleteAllNotifications,
             }}
         >
             {children}

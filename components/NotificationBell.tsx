@@ -7,7 +7,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function NotificationBell() {
-    const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, isLoading } = useNotifications();
+    const { notifications, unreadCount, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications, isLoading } = useNotifications();
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -71,6 +71,15 @@ export default function NotificationBell() {
                                             {t('notifications.mark_all_read') || 'Mark all as read'}
                                         </button>
                                     )}
+                                    {notifications.length > 0 && (
+                                        <button
+                                            onClick={deleteAllNotifications}
+                                            className="p-2 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100 transition-colors"
+                                            title="Delete all"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
                                     <button
                                         onClick={toggleOpen}
                                         className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
@@ -122,22 +131,22 @@ export default function NotificationBell() {
                                                     </div>
                                                     <p className="text-sm mt-1 leading-relaxed opacity-90">{notification.message}</p>
 
-                                                    <div className="flex items-center gap-3 mt-3">
+                                                    <div className="flex items-center gap-2 mt-3">
                                                         {!notification.is_read && (
                                                             <button
                                                                 onClick={() => markAsRead(notification.id)}
-                                                                className="text-xs font-bold text-blue-600 flex items-center gap-1 hover:underline"
+                                                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                                title="Mark as read"
                                                             >
                                                                 <Check size={14} />
-                                                                {t('notifications.mark_read') || 'Mark read'}
                                                             </button>
                                                         )}
                                                         <button
                                                             onClick={() => deleteNotification(notification.id)}
-                                                            className="text-xs font-medium text-gray-400 flex items-center gap-1 hover:text-red-500 transition-colors"
+                                                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                            title="Delete"
                                                         >
                                                             <Trash2 size={14} />
-                                                            {t('common.delete')}
                                                         </button>
                                                     </div>
                                                 </div>
