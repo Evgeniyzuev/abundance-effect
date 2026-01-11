@@ -7,7 +7,7 @@ import { useGoals } from '@/hooks/useGoals';
 import { useWalletBalancesNoCache } from '@/hooks/useWalletBalancesNoCache';
 import { useChallenges } from '@/hooks/useChallenges';
 import { chatWithAI, GroqModel } from '@/app/actions/ai';
-import { Send, Sparkles, User, Bot, Loader2, ChevronDown, Plus, History, Trash2, X, MessageSquare } from 'lucide-react';
+import { Send, Sparkles, User, Bot, Loader2, ChevronDown, Plus, History, Trash2, X, MessageSquare, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import VisionTab from '@/components/ai/VisionTab';
 
@@ -46,9 +46,19 @@ export default function AiPage() {
     const [groqModel, setGroqModel] = useState<GroqModel>('llama-3.3-70b-versatile');
     const [showModelSelector, setShowModelSelector] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const [activeTab, setActiveTab] = useState<'chat' | 'vision'>('chat');
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const suggestions = [
+        "Как мне начать зарабатывать с Abundance Effect?",
+        "Что такое Баланс Ядра и как он растет?",
+        "Как ИИ поможет мне исполнить мои желания?",
+        "В чем преимущество Экономики Участия?",
+        "Как уровни влияют на мои возможности?",
+        "Какие челленджи мне стоит пройти первыми?"
+    ];
 
     // Initial Greeting Template
     const getGreeting = () => ({
@@ -520,24 +530,69 @@ export default function AiPage() {
                     </div>
 
                     {/* Input Area */}
-                    <div className="bg-white border-t border-gray-100 p-3 pb-safe-offset shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
-                        <div className="relative flex items-center max-w-4xl mx-auto">
-                            <input
-                                type="text"
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder={t('ai.input_placeholder') || "Ask for advice..."}
-                                className="w-full bg-gray-100 text-gray-900 rounded-full pl-5 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm border-transparent focus:bg-white focus:border-blue-100"
-                                disabled={isLoading}
-                            />
+                    <div className="bg-white border-t border-gray-100 p-3 pb-safe-offset shadow-[0_-4px_10px_rgba(0,0,0,0.02)] relative">
+                        <AnimatePresence>
+                            {showSuggestions && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute bottom-full left-4 mb-2 w-[calc(100%-2rem)] max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-20"
+                                >
+                                    <div className="p-3 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
+                                        <span className="text-xs font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
+                                            <Lightbulb size={12} />
+                                            {t('ai.faq_suggestions') || 'Suggested Questions'}
+                                        </span>
+                                        <button onClick={() => setShowSuggestions(false)} className="text-blue-400 hover:text-blue-600">
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                    <div className="p-2 grid grid-cols-1 gap-1">
+                                        {suggestions.map((suggestion, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => {
+                                                    setInputValue(suggestion);
+                                                    setShowSuggestions(false);
+                                                }}
+                                                className="text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100"
+                                            >
+                                                {suggestion}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <div className="relative flex items-center max-w-4xl mx-auto gap-2">
                             <button
-                                onClick={handleSendMessage}
-                                disabled={!inputValue.trim() || isLoading}
-                                className="absolute right-2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-md"
+                                onClick={() => setShowSuggestions(!showSuggestions)}
+                                className={`p-3 rounded-full transition-all shadow-sm border ${showSuggestions ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                                    }`}
                             >
-                                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                <Lightbulb size={20} />
                             </button>
+
+                            <div className="relative flex-1">
+                                <input
+                                    type="text"
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder={t('ai.input_placeholder') || "Ask for advice..."}
+                                    className="w-full bg-gray-100 text-gray-900 rounded-full pl-5 pr-12 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm border-transparent focus:bg-white focus:border-blue-100"
+                                    disabled={isLoading}
+                                />
+                                <button
+                                    onClick={handleSendMessage}
+                                    disabled={!inputValue.trim() || isLoading}
+                                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors shadow-md"
+                                >
+                                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
