@@ -534,10 +534,10 @@ export default function AiPage() {
                         <AnimatePresence>
                             {showSuggestions && (
                                 <motion.div
-                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute bottom-full left-4 mb-2 w-[calc(100%-2rem)] max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-20"
+                                    initial={{ opacity: 0, y: 10, scale: 0.95, x: '-50%' }}
+                                    animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95, x: '-50%' }}
+                                    className="absolute bottom-full left-1/2 mb-2 w-[92%] max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-30"
                                 >
                                     <div className="p-3 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
                                         <span className="text-xs font-bold text-blue-700 uppercase tracking-wider flex items-center gap-1.5">
