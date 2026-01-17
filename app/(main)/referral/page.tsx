@@ -61,7 +61,7 @@ export default function ReferralPage() {
         if (webApp) {
             try {
                 const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
-                webApp.openLink(shareUrl);
+                webApp.openTelegramLink(shareUrl);
             } catch (err) {
                 console.error('Telegram share failed:', err);
                 copyToClipboard(link, link.includes('t.me') ? 'telegram' : 'web');
