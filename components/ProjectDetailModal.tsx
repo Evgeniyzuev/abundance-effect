@@ -36,7 +36,7 @@ export function ProjectDetailModal({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4">
+                <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 pb-20 sm:pb-4 text-left">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -49,7 +49,7 @@ export function ProjectDetailModal({
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
-                        className="relative w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-xl max-h-[90vh] flex flex-col"
+                        className="relative w-[calc(100%-1rem)] sm:w-full max-w-lg bg-white rounded-3xl sm:rounded-2xl overflow-hidden shadow-xl max-h-[85vh] sm:max-h-[90vh] flex flex-col"
                     >
                         {/* Header Image */}
                         <div className="relative h-48 sm:h-56">
@@ -80,7 +80,7 @@ export function ProjectDetailModal({
                                 </span>
                                 {status && (
                                     <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wider ${status === 'approved' ? 'bg-green-100 text-green-700' :
-                                            status === 'pending' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'
+                                        status === 'pending' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'
                                         }`}>
                                         {t(`projects.${status}` as TranslationKey)}
                                     </span>
@@ -153,7 +153,7 @@ export function ProjectDetailModal({
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 bg-white border-t border-gray-100 pb-safe-offset-4">
+                        <div className="p-6 bg-white border-t border-gray-100 pb-safe">
                             {!status ? (
                                 <button
                                     onClick={() => onApply(message)}
@@ -169,7 +169,7 @@ export function ProjectDetailModal({
                                 </button>
                             ) : (
                                 <div className={`flex items-center justify-center gap-2 font-bold py-4 rounded-2xl ${status === 'approved' ? 'bg-green-50 text-green-700' :
-                                        status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'
+                                    status === 'pending' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'
                                     }`}>
                                     {status === 'approved' ? <CheckCircle2 size={20} /> : status === 'pending' ? <Clock size={20} /> : <AlertCircle size={20} />}
                                     {t(`projects.${status}` as TranslationKey)}

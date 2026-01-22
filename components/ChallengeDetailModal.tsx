@@ -41,7 +41,7 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 pb-20 sm:pb-4 text-left">
                 {/* Backdrop */}
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -57,7 +57,7 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="relative bg-[#F2F2F7] sm:bg-white w-full max-w-lg rounded-t-3xl sm:rounded-2xl overflow-hidden max-h-[90vh] flex flex-col shadow-2xl"
+                    className="relative bg-[#F2F2F7] sm:bg-white w-[calc(100%-1rem)] sm:w-full max-w-lg rounded-3xl sm:rounded-2xl overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col shadow-2xl"
                 >
                     {/* Header */}
                     <div className="p-4 flex items-center justify-between border-b border-gray-100 bg-white sticky top-0 z-10">
@@ -177,7 +177,7 @@ export const ChallengeDetailModal: React.FC<ChallengeDetailModalProps> = ({
                     </div>
 
                     {/* Footer Action */}
-                    <div className="p-4 bg-white border-t border-gray-100 sticky bottom-0">
+                    <div className="p-4 bg-white border-t border-gray-100 sticky bottom-0 pb-safe">
                         {(!isActive || !isAppTesting) && (
                             <button
                                 onClick={() => onAction?.()}
