@@ -177,7 +177,13 @@ export async function updateParticipationAction(
         }
 
         // Execute verification if available
-        const verificationKey = challenge.verification_logic as string;
+        let verificationKey = challenge.verification_logic as string;
+
+        // Clean up quotes if present (artifact of JSON storage)
+        if (verificationKey && typeof verificationKey === 'string') {
+            verificationKey = verificationKey.replace(/^"|"$/g, '');
+        }
+
         if (status === 'completed' && verificationKey && typeof verificationKey === 'string') {
             logger.info(`[Challenges] Executing verification for challenge ${challenge.id} with key ${verificationKey}`);
 
