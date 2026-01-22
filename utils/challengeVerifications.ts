@@ -102,24 +102,29 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
     description: 'Check if user has at least one referral',
     verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
       try {
-        console.log(`[Verification] Checking referrals for user: ${userId}`);
-
-        // Use a simple select instead of count: 'exact' to be more robust
-        const { data, error } = await supabase
-          .from('users')
-          .select('id')
-          .eq('referrer_id', userId)
-          .limit(1);
-
-        if (error) {
-          console.error('[Verification] Error verifying has_referral:', error);
+        if (!userId) {
+          console.error('[Verification] No userId provided to has_referral');
           return false;
         }
 
-        const hasReferral = data && data.length > 0;
-        console.log(`[Verification] User ${userId} has referrals: ${hasReferral}`);
+        console.log(`[Verification] Checking referrals for user: ${userId}`);
 
-        return !!hasReferral;
+        // Match exactly the query from fetchHierarchyAction in hierarchy.ts
+        const { data: team, error: teamError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('referrer_id', userId)
+          .order('created_at', { ascending: false });
+
+        if (teamError) {
+          console.error('[Verification] Error fetching team for has_referral:', teamError);
+          return false;
+        }
+
+        const teamSize = team?.length || 0;
+        console.log(`[Verification] User ${userId} has team size: ${teamSize}`);
+
+        return teamSize > 0;
       } catch (error) {
         console.error('[Verification] Catch error verifying has_referral:', error);
         return false;
