@@ -98,7 +98,7 @@ export default function TaskDetailModal({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl">
@@ -173,10 +173,10 @@ export default function TaskDetailModal({
                                             <div
                                                 key={date}
                                                 className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
-                                                        ? 'bg-green-500 text-white'
-                                                        : isToday
-                                                            ? 'bg-blue-100 border-2 border-blue-500'
-                                                            : 'bg-gray-100 text-gray-400'
+                                                    ? 'bg-green-500 text-white'
+                                                    : isToday
+                                                        ? 'bg-blue-100 border-2 border-blue-500'
+                                                        : 'bg-gray-100 text-gray-400'
                                                     }`}
                                                 title={date}
                                             >
@@ -197,10 +197,10 @@ export default function TaskDetailModal({
                                             <div
                                                 key={date}
                                                 className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
-                                                        ? 'bg-green-500 text-white'
-                                                        : isToday
-                                                            ? 'bg-blue-100 border-2 border-blue-500'
-                                                            : 'bg-gray-100 text-gray-400'
+                                                    ? 'bg-green-500 text-white'
+                                                    : isToday
+                                                        ? 'bg-blue-100 border-2 border-blue-500'
+                                                        : 'bg-gray-100 text-gray-400'
                                                     }`}
                                                 title={date}
                                             >
@@ -221,10 +221,10 @@ export default function TaskDetailModal({
                                             <div
                                                 key={date}
                                                 className={`aspect-square rounded-md flex flex-col items-center justify-center text-xs relative ${isMarked
-                                                        ? 'bg-green-500 text-white'
-                                                        : isToday
-                                                            ? 'bg-blue-100 border-2 border-blue-500'
-                                                            : 'bg-gray-100 text-gray-400'
+                                                    ? 'bg-green-500 text-white'
+                                                    : isToday
+                                                        ? 'bg-blue-100 border-2 border-blue-500'
+                                                        : 'bg-gray-100 text-gray-400'
                                                     }`}
                                                 title={date}
                                             >
@@ -260,8 +260,8 @@ export default function TaskDetailModal({
                             onClick={handleMarkToday}
                             disabled={isTodayMarked}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${isTodayMarked
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    : 'bg-green-500 hover:bg-green-600 text-white'
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-green-500 hover:bg-green-600 text-white'
                                 }`}
                         >
                             <CheckCircle2 size={18} />
@@ -274,8 +274,8 @@ export default function TaskDetailModal({
                         onClick={handleComplete}
                         disabled={!canComplete()}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${canComplete()
-                                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                             }`}
                     >
                         <CheckCircle2 size={18} />
