@@ -72,7 +72,7 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
       return !!progressData?.message_sent;
     }
   },
-  'app_testing': {
+  app_testing: {
     description: 'Check if user visited all tabs and submitted a review',
     verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
       try {
@@ -88,11 +88,33 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
         // Expected tabs: goals, challenges, ai, wallet, social
         const visitedTabs = progressData?.visited_tabs || [];
         const requiredTabs = ['/goals', '/challenges', '/ai', '/wallet', '/social'];
-        const allVisited = requiredTabs.every(tab => visitedTabs.includes(tab));
+        const allVisited = requiredTabs.every((tab: string) => visitedTabs.includes(tab));
 
         return allVisited;
       } catch (error) {
         console.error('Error verifying app_testing:', error);
+        return false;
+      }
+    }
+  },
+
+  has_referral: {
+    description: 'Check if user has at least one referral',
+    verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
+      try {
+        const { count, error } = await supabase
+          .from('users')
+          .select('*', { count: 'exact', head: true })
+          .eq('referrer_id', userId);
+
+        if (error) {
+          console.error('Error verifying has_referral:', error);
+          return false;
+        }
+
+        return (count || 0) > 0;
+      } catch (error) {
+        console.error('Error verifying has_referral:', error);
         return false;
       }
     }

@@ -62,6 +62,17 @@ export async function joinChallengeAction(challengeId: string) {
             return { success: false, error: 'Not authenticated' };
         }
 
+        // Get user details for level check
+        const { data: dbUser, error: userError } = await supabase
+            .from('users')
+            .select('level')
+            .eq('id', user.user.id)
+            .single();
+
+        if (userError || !dbUser) {
+            return { success: false, error: 'User not found' };
+        }
+
         // Check if challenge exists and is available
         const { data: challenge, error: challengeError } = await supabase
             .from('challenges')
@@ -84,6 +95,12 @@ export async function joinChallengeAction(challengeId: string) {
 
         if (existingParticipation) {
             return { success: false, error: 'Already participating in this challenge' };
+        }
+
+        // Check if user level is sufficient
+        // If challenge.level is 0 or null, no restriction
+        if (challenge.level && challenge.level > 0 && (dbUser.level || 0) < challenge.level) {
+            return { success: false, error: `Level ${challenge.level} required to join this challenge` };
         }
 
         // Check if challenge is full
@@ -270,9 +287,13 @@ async function awardChallengeRewards(userId: string, challenge: any) {
         let newWalletBalance = user.wallet_balance || 0;
         let newAiCoreBalance = user.aicore_balance || 0;
 
-        // Parse core reward - expected format like "1$" (core tokens) or "1$+?" (guaranteed + random core)
+        // Parse core reward - expected format like "1$" (core tokens) or "1$+?" (guaranteed + random core) or "LEVEL"
         const rewardCore = challenge.reward_core;
-        if (typeof rewardCore === 'string') {
+
+        // Handle "LEVEL" reward type: Reward = Challenge Level ($), min $1
+        if (rewardCore === 'LEVEL') {
+            coreRewardAmount = Math.max(1, challenge.level || 1);
+        } else if (typeof rewardCore === 'string') {
             // Parse simple string format "1$" or "1$+?"
             const coreMatch = rewardCore.match(/^(\d+)\$/) || rewardCore.match(/^(\d+)\$\+\?/);
             if (coreMatch) {
