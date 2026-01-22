@@ -179,7 +179,7 @@ export async function updateParticipationAction(
         // Execute verification if available
         const verificationKey = challenge.verification_logic as string;
         if (status === 'completed' && verificationKey && typeof verificationKey === 'string') {
-            logger.info('Executing verification for challenge:', challenge.id);
+            logger.info(`[Challenges] Executing verification for challenge ${challenge.id} with key ${verificationKey}`);
 
             // Execute verification
             const isVerified = await executeVerification(verificationKey, {
@@ -189,7 +189,7 @@ export async function updateParticipationAction(
                 progressData: progressData || participation.progress_data
             });
 
-            logger.info('Verification result:', isVerified);
+            logger.info(`[Challenges] Verification result for ${challenge.id}: ${isVerified}`);
 
             if (!isVerified) {
                 return { success: false, error: 'Verification failed. Challenge requirements not met.' };

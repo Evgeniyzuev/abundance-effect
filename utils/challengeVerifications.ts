@@ -102,19 +102,26 @@ export const CHALLENGE_VERIFICATIONS: Record<string, ChallengeVerification> = {
     description: 'Check if user has at least one referral',
     verify: async (userId: string, challengeData: any, supabase: any, progressData?: any) => {
       try {
-        const { count, error } = await supabase
+        console.log(`[Verification] Checking referrals for user: ${userId}`);
+
+        // Use a simple select instead of count: 'exact' to be more robust
+        const { data, error } = await supabase
           .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('referrer_id', userId);
+          .select('id')
+          .eq('referrer_id', userId)
+          .limit(1);
 
         if (error) {
-          console.error('Error verifying has_referral:', error);
+          console.error('[Verification] Error verifying has_referral:', error);
           return false;
         }
 
-        return (count || 0) > 0;
+        const hasReferral = data && data.length > 0;
+        console.log(`[Verification] User ${userId} has referrals: ${hasReferral}`);
+
+        return !!hasReferral;
       } catch (error) {
-        console.error('Error verifying has_referral:', error);
+        console.error('[Verification] Catch error verifying has_referral:', error);
         return false;
       }
     }
