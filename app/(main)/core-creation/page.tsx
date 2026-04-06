@@ -45,8 +45,8 @@ export default function CoreCreationPage() {
     }, [user, refreshUser, isCreating]);
 
     const handleClosePage = () => {
-        // Just redirect to challenges - core creation happens asynchronously
-        router.push('/challenges');
+        // Redirect to goals after core creation (Notes is the default tab there)
+        router.push('/goals');
     };
 
     return (

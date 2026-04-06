@@ -50,8 +50,8 @@ export async function GET(request: Request) {
                 if (userData.aicore_balance === 0) {
                     redirectUrl = '/core-creation';
                 } else {
-                    // If user already has core, redirect to challenges
-                    redirectUrl = '/challenges';
+                    // If user already has core, redirect to goals (Notes is default tab there)
+                    redirectUrl = '/goals';
                 }
             }
 

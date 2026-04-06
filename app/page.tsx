@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { languages } from '@/utils/translations';
 import { Shield, Globe, Heart } from 'lucide-react';
+import { STORAGE_KEYS } from '@/utils/storage';
 
 const ONBOARDING_SKIP_KEY = 'abundance_skip_onboarding';
 
@@ -98,7 +99,7 @@ function HeroSection({ isSkipChecked, onSkipToggle }: { isSkipChecked: boolean, 
           href={
             !user ? "/login" :
               user.aicore_balance === 0 ? "/core-creation" :
-                "/challenges"
+                "/goals"
           }
           className="inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-8 py-4 rounded-2xl text-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg hover:shadow-xl"
         >
@@ -473,7 +474,7 @@ function CtaSection({ isSkipChecked, onSkipToggle }: { isSkipChecked: boolean, o
             href={
               !user ? "/login" :
                 user.aicore_balance === 0 ? "/core-creation" :
-                  "/challenges"
+                  "/goals"
             }
             className="inline-flex items-center gap-3 bg-white text-gray-900 font-bold px-8 py-4 rounded-2xl text-lg hover:bg-gray-100 transition-colors shadow-lg"
           >
@@ -503,23 +504,31 @@ function HomeContent() {
   const { t } = useLanguage();
   const router = useRouter();
   const [skipOnboarding, setSkipOnboarding] = useState<boolean | null>(null);
+  const [hasCachedUser, setHasCachedUser] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const skipValue = localStorage.getItem(ONBOARDING_SKIP_KEY) === 'true';
       setSkipOnboarding(skipValue);
+      setHasCachedUser(!!localStorage.getItem(STORAGE_KEYS.USER_AUTH_CACHE));
     }
   }, []);
 
   useEffect(() => {
-    // Redirect logic: only if skipOnboarding is true AND user state is determined
-    if (skipOnboarding === true && !isLoading) {
-      const destination = !user ? "/login" :
-        user.aicore_balance === 0 ? "/core-creation" :
-          "/challenges";
+    // Offline-first redirect:
+    // If onboarding is skipped and we have cached user auth, go to app immediately.
+    // Server auth/session sync continues in background via UserContext.
+    if (skipOnboarding === true) {
+      const destination = hasCachedUser
+        ? "/goals"
+        : (!isLoading
+          ? (!user ? "/login" : (user.aicore_balance === 0 ? "/core-creation" : "/goals"))
+          : null);
+
+      if (!destination) return;
       router.replace(destination);
     }
-  }, [skipOnboarding, isLoading, user, router]);
+  }, [skipOnboarding, hasCachedUser, isLoading, user, router]);
 
   const handleSkipToggle = (val: boolean) => {
     setSkipOnboarding(val);
