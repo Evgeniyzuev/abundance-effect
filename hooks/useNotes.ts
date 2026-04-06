@@ -19,10 +19,26 @@ interface NotesCache {
     timestamp: number;
 }
 
+function getInitialNotesCache(): { notes: UserNote[]; customLists: CustomList[] } {
+    if (typeof window === 'undefined') {
+        return { notes: [], customLists: [] };
+    }
+
+    const cached = storage.get<NotesCache>(STORAGE_KEYS.NOTES_CACHE);
+    if (!cached) {
+        return { notes: [], customLists: [] };
+    }
+
+    return {
+        notes: cached.notes || [],
+        customLists: cached.lists || []
+    };
+}
+
 export function useNotes() {
     const { user } = useUser();
-    const [notes, setNotes] = useState<UserNote[]>([]);
-    const [customLists, setCustomLists] = useState<CustomList[]>([]);
+    const [notes, setNotes] = useState<UserNote[]>(() => getInitialNotesCache().notes);
+    const [customLists, setCustomLists] = useState<CustomList[]>(() => getInitialNotesCache().customLists);
 
     const loadFromCache = useCallback(() => {
         const cached = storage.get<NotesCache>(STORAGE_KEYS.NOTES_CACHE);

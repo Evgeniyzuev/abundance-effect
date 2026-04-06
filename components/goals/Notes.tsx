@@ -16,7 +16,6 @@ export default function Notes() {
     const {
         notes,
         customLists,
-        loadFromCache,
         fetchNotes,
         addNote,
         updateNote,
@@ -48,9 +47,8 @@ export default function Notes() {
     const isLongPress = useRef(false);
 
     useEffect(() => {
-        loadFromCache();
         fetchNotes();
-    }, [user, loadFromCache, fetchNotes]);
+    }, [user, fetchNotes]);
 
     const handleTouchStart = (list: CustomList) => {
         isLongPress.current = false;

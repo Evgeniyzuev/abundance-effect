@@ -11,7 +11,7 @@ import Results from '@/components/goals/Results';
 type Tab = 'wishboard' | 'notes' | 'tasks' | 'roadmap' | 'results';
 
 export default function GoalsPage() {
-    const [activeTab, setActiveTab] = useState<Tab>('wishboard');
+    const [activeTab, setActiveTab] = useState<Tab>('notes');
     const [resultsMenuOpen, setResultsMenuOpen] = useState(true);
 
     const handleTabChange = (tab: Tab) => {
